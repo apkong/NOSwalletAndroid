@@ -1,39 +1,13 @@
 # Nano Android Wallet
 
-## Setup
+we plan to divide the project in several phases:
 
-* Clone the repository
-* Add file `app/fabric.properties` with `apiKey=<your_api_key>` where `<your_api_key>` is your Fabric api key
-* Open in Android Studio
+   1. Basic functionality
 
-### Building From the command line
+   2. Beauty
 
-* Execute `./gradlew assembleDebug` to create a debug APK
+   3. KYC
 
-### Contributing
+   4. Optimization
 
-All Nano Wallet development happens on GitHub. Contributions make for good karma and
-we welcome new contributors. We take contributors seriously, and thus have a
-contributor [code of conduct](CODE_OF_CONDUCT.md).
-
-* Fork the codebase
-* Make changes
-* Submit a pull request for review
-
-### Links
-
-| Link | Description |
-| :----- | :------ |
-[NanoWalletCompany.com](https://nanowalletcompany.com/) | Nano Wallet Company Homepage
-[Nano.org](https://nano.org/) | Nano Homepage
-[@NanoWalletCo](https://twitter.com/nanowalletco) | Follow Nano on Twitter to stay up to date.
-[Releases](https://github.com/nano-wallet-company/nano-wallet-android/releases) | Check out the releases and their changelogs.
-[Code of Conduct](CODE_OF_CONDUCT.md) | Find out the standards we hold ourselves to.
-
-### Have a question?
-
-If you need any help, please visit our [GitHub Issues](https://github.com/nano-wallet-company/nano-wallet-android/issues) or the [Nano #support channel](https://chat.nano.org). Feel free to file an issue if you do not manage to find any solution.
-
-### License
-
-Nano Wallet is released under the [BSD-2 License](https://github.com/nano-wallet-company/nano-wallet-android/blob/master/LICENSE)
+   5. Security
