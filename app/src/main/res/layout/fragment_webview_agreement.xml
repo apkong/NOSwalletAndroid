@@ -65,9 +65,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <Button
+            <TextView
                 android:id="@+id/webview_agreement_accept_button"
-                style="@style/SmallButton"
+                style="@style/LargeButton"
                 android:layout_width="match_parent"
                 android:layout_margin="34dp"
                 android:enabled="false"
