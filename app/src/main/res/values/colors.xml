@@ -10,7 +10,7 @@
     <color name="light_gray">#eeeeee</color>
     <color name="kiwi_green_light">#EAFAD9</color>
     <color name="very_dark_blue_two">#000031</color>
-    <color name="bright_white">#ffffff</color>
+    <color name="bright_white">#eeeeee</color>
     <color name="translucent_white">#33ffffff</color>
     <color name="semitranslucent_white">#80ffffff</color>
     <color name="semitranslucent_black">#80000000</color>

@@ -170,7 +170,7 @@ public class HomeFragment extends BaseFragment {
         // set status bar to blue
         setStatusBarBlue();
         setTitle("");
-        setTitleDrawable(R.drawable.ic_logo_toolbar);
+        //setTitleDrawable(R.drawable.ic_launcher192);
         setBackEnabled(false);
 
         // inflate the view
