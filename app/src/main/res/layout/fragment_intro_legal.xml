@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <!-- Click Listeners -->
+        <variable
+            name="handlers"
+            type="co.nos.noswallet.ui.intro.IntroLegalFragment.ClickHandlers" />
+        <!-- Data -->
+        <variable
+            name="seed"
+            type="String" />
+    </data>
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/intro_legal_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bright_white"
+        android:fillViewport="true">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bright_white"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/intro_legal_title"
+                style="@style/TextStyle22"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/intro_legal_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/intro_legal_description"
+                style="@style/TextStyle23"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/intro_legal_description"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/intro_legal_title" />
+
+            <CheckBox
+                android:id="@+id/intro_legal_checkbox_eula"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:onCheckedChanged="@{handlers::onEULACheckChanged}"
+                android:onClick="@{handlers::onEULALinkClicked}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/intro_legal_description" />
+
+            <TextView
+                android:id="@+id/intro_legal_label_eula"
+                style="@style/TextStyle21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:onClickListener="@{handlers::onEULALinkClicked}"
+                android:text="@string/intro_legal_checkbox_eula_label"
+                android:textColor="@color/dark_sky_blue"
+                app:layout_constraintBottom_toBottomOf="@+id/intro_legal_checkbox_eula"
+                app:layout_constraintStart_toEndOf="@+id/intro_legal_checkbox_eula"
+                app:layout_constraintTop_toTopOf="@+id/intro_legal_checkbox_eula" />
+
+            <CheckBox
+                android:id="@+id/intro_legal_checkbox_pp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:onCheckedChanged="@{handlers::onPPCheckChanged}"
+                android:onClick="@{handlers::onPPLinkClicked}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/intro_legal_checkbox_eula" />
+
+            <TextView
+                android:id="@+id/intro_legal_label_pp"
+                style="@style/TextStyle21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:onClickListener="@{handlers::onPPLinkClicked}"
+                android:text="@string/intro_legal_checkbox_pp_label"
+                android:textColor="@color/dark_sky_blue"
+                app:layout_constraintBottom_toBottomOf="@+id/intro_legal_checkbox_pp"
+                app:layout_constraintStart_toEndOf="@+id/intro_legal_checkbox_pp"
+                app:layout_constraintTop_toTopOf="@+id/intro_legal_checkbox_pp" />
+
+            <TextView
+                android:id="@+id/intro_legal_button_deny"
+                style="@style/LargeButton"
+                android:layout_width="0dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/bg_large_button_gray"
+                android:onClick="@{handlers::onClickDeny}"
+                android:text="@string/intro_legal_deny"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/intro_legal_button_confirm"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintVertical_chainStyle="spread" />
+
+            <TextView
+                android:id="@+id/intro_legal_button_confirm"
+                style="@style/LargeButton"
+                android:layout_width="0dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:enabled="false"
+                android:onClick="@{handlers::onClickConfirm}"
+                android:text="@string/intro_legal_confirm"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="0.5"
+                app:layout_constraintStart_toEndOf="@+id/intro_legal_button_deny"
+                app:layout_constraintVertical_chainStyle="spread" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/intro_legal_guideline_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.1" />
+
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v4.widget.NestedScrollView>
+</layout>

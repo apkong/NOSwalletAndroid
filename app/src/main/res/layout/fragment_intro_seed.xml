@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <!-- Click Listeners -->
+        <variable
+            name="handlers"
+            type="co.nos.noswallet.ui.intro.IntroSeedFragment.ClickHandlers" />
+        <!-- Data -->
+        <variable
+            name="steps"
+            type="String" />
+    </data>
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/intro_seed_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bright_white"
+        android:fillViewport="true">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="45dp"
+            android:paddingRight="45dp">
+
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/intro_seed_logo"
+                android:layout_width="104dp"
+                android:layout_height="44dp"
+                android:layout_marginBottom="52dp"
+                android:contentDescription="@string/app_name"
+                app:layout_constraintBottom_toTopOf="@+id/intro_seed_seed"
+                app:layout_constraintEnd_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintStart_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.396"
+                app:srcCompat="@drawable/ic_logo" />
+
+            <TextView
+                android:id="@+id/intro_seed_steps"
+                style="@style/TextStyle4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="34dp"
+                android:alpha="0.35"
+                android:text="@{steps}"
+                app:layout_constraintEnd_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintStart_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintTop_toBottomOf="@+id/intro_seed_logo"
+                tools:text="1 / 2" />
+
+            <TextView
+                android:id="@+id/intro_seed_title"
+                style="@style/TextStyle5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:lineSpacingExtra="-7dp"
+                android:text="@string/intro_seed_title"
+                app:layout_constraintEnd_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintStart_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintTop_toBottomOf="@+id/intro_seed_steps" />
+
+            <TextView
+                android:id="@+id/intro_seed_label"
+                style="@style/TextStyle6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="@string/intro_seed_seed_label"
+                android:textAllCaps="true"
+                app:layout_constraintBottom_toTopOf="@+id/intro_seed_seed"
+                app:layout_constraintEnd_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintStart_toStartOf="@+id/intro_seed_guideline_vert" />
+
+            <EditText
+                android:id="@+id/intro_seed_seed"
+                style="@style/SeedInput"
+                android:layout_height="100dp"
+                android:layout_marginTop="10dp"
+                android:afterTextChanged="@{handlers::afterSeedTextChanged}"
+                android:hint="@string/intro_seed_seed_hint"
+                android:inputType="textNoSuggestions|textCapCharacters|textMultiLine"
+                android:onTextChanged="@{handlers::onSeedTextChanged}"
+                app:layout_constraintBottom_toTopOf="@+id/intro_seed_button_confirm"
+                app:layout_constraintEnd_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintStart_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintTop_toBottomOf="@+id/intro_seed_title" />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/intro_seed_icon_check"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="43dp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="@+id/intro_seed_seed"
+                app:layout_constraintTop_toTopOf="@+id/intro_seed_seed"
+                app:srcCompat="@drawable/ic_check"
+                tools:visibility="visible" />
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/intro_seed_button_camera"
+                android:layout_width="37dp"
+                android:layout_height="100dp"
+                android:background="@android:color/transparent"
+                android:onClick="@{handlers::onClickCamera}"
+                android:paddingBottom="43dp"
+                android:paddingEnd="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="43dp"
+                app:layout_constraintEnd_toEndOf="@+id/intro_seed_seed"
+                app:layout_constraintTop_toTopOf="@+id/intro_seed_seed"
+                app:srcCompat="@drawable/ic_camera" />
+
+            <TextView
+                android:id="@+id/intro_seed_button_confirm"
+                style="@style/LargeButton"
+                android:layout_marginTop="15dp"
+                android:enabled="false"
+                android:onClick="@{handlers::onClickConfirm}"
+                android:text="@string/intro_seed_confirm_cta"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintStart_toStartOf="@+id/intro_seed_guideline_vert"
+                app:layout_constraintTop_toBottomOf="@+id/intro_seed_seed" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/intro_seed_guideline_vert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v4.widget.NestedScrollView>
+</layout>
