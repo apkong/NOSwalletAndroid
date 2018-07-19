@@ -23,7 +23,12 @@ public class Credentials extends RealmObject {
     private String newlyGeneratedSeed;
     private Boolean hasSentToNewSeed;
 
-    public static final List<Character> VALID_SEED_CHARACTERS = Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+    public static final List<Character> VALID_SEED_CHARACTERS = Arrays.asList(
+            'a', 'b', 'c', 'd', 'e', 'f',
+            //'g','h','i','j','k','l',
+           // 'm', 'n', 'o', 'q', 'p', 'r', 's', 't', 'v', 'w', 'u', 'x', 'y', 'z',
+           // '_',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
     public Credentials() {
     }

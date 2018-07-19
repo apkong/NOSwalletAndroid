@@ -3,6 +3,7 @@ package co.nos.noswallet.network;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.LinkedTreeMap;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -60,22 +62,6 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.util.ExceptionHandler;
 import co.nos.noswallet.util.NumberUtil;
 import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.network.model.BlockTypes;
-import co.nos.noswallet.network.model.request.AccountHistoryRequest;
-import co.nos.noswallet.network.model.request.GetBlocksInfoRequest;
-import co.nos.noswallet.network.model.request.PendingTransactionsRequest;
-import co.nos.noswallet.network.model.request.ProcessRequest;
-import co.nos.noswallet.network.model.request.SubscribeRequest;
-import co.nos.noswallet.network.model.request.WorkRequest;
-import co.nos.noswallet.network.model.request.block.Block;
-import co.nos.noswallet.network.model.request.block.OpenBlock;
-import co.nos.noswallet.network.model.request.block.ReceiveBlock;
-import co.nos.noswallet.network.model.request.block.SendBlock;
-import co.nos.noswallet.network.model.request.block.StateBlock;
-import co.nos.noswallet.network.model.response.BlockItem;
-import co.nos.noswallet.network.model.response.CurrentPriceResponse;
-import co.nos.noswallet.network.model.response.WarningResponse;
-import co.nos.noswallet.network.model.response.WorkResponse;
 import io.realm.Realm;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -90,6 +76,8 @@ import timber.log.Timber;
 
 public class AccountService {
     public static final int TIMEOUT_MILLISECONDS = 5000;
+
+    public static final String TAG = "AccountService";
 
     private WebSocket websocket;
     private boolean connected = false;
@@ -158,7 +146,8 @@ public class AccountService {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
                 super.onOpen(webSocket, response);
-                if (response.code() == 101) {
+                Log.d(TAG, "onOpen() called with: webSocket = [" + webSocket + "], response = [" + response + "]");
+                if (response.code() == 101 || response.code() == 200) {
                     Timber.d("OPENED");
                     connected = true;
                     requestUpdate();
@@ -168,6 +157,7 @@ public class AccountService {
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 super.onMessage(webSocket, text);
+                Log.d(TAG, "onMessage() called with: webSocket = [" + webSocket + "], text = [" + text + "]");
                 Timber.d("RECEIVED %s", text);
                 handleMessage(text);
             }
@@ -175,12 +165,14 @@ public class AccountService {
             @Override
             public void onClosing(WebSocket webSocket, int code, String reason) {
                 super.onClosing(webSocket, code, reason);
+                Log.d(TAG, "onClosing() called with: webSocket = [" + webSocket + "], code = [" + code + "], reason = [" + reason + "]");
                 Timber.d("CLOSING");
             }
 
             @Override
             public void onClosed(WebSocket webSocket, int code, String reason) {
                 super.onClosed(webSocket, code, reason);
+                Log.d(TAG, "onClosed() called with: webSocket = [" + webSocket + "], code = [" + code + "], reason = [" + reason + "]");
                 connected = false;
                 switch (code) {
                     case 1000: // CLOSE_NORMAL
@@ -195,6 +187,8 @@ public class AccountService {
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
                 super.onFailure(webSocket, t, response);
+                Log.d(TAG, "onFailure() called with: webSocket = [" + webSocket + "], t = [" + t + "], response = [" + response + "]");
+                System.err.println("onFailure: " + t + ", response: " + responseString(response));
                 ExceptionHandler.handle(t);
                 if (connected && (t instanceof SocketTimeoutException ||
                         t instanceof UnknownHostException)) {
@@ -217,6 +211,17 @@ public class AccountService {
         client.dispatcher().executorService().shutdown();
 
         processQueue();
+    }
+
+    private String responseString(Response response) {
+        if (response == null) return "";
+        if (response.body() == null) return "" + response.code();
+        try {
+            return response.code() + " " + response.body().string();
+        } catch (IOException e) {
+
+        }
+        return "" + response.code();
     }
 
     /**
@@ -316,7 +321,7 @@ public class AccountService {
      */
     private void handleBlocksInfoResponse(BlocksInfoResponse blocksInfo) {
         HashMap<String, BlockInfoItem> blocks = blocksInfo.getBlocks();
-        if (blocks.size () != 1) {
+        if (blocks.size() != 1) {
             ExceptionHandler.handle(new Exception("unexpected amount of blocks in blocks_info response"));
             requestQueue.poll();
             requestQueue.poll();
@@ -590,7 +595,7 @@ public class AccountService {
                         processQueue();
                     } else if ((requestItem.getRequest() instanceof StateBlock) &&
                             (((Block) requestItem.getRequest()).getInternal_block_type() == BlockTypes.SEND ||
-                            ((Block) requestItem.getRequest()).getInternal_block_type() == BlockTypes.RECEIVE) &&
+                                    ((Block) requestItem.getRequest()).getInternal_block_type() == BlockTypes.RECEIVE) &&
                             ((StateBlock) requestItem.getRequest()).getBalance() == null) {
                         ExceptionHandler.handle(new Exception("Head block request failed."));
                         requestQueue.poll();
@@ -688,7 +693,7 @@ public class AccountService {
         requestQueue.add(new RequestItem<>(new WorkRequest(previous)));
 
         // create a get_block request
-        requestQueue.add(new RequestItem<>(new GetBlocksInfoRequest(new String[] {previous})));
+        requestQueue.add(new RequestItem<>(new GetBlocksInfoRequest(new String[]{previous})));
 
         // create a state block for receiving
         requestQueue.add(new RequestItem<>(new StateBlock(
@@ -714,7 +719,7 @@ public class AccountService {
         requestQueue.add(new RequestItem<>(new WorkRequest(previous)));
 
         // create a get_block request
-        requestQueue.add(new RequestItem<>(new GetBlocksInfoRequest(new String[] {previous})));
+        requestQueue.add(new RequestItem<>(new GetBlocksInfoRequest(new String[]{previous})));
 
         // create a state block for sending
         requestQueue.add(new RequestItem<>(new StateBlock(
@@ -732,8 +737,8 @@ public class AccountService {
     /**
      * Make a no-op request
      *
-     * @param previous    Previous hash
-     * @param balance     Current Wallet Balance
+     * @param previous       Previous hash
+     * @param balance        Current Wallet Balance
      * @param representative Represnetative
      */
     public void requestChange(String previous, BigInteger balance, String representative, boolean noop) {
@@ -742,7 +747,7 @@ public class AccountService {
 
         if (!noop) {
             // create a get_block request
-            requestQueue.add(new RequestItem<>(new GetBlocksInfoRequest(new String[] {previous})));
+            requestQueue.add(new RequestItem<>(new GetBlocksInfoRequest(new String[]{previous})));
         }
 
         // create a state block for sending
@@ -825,7 +830,7 @@ public class AccountService {
         for (RequestItem item : requestQueue) {
             if (item.getRequest() instanceof OpenBlock ||
                     (item.getRequest() instanceof StateBlock &&
-                    ((StateBlock) item.getRequest()).getInternal_block_type().equals(BlockTypes.OPEN))) {
+                            ((StateBlock) item.getRequest()).getInternal_block_type().equals(BlockTypes.OPEN))) {
                 return true;
             }
         }
@@ -904,7 +909,7 @@ public class AccountService {
             } else if (o != null && o instanceof WorkRequest) {
                 ((WorkRequest) o).setHash(frontier);
             } else if (o != null && o instanceof GetBlocksInfoRequest) {
-                ((GetBlocksInfoRequest) o).setHashes(new String[] {frontier});
+                ((GetBlocksInfoRequest) o).setHashes(new String[]{frontier});
             }
         }
     }

@@ -33,15 +33,6 @@ import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.home.HomeFragment;
 import co.nos.noswallet.util.ExceptionHandler;
 import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseFragment;
-import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.util.ExceptionHandler;
-import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
 /**
