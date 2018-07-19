@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <!-- Click Listeners -->
+        <variable
+            name="handlers"
+            type="co.nos.noswallet.kyc.KnowYourCustomerActivity.ClickHandlers" />
+        <!-- Data -->
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/kyc_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:onClick="@{handlers::onBackClicked}"
+                android:id="@+id/kyc_back_button"
+                android:layout_width="@dimen/image_default_width"
+                android:layout_height="@dimen/image_default_width"
+                app:srcCompat="@drawable/arrow_left_black" />
+
+            <SeekBar
+                android:id="@+id/kyc_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:thumb="@null"
+                tools:progress="33" />
+        </android.support.v7.widget.Toolbar>
+
+        <FrameLayout
+            android:id="@+id/kyc_frame_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/kyc_toolbar" />
+
+    </RelativeLayout>
+</layout>

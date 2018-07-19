@@ -151,4 +151,36 @@
     <string name="seed_reminder_alert_neutral_cta">Okay</string>
     <string name="seed_reminder_alert_confirm_cta">Log Out</string>
 
+    <string name="create_new_account">Create new account</string>
+    <string name="create_account">Create account</string>
+    <string name="error_render_qr_code">Failed to render QR code, try again later</string>
+    <string name="select_account">Select account</string>
+    <string name="no_accounts">No accounts</string>
+    <string name="your_account_ready">Your NOS account is ready</string>
+    <string name="done">Done</string>
+    <string name="country_prefix">Country</string>
+    <string name="phone_number_hint">Phone number</string>
+    <string name="welcome_to_nos">Welcome to NOS!</string>
+    <string name="skip_signup">Skip Signup</string>
+    <string name="got_a_new_phone_number">Got a new phone number?</string>
+    <string name="_continue">Continue</string>
+    <string name="personal_data">What\'s your personal data?</string>
+    <string name="first_name_hint">First name</string>
+    <string name="last_name_hint">Last name</string>
+    <string name="birthdate_hint">Birthdate</string>
+    <string name="whats_your_address">What\'s your address?</string>
+    <string name="whats_your_email_address">What\'s your email address?</string>
+    <string name="finish">Finish</string>
+    <string name="email_address_hint">E-Mail</string>
+    <string name="email_invalid">Email invalid</string>
+    <string name="postal_code">Postal code</string>
+    <string name="address_line_1_hint">Address part 1</string>
+    <string name="address_line_2_hint">Address part 2(Optional)</string>
+    <string name="address_street_hint">Street</string>
+    <string name="address_region_hint">Region</string>
+    <string name="enter_6_digit_code">Enter the 6-digit code</string>
+    <string name="resend_code">Resend code</string>
+    <string name="enter_pin">Enter your pin code</string>
+
+
 </resources>
