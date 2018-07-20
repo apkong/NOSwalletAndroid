@@ -56,7 +56,7 @@
         android:layout_toRightOf="@+id/create_account_pick_prefix_dropdown"
         android:text="@string/phone_number_hint" />
 
-    <pl.marchuck.cryptoapp.base.view.InputLayout
+    <co.nos.noswallet.ui.common.InputLayout
         android:id="@+id/item_create_account_phone"
         style="@style/text_input_layout_default"
         android:layout_width="match_parent"

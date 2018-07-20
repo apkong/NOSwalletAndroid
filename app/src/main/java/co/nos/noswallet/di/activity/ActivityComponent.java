@@ -3,20 +3,13 @@ package co.nos.noswallet.di.activity;
 import com.google.gson.Gson;
 
 import co.nos.noswallet.MainActivity;
-import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.di.application.ApplicationComponent;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.ui.home.HomeFragment;
-import co.nos.noswallet.ui.intro.IntroLegalFragment;
-import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
-import co.nos.noswallet.ui.intro.IntroSeedFragment;
-import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
-import co.nos.noswallet.ui.pin.CreatePinDialogFragment;
-import co.nos.noswallet.ui.pin.PinDialogFragment;
-import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
-import co.nos.noswallet.ui.send.SendFragment;
-import co.nos.noswallet.ui.settings.SettingsDialogFragment;
+import co.nos.noswallet.kyc.KnowYourCustomerActivity;
+import co.nos.noswallet.kyc.KycUserDataRepository;
+import co.nos.noswallet.kyc.identity.IdentityFragment;
+import co.nos.noswallet.kyc.phoneNumber.PhoneNumberFragment;
+import co.nos.noswallet.kyc.pinKeyboard.PinKeyboardFragment;
+import co.nos.noswallet.kyc.smsCode.SmsCodeFragment;
 import co.nos.noswallet.model.NanoWallet;
 import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.home.HomeFragment;
@@ -31,11 +24,15 @@ import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import dagger.Component;
 
-@Component(modules = {ActivityModule.class}, dependencies = {ApplicationComponent.class})
+@Component(modules = {ActivityModule.class},
+        dependencies = {ApplicationComponent.class})
 @ActivityScope
 public interface ActivityComponent {
     @ActivityScope
     AccountService provideAccountService();
+
+    @ActivityScope
+    KycUserDataRepository provideKycUserDataRepository();
 
     // wallet
     NanoWallet provideNanoWallet();
@@ -68,4 +65,14 @@ public interface ActivityComponent {
     void inject(SendFragment sendFragment);
 
     void inject(SettingsDialogFragment settingsDialogFragment);
+
+    void inject(PhoneNumberFragment phoneNumberFragment);
+
+    void inject(PinKeyboardFragment pinKeyboardFragment);
+
+    void inject(SmsCodeFragment smsCodeFragment);
+
+    void inject(IdentityFragment identityFragment);
+
+    void inject(KnowYourCustomerActivity knowYourCustomerActivity);
 }

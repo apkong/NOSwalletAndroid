@@ -28,6 +28,7 @@
                 app:srcCompat="@drawable/arrow_left_black" />
 
             <SeekBar
+                android:theme="@style/AppTheme.Orange"
                 android:id="@+id/kyc_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -2,18 +2,18 @@ package co.nos.noswallet;
 
 import android.content.Context;
 import android.support.multidex.MultiDexApplication;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Base64;
 
 import com.github.ajalt.reprint.core.Reprint;
 
-import co.nos.noswallet.BuildConfig;
+import co.nos.noswallet.di.activity.ActivityComponent;
+import co.nos.noswallet.di.activity.ActivityModule;
+import co.nos.noswallet.di.activity.DaggerActivityComponent;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.di.application.ApplicationModule;
 import co.nos.noswallet.di.application.DaggerApplicationComponent;
-import co.nos.noswallet.util.Vault;
-import co.nos.noswallet.di.application.ApplicationComponent;
-import co.nos.noswallet.di.application.ApplicationModule;
 import co.nos.noswallet.util.Vault;
 import io.realm.Realm;
 import timber.log.Timber;
@@ -22,7 +22,7 @@ import timber.log.Timber;
  * Any custom application logic can go here
  */
 
-public class NanoApplication extends MultiDexApplication {
+public class NOSApplication extends MultiDexApplication {
     private ApplicationComponent mApplicationComponent;
 
     public void onCreate() {
@@ -73,7 +73,16 @@ public class NanoApplication extends MultiDexApplication {
         return mApplicationComponent;
     }
 
-    public static NanoApplication getApplication(Context context) {
-        return (NanoApplication) context.getApplicationContext();
+    public static NOSApplication getApplication(Context context) {
+        return (NOSApplication) context.getApplicationContext();
     }
+
+    public static ActivityComponent createActivityComponent(FragmentActivity activity) {
+        return DaggerActivityComponent
+                .builder()
+                .applicationComponent(NOSApplication.getApplication(activity).getApplicationComponent())
+                .activityModule(new ActivityModule(activity))
+                .build();
+    }
+
 }

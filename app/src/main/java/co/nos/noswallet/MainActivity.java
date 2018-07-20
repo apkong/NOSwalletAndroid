@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.bus.HideOverlay;
@@ -31,27 +30,6 @@ import co.nos.noswallet.bus.ShowOverlay;
 import co.nos.noswallet.di.activity.ActivityComponent;
 import co.nos.noswallet.di.activity.ActivityModule;
 import co.nos.noswallet.di.activity.DaggerActivityComponent;
-import co.nos.noswallet.di.application.ApplicationComponent;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.FragmentUtility;
-import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.home.HomeFragment;
-import co.nos.noswallet.ui.intro.IntroLegalFragment;
-import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
-import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
-import co.nos.noswallet.ui.webview.WebViewDialogFragment;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.HideOverlay;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.OpenWebView;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SeedCreatedWithAnotherWallet;
-import co.nos.noswallet.bus.ShowOverlay;
-import co.nos.noswallet.di.activity.ActivityComponent;
-import co.nos.noswallet.di.activity.ActivityModule;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
@@ -99,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         // build the activity component
         mActivityComponent = DaggerActivityComponent
                 .builder()
-                .applicationComponent(NanoApplication.getApplication(this).getApplicationComponent())
+                .applicationComponent(NOSApplication.getApplication(this).getApplicationComponent())
                 .activityModule(new ActivityModule(this))
                 .build();
 
@@ -361,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
             // build the activity component
             mActivityComponent = DaggerActivityComponent
                     .builder()
-                    .applicationComponent(NanoApplication.getApplication(this).getApplicationComponent())
+                    .applicationComponent(NOSApplication.getApplication(this).getApplicationComponent())
                     .activityModule(new ActivityModule(this))
                     .build();
         }
@@ -370,6 +348,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
     @Override
     public ApplicationComponent getApplicationComponent() {
-        return NanoApplication.getApplication(this).getApplicationComponent();
+        return NOSApplication.getApplication(this).getApplicationComponent();
     }
 }

@@ -6,7 +6,10 @@
     <color name="very_dark_blue">#000034</color>
     <color name="burnt_yellow">#e1990e</color>
     <color name="white">#eeeeee</color>
+
     <color name="gray">#cccccc</color>
+    <color name="grey">#757575</color>
+
     <color name="light_gray">#eeeeee</color>
     <color name="kiwi_green_light">#EAFAD9</color>
     <color name="very_dark_blue_two">#000031</color>
@@ -22,4 +25,9 @@
     <color name="colorPrimary">@color/bright_white</color>
     <color name="colorPrimaryDark">@color/bright_white</color>
     <color name="colorAccent">@color/dark_sky_blue</color>
+
+    <color name="colorOrangeStart">#E18531</color>
+    <color name="colorOrangeEnd">#EA6232</color>
+
+
 </resources>

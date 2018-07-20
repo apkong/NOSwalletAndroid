@@ -10,6 +10,16 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="AppTheme.Orange" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorOrangeEnd</item>
+        <item name="android:textColor">@color/very_dark_blue_two</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+
     <style name="AppOverlayTheme" parent="@style/Theme.AppCompat.Light">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -284,7 +294,7 @@
     <style name="SecondaryText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/gray</item>
+        <item name="android:textColor">@color/grey</item>
         <item name="android:textSize">16dp</item>
     </style>
 
@@ -349,6 +359,7 @@
         <item name="android:padding">@dimen/activity_medium_padding</item>
         <item name="android:singleLine">false</item>
     </style>
+
 
 
 </resources>

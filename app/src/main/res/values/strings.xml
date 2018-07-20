@@ -181,6 +181,11 @@
     <string name="enter_6_digit_code">Enter the 6-digit code</string>
     <string name="resend_code">Resend code</string>
     <string name="enter_pin">Enter your pin code</string>
+    <string name="enter_valid_phone_number">Please enter valid phone number</string>
+    <string name="you_can_resend_sms_code">You can resend your code, if not received within %d seconds</string>
+    <string name="sms_code_mismatch">Sms code mismatch</string>
+    <string name="field_cannot_be_blank">Field cannot be blank</string>
+    <string name="birthdate_invalid">Birthdate invalid</string>
 
 
 </resources>

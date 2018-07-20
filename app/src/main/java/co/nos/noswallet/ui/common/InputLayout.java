@@ -98,7 +98,7 @@ public class InputLayout extends TextInputLayout {
     }
 
     @NonNull
-    public String getText() {
+    public String getTrimmedText() {
         if (editText.getText() == null) {
             return "";
         }
@@ -170,5 +170,9 @@ public class InputLayout extends TextInputLayout {
     @SuppressLint("ClickableViewAccessibility")
     public void setOnEditTextTouchListener(OnTouchListener listener) {
         editText.setOnTouchListener(listener);
+    }
+
+    public boolean isEmpty() {
+        return getTrimmedText().isEmpty();
     }
 }
