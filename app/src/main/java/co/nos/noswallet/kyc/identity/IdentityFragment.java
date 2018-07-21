@@ -1,5 +1,6 @@
 package co.nos.noswallet.kyc.identity;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -56,13 +57,7 @@ public class IdentityFragment extends co.nos.noswallet.base.BaseFragment<KnowYou
         binding.identityLastName.setText(userDataRepository.lastName);
         binding.identityBirthdate.setText(userDataRepository.birthDate);
 
-        binding.identityBirthdate.setOnEditTextTouchListener((v, event) -> {
-            if (datePickerDialog == null || !datePickerDialog.isShowing()) {
-                onCalendarPicked();
-            }
-            return true;
-        });
-
+        setupBirthDateListener();
 
         watcher = new IdentityWatcher();
         binding.identityFirstName.addTextChangedListener(watcher);
@@ -70,6 +65,16 @@ public class IdentityFragment extends co.nos.noswallet.base.BaseFragment<KnowYou
         binding.identityBirthdate.addTextChangedListener(watcher);
 
         return view;
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void setupBirthDateListener() {
+        binding.identityBirthdate.setOnEditTextTouchListener((v, event) -> {
+            if (datePickerDialog == null || !datePickerDialog.isShowing()) {
+                onCalendarPicked();
+            }
+            return true;
+        });
     }
 
     void enableIdentity() {

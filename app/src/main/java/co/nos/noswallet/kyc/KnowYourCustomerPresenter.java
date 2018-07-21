@@ -4,7 +4,11 @@ import android.util.Log;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.MainActivity;
 import co.nos.noswallet.base.BasePresenter;
+import co.nos.noswallet.kyc.done.DoneFragment;
+import co.nos.noswallet.kyc.emailAddress.EmailAddressFragment;
+import co.nos.noswallet.kyc.homeAddress.HomeAddressFragment;
 import co.nos.noswallet.kyc.identity.IdentityFragment;
 import co.nos.noswallet.kyc.phoneNumber.PhoneNumberFragment;
 import co.nos.noswallet.kyc.pinKeyboard.PinKeyboardFragment;
@@ -44,9 +48,25 @@ public class KnowYourCustomerPresenter extends BasePresenter<KnowYourCustomerVie
                 view.navigateTo(new IdentityFragment());
                 break;
             }
+            case 4: {
+                view.navigateTo(new HomeAddressFragment());
+                break;
+            }
+            case 5: {
+                view.navigateTo(new EmailAddressFragment());
+                break;
+            }
+            case 6: {
+                view.navigateTo(new DoneFragment());
+                break;
+            }
+            case 7: {
+                view.startActivity(MainActivity.class);
+                return;
+            }
             default:
                 System.out.println("current position: " + currentPosition);
-                //view.exitScreen();
+                view.exitScreen();
                 return;
         }
 

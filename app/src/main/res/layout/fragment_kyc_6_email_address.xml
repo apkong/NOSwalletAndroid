@@ -1,43 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
+    <data>
+        <variable
+            name="handlers"
+            type="co.nos.noswallet.kyc.emailAddress.EmailAddressFragment.ClickHandlers"/>
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:background="@color/white">
+        android:layout_height="match_parent">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:background="@color/white">
+
+
+            <TextView
+                android:id="@+id/welcome_nos"
+                style="@style/BiggerText"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="@dimen/activity_default_padding"
+                android:text="@string/whats_your_email_address"
+                android:textSize="24dp" />
+
+            <co.nos.noswallet.ui.common.InputLayout
+                android:id="@+id/email_address_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/welcome_nos"
+                android:layout_marginLeft="@dimen/activity_default_padding"
+                android:layout_marginRight="@dimen/activity_default_padding"
+                android:hint="@string/email_address_hint"
+                android:inputType="textEmailAddress" />
+
+        </RelativeLayout>
 
         <TextView
-            android:id="@+id/welcome_nos"
-            style="@style/BiggerText"
+            android:id="@+id/kyc_1_continue"
+            style="@style/CancelButton"
+            android:onClick="@{handlers::onContinue}"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_margin="@dimen/activity_default_padding"
-            android:text="@string/whats_your_email_address"
-            android:textSize="24dp" />
-
-        <co.nos.noswallet.ui.common.InputLayout
-            android:id="@+id/email_address_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/welcome_nos"
-            android:layout_marginLeft="@dimen/activity_default_padding"
-            android:layout_marginRight="@dimen/activity_default_padding"
-            android:hint="@string/email_address_hint"
-            android:inputType="textEmailAddress" />
-
-    </RelativeLayout>
-
-    <TextView
-        android:id="@+id/kyc_1_continue"
-        style="@style/CancelButton"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center|bottom"
-        android:layout_marginBottom="32dp"
-        android:text="@string/finish"
-        app:layout_behavior="pl.marchuck.cryptoapp.base.ButtonUpBehavior" />
-</android.support.design.widget.CoordinatorLayout>
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="32dp"
+            android:text="@string/finish" />
+    </android.support.design.widget.CoordinatorLayout>
+</layout>

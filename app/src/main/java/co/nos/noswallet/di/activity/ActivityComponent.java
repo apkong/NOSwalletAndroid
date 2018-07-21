@@ -6,6 +6,9 @@ import co.nos.noswallet.MainActivity;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.kyc.KnowYourCustomerActivity;
 import co.nos.noswallet.kyc.KycUserDataRepository;
+import co.nos.noswallet.kyc.done.DoneFragment;
+import co.nos.noswallet.kyc.emailAddress.EmailAddressFragment;
+import co.nos.noswallet.kyc.homeAddress.HomeAddressFragment;
 import co.nos.noswallet.kyc.identity.IdentityFragment;
 import co.nos.noswallet.kyc.phoneNumber.PhoneNumberFragment;
 import co.nos.noswallet.kyc.pinKeyboard.PinKeyboardFragment;
@@ -75,4 +78,10 @@ public interface ActivityComponent {
     void inject(IdentityFragment identityFragment);
 
     void inject(KnowYourCustomerActivity knowYourCustomerActivity);
+
+    void inject(HomeAddressFragment homeAddressFragment);
+
+    void inject(EmailAddressFragment emailAddressFragment);
+
+    void inject(DoneFragment doneFragment);
 }

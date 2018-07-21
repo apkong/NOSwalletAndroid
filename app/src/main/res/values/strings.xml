@@ -186,6 +186,8 @@
     <string name="sms_code_mismatch">Sms code mismatch</string>
     <string name="field_cannot_be_blank">Field cannot be blank</string>
     <string name="birthdate_invalid">Birthdate invalid</string>
+    <string name="please_enter_value">Please enter value</string>
+    <string name="choose_other_country">Choose other country</string>
 
 
 </resources>

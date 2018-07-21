@@ -16,7 +16,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 
-
 import co.nos.noswallet.R;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -96,6 +95,15 @@ public class InputLayout extends TextInputLayout {
     public void setEditTextGravity(int gravity) {
         editText.setGravity(gravity);
     }
+
+    public boolean checkEmptyAndSetError(String error) {
+        if (getTrimmedText().isEmpty()) {
+            setError(error);
+            return true;
+        }
+        return false;
+    }
+
 
     @NonNull
     public String getTrimmedText() {

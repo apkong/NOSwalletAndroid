@@ -2,9 +2,12 @@ package co.nos.noswallet.kyc.smsCode;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -28,6 +31,8 @@ public class SmsCodeFragment extends BaseFragment<KnowYourCustomerActivity> {
 
     FragmentKyc3SmsCodeBinding binding;
 
+    ClickHandlers handlers;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,7 +49,11 @@ public class SmsCodeFragment extends BaseFragment<KnowYourCustomerActivity> {
         View view = binding.getRoot();
 
         // bind data to view
-        binding.setHandlers(new SmsCodeFragment.ClickHandlers());
+
+        binding.setHandlers(handlers = new SmsCodeFragment.ClickHandlers());
+
+        configContinueButton();
+
 
         binding.kyc3Seekbar.setMax(seekbarUpdater.getTimeout() * SEEKBAR_MULTIPLICATOR);
 
@@ -53,6 +62,16 @@ public class SmsCodeFragment extends BaseFragment<KnowYourCustomerActivity> {
         setupSeekbarUpdates();
 
         return view;
+    }
+
+    private void configContinueButton() {
+        binding.kyc3Continue.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        binding.kyc3Continue.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                handlers.onClickContinue(null);
+            }
+            return false;
+        });
     }
 
     private void setupSeekbarUpdates() {
@@ -92,7 +111,7 @@ public class SmsCodeFragment extends BaseFragment<KnowYourCustomerActivity> {
 
     public class ClickHandlers {
 
-        public void onClickContinue(View view) {
+        public void onClickContinue(View stub) {
             binding.kyc3SmsCodeInput.setError(null);
             if (binding.kyc3SmsCodeInput.getRawText().equalsIgnoreCase("123456")) {
                 userDataRepository.smsCode = binding.kyc3SmsCodeInput.getRawText();

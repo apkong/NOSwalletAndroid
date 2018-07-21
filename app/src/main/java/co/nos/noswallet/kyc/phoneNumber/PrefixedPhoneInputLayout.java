@@ -48,7 +48,7 @@ public class PrefixedPhoneInputLayout extends RelativeLayout {
     private void setup(Context context, AttributeSet attrs) {
         inflate(context, R.layout.item_prefixed_phone_input, this);
         injectViews();
-        configurePrefixInput();
+        //configurePrefixInput();
     }
 
     private void injectViews() {

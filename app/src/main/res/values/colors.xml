@@ -29,5 +29,7 @@
     <color name="colorOrangeStart">#E18531</color>
     <color name="colorOrangeEnd">#EA6232</color>
 
+    <color name="ms_disabled_color">#44000000</color>
+    <color name="ms_error_color">#E7492E</color>
 
 </resources>

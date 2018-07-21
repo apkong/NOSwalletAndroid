@@ -1,11 +1,13 @@
 package co.nos.noswallet.kyc;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import javax.inject.Inject;
 
@@ -16,6 +18,8 @@ import co.nos.noswallet.databinding.ActivityKnowYourCustomerBinding;
 
 public class KnowYourCustomerActivity extends BaseActivity implements KnowYourCustomerView {
     public static final String TAG = "KYCActivity";
+
+    int previousProgressValue = 0;
 
     @Inject
     KnowYourCustomerPresenter presenter;
@@ -29,6 +33,7 @@ public class KnowYourCustomerActivity extends BaseActivity implements KnowYourCu
         getActivityComponent().inject(this);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_know_your_customer);
+        binding.setHandlers(new ClickHandlers());
 
         presenter.attachView(this);
         presenter.setupSeekbar();
@@ -58,7 +63,15 @@ public class KnowYourCustomerActivity extends BaseActivity implements KnowYourCu
 
     @Override
     public void updateSeekBarProgress(int progress) {
-        binding.kycSeekbar.setProgress(progress);
+        ValueAnimator anim = ValueAnimator.ofInt(previousProgressValue, progress)
+                .setDuration(600);
+        anim.setInterpolator(new AccelerateDecelerateInterpolator());
+        anim.addUpdateListener(animation -> {
+            Integer intie = (Integer) animation.getAnimatedValue();
+            binding.kycSeekbar.setProgress(intie);
+        });
+        anim.start();
+        previousProgressValue = progress;
     }
 
     public void navigateNext(int position) {
