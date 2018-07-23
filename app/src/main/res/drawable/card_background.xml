@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- This inset background drawable for modules in the feed allows us to avoid spuriously nesting a layout for
+     no purpose other than to provide an outer background color -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <inset xmlns:android="http://schemas.android.com/apk/res/android"
+            android:drawable="@drawable/card_corner"
+            android:insetBottom="8dp"
+            android:insetLeft="8dp"
+            android:insetRight="8dp"
+            android:insetTop="8dp" />
+    </item>
+</layer-list>

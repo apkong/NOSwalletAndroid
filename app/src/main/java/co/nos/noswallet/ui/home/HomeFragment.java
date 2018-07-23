@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.hwangjr.rxbus.annotation.Subscribe;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -32,35 +33,16 @@ import co.nos.noswallet.bus.WalletSubscribeUpdate;
 import co.nos.noswallet.databinding.FragmentHomeBinding;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.network.model.response.AccountCheckResponse;
 import co.nos.noswallet.network.model.response.AccountHistoryResponseItem;
+import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
-import co.nos.noswallet.ui.send.SendFragment;
-import co.nos.noswallet.ui.settings.SettingsDialogFragment;
-import co.nos.noswallet.ui.webview.WebViewDialogFragment;
-import co.nos.noswallet.util.ExceptionHandler;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SocketError;
-import co.nos.noswallet.bus.WalletHistoryUpdate;
-import co.nos.noswallet.bus.WalletPriceUpdate;
-import co.nos.noswallet.bus.WalletSubscribeUpdate;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.network.model.response.AccountCheckResponse;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseDialogFragment;
-import co.nos.noswallet.ui.common.BaseFragment;
-import co.nos.noswallet.ui.common.FragmentUtility;
-import co.nos.noswallet.ui.common.KeyboardUtil;
-import co.nos.noswallet.ui.common.WindowControl;
+import co.nos.noswallet.ui.home.adapter.HistoryAdapter;
 import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
@@ -76,14 +58,14 @@ import io.realm.Realm;
                 attribute = "srcCompat",
                 method = "setImageDrawable")
 })
-public class HomeFragment extends BaseFragment {
+public class HomeFragment extends BaseFragment implements HomeView {
     private FragmentHomeBinding binding;
     private WalletController controller;
     public static String TAG = HomeFragment.class.getSimpleName();
     private boolean logoutClicked = false;
 
     @Inject
-    AccountService accountService;
+    HomePresenter presenter;
 
     @Inject
     NanoWallet wallet;
@@ -93,6 +75,8 @@ public class HomeFragment extends BaseFragment {
 
     @Inject
     Realm realm;
+
+    HistoryAdapter historyAdapter;
 
     /**
      * Create new instance of the fragment (handy pattern if any data needs to be passed to it)
@@ -110,6 +94,9 @@ public class HomeFragment extends BaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (getActivity() instanceof ActivityWithComponent) {
+            ((ActivityWithComponent) getActivity()).getActivityComponent().inject(this);
+        }
     }
 
     @Override
@@ -158,9 +145,8 @@ public class HomeFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // init dependency injection
-        if (getActivity() instanceof ActivityWithComponent) {
-            ((ActivityWithComponent) getActivity()).getActivityComponent().inject(this);
-        }
+
+        presenter.attachView(this);
 
         analyticsService.track(AnalyticsEvents.HOME_VIEWED);
 
@@ -190,9 +176,10 @@ public class HomeFragment extends BaseFragment {
         // initialize recyclerview (list of wallet transactions)
         controller = new WalletController();
         binding.homeRecyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.homeRecyclerview.setAdapter(controller.getAdapter());
+        binding.homeRecyclerview.setAdapter(historyAdapter = new HistoryAdapter());
         binding.homeSwiperefresh.setOnRefreshListener(() -> {
-            accountService.requestUpdate();
+            presenter.requestUpdate();
+
             new Handler().postDelayed(() -> binding.homeSwiperefresh.setRefreshing(false), 5000);
         });
         if (wallet != null && wallet.getAccountHistory() != null) {
@@ -236,7 +223,7 @@ public class HomeFragment extends BaseFragment {
     public void receiveAccountCheck(AccountCheckResponse accountCheckResponse) {
         if (accountCheckResponse.getReady()) {
             // account is on the network, so send a pending request
-            accountService.requestPending();
+            presenter.requestPending();
         }
     }
 
@@ -260,6 +247,21 @@ public class HomeFragment extends BaseFragment {
                 binding.homeSendButton.setEnabled(false);
             }
         }
+    }
+
+    @Override
+    public void showHistory(ArrayList<AccountHistory> history) {
+        if (historyAdapter!=null){
+            historyAdapter.refresh(history);
+        }
+    }
+
+    @Override
+    public void showHistoryEmpty() {
+        Toast.makeText(getContext(),
+                getString(R.string.error_history_empty),
+                Toast.LENGTH_SHORT)
+                .show();
     }
 
     public class ClickHandlers {

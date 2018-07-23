@@ -360,6 +360,15 @@
         <item name="android:singleLine">false</item>
     </style>
 
+    <style name="CardLayoutStyle" >
+        <item name="android:background">@drawable/card_background</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:gravity">center_horizontal</item>
+        <!--suppress AndroidLintNewApi -->
+        <item name="android:elevation">2dp</item>
+    </style>
+
+
 
 
 </resources>

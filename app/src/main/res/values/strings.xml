@@ -188,6 +188,7 @@
     <string name="birthdate_invalid">Birthdate invalid</string>
     <string name="please_enter_value">Please enter value</string>
     <string name="choose_other_country">Choose other country</string>
+    <string name="error_history_empty">History empty</string>
 
 
 </resources>
