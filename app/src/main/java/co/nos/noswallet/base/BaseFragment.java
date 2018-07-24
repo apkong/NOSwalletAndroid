@@ -8,7 +8,7 @@ import android.widget.Toast;
 import co.nos.noswallet.di.activity.ActivityComponent;
 
 public class BaseFragment<ParentActivity extends BaseActivity> extends Fragment {
-
+@SuppressWarnings("unchecked")
     public ParentActivity getParentActivity() {
         return (ParentActivity) getActivity();
     }

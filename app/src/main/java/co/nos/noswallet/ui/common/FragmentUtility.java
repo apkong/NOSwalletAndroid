@@ -174,6 +174,7 @@ public class FragmentUtility {
                                       @Nullable String tag,
                                       boolean addToBackStack,
                                       View sharedElement) {
+
         FragmentTransaction transaction = mFragmentManager.beginTransaction()
                 .setCustomAnimations(
                         pushAnimations.getEnter(),

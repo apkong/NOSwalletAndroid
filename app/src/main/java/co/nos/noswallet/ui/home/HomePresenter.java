@@ -1,33 +1,45 @@
 package co.nos.noswallet.ui.home;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.network.interactor.GetHistoryUseCase;
+import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
 import co.nos.noswallet.network.nosModel.AccountHistory;
+import co.nos.noswallet.network.nosModel.GetPendingBlocksResponse;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.disposables.SerialDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 public class HomePresenter extends BasePresenter<HomeView> {
 
-    SerialDisposable serialDisposable = new SerialDisposable();
+    SerialDisposable historyDisposable = new SerialDisposable();
+    SerialDisposable pendingTransactionsDisposable = new SerialDisposable();
     private final GetHistoryUseCase getHistoryUseCase;
+    private final GetPendingBlocksUseCase getPendingBlocksUseCase;
 
     @Inject
-    public HomePresenter(GetHistoryUseCase getHistoryUseCase) {
+    public HomePresenter(GetHistoryUseCase getHistoryUseCase,
+                         GetPendingBlocksUseCase getPendingBlocksUseCase) {
         this.getHistoryUseCase = getHistoryUseCase;
+        this.getPendingBlocksUseCase = getPendingBlocksUseCase;
     }
 
-    public void requestUpdate() {
+    public void requestUpdateHistory() {
 
         view.showLoading();
 
-        serialDisposable.set(getHistoryUseCase.execute("xrb_3i1aq1cchnmbn9x5rsbap8b15akfh7wj7pwskuzi7ahz8oq6cobd99d4r3b7")
+        historyDisposable.set(getHistoryUseCase.execute()
                 .subscribe(neuroHistoryResponse -> {
                     view.hideLoading();
                     ArrayList<AccountHistory> hist = neuroHistoryResponse.history;
-                    if (hist == null || hist.isEmpty()) {
+                    if (NOSUtil.isEmpty(hist)) {
                         //todo:
                         view.showHistoryEmpty();
                     }
@@ -36,10 +48,17 @@ public class HomePresenter extends BasePresenter<HomeView> {
                     view.hideLoading();
                     view.showHistoryEmpty();
                 }));
-        addDisposable(serialDisposable);
+        addDisposable(historyDisposable);
     }
 
+
     public void requestPending() {
-        //todo:
+        getPendingBlocksUseCase.startObservePendingTransactions();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getPendingBlocksUseCase.stopPendingTransactions();
     }
 }

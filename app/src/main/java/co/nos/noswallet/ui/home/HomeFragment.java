@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +26,7 @@ import javax.inject.Inject;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
+import co.nos.noswallet.base.MainThreadEnsurer;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.bus.SocketError;
 import co.nos.noswallet.bus.WalletHistoryUpdate;
@@ -47,6 +49,7 @@ import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
+import co.nos.noswallet.util.ExceptionHandler;
 import io.realm.Realm;
 
 /**
@@ -68,6 +71,9 @@ public class HomeFragment extends BaseFragment implements HomeView {
     HomePresenter presenter;
 
     @Inject
+    MainThreadEnsurer mainThreadEnsurer;
+
+    @Inject
     NanoWallet wallet;
 
     @Inject
@@ -77,6 +83,8 @@ public class HomeFragment extends BaseFragment implements HomeView {
     Realm realm;
 
     HistoryAdapter historyAdapter;
+
+    ClickHandlers ClickHandlers;
 
     /**
      * Create new instance of the fragment (handy pattern if any data needs to be passed to it)
@@ -104,7 +112,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
         inflater.inflate(R.menu.menu_home, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -148,6 +155,8 @@ public class HomeFragment extends BaseFragment implements HomeView {
 
         presenter.attachView(this);
 
+        setTitle(getString(R.string.main_wallet));
+
         analyticsService.track(AnalyticsEvents.HOME_VIEWED);
 
         // subscribe to bus
@@ -167,7 +176,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
         // hide keyboard
         KeyboardUtil.hideKeyboard(getActivity());
 
-        binding.setHandlers(new ClickHandlers());
+        binding.setHandlers(ClickHandlers = new ClickHandlers());
 
         // initialize view pager (swipeable currency list)
         binding.homeViewpager.setAdapter(new CurrencyPagerAdapter(getContext(), wallet));
@@ -178,7 +187,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
         binding.homeRecyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.homeRecyclerview.setAdapter(historyAdapter = new HistoryAdapter());
         binding.homeSwiperefresh.setOnRefreshListener(() -> {
-            presenter.requestUpdate();
+            presenter.requestUpdateHistory();
 
             new Handler().postDelayed(() -> binding.homeSwiperefresh.setRefreshing(false), 5000);
         });
@@ -199,7 +208,24 @@ public class HomeFragment extends BaseFragment implements HomeView {
             showSeedReminderAlert(credentials.getNewlyGeneratedSeed());
         }
 
+        showCredentials();
+
+        presenter.requestUpdateHistory();
+
         return view;
+    }
+
+    private void showCredentials() {
+        Credentials credentials = realm.where(Credentials.class).findFirst();
+        if (credentials != null) {
+
+            Log.d(TAG, "showCredentials() called");
+            Log.d(TAG, credentials.toString());
+            Log.d(TAG, "public key: " + credentials.getPublicKey());
+
+        } else {
+            ExceptionHandler.handle(new Exception("Problem accessing generated seed"));
+        }
     }
 
     @Subscribe
@@ -227,13 +253,14 @@ public class HomeFragment extends BaseFragment implements HomeView {
         }
     }
 
+    @Deprecated
     @Subscribe
     public void receiveError(SocketError error) {
-        binding.homeSwiperefresh.setRefreshing(false);
-        Toast.makeText(getContext(),
-                getString(R.string.error_message),
-                Toast.LENGTH_SHORT)
-                .show();
+//        binding.homeSwiperefresh.setRefreshing(false);
+//        Toast.makeText(getContext(),
+//                getString(R.string.error_message),
+//                Toast.LENGTH_SHORT)
+//                .show();
     }
 
     private void updateAmounts() {
@@ -244,14 +271,15 @@ public class HomeFragment extends BaseFragment implements HomeView {
                 // if balance > 0, enable send button
                 binding.homeSendButton.setEnabled(true);
             } else {
-                binding.homeSendButton.setEnabled(false);
+               //todo: uncomment later
+                //binding.homeSendButton.setEnabled(false);
             }
         }
     }
 
     @Override
     public void showHistory(ArrayList<AccountHistory> history) {
-        if (historyAdapter!=null){
+        if (historyAdapter != null) {
             historyAdapter.refresh(history);
         }
     }
@@ -277,8 +305,11 @@ public class HomeFragment extends BaseFragment implements HomeView {
         }
 
         public void onClickSend(View view) {
+            Log.d(TAG,   "onClickSend() called with: view = [" + view + "]");
+
             if (getActivity() instanceof WindowControl) {
                 // navigate to send screen
+
                 ((WindowControl) getActivity()).getFragmentUtility().add(
                         SendFragment.newInstance(),
                         FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
@@ -317,5 +348,19 @@ public class HomeFragment extends BaseFragment implements HomeView {
                 dialog.getDialog().setOnDismissListener(dialogInterface -> setStatusBarBlue());
             }
         }
+    }
+
+    @Override
+    public void showLoading() {
+        mainThreadEnsurer.runOnMainThread(() -> {
+            binding.homeSwiperefresh.setRefreshing(true);
+        });
+    }
+
+    @Override
+    public void hideLoading() {
+        mainThreadEnsurer.runOnMainThread(() -> {
+            binding.homeSwiperefresh.setRefreshing(false);
+        });
     }
 }

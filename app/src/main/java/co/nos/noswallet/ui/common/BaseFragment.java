@@ -21,7 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.broadcastreceiver.ClipboardAlarmReceiver;
@@ -33,11 +33,6 @@ import co.nos.noswallet.ui.pin.CreatePinDialogFragment;
 import co.nos.noswallet.ui.pin.PinDialogFragment;
 import co.nos.noswallet.ui.scan.ScanActivity;
 import co.nos.noswallet.ui.send.SendFragment;
-import co.nos.noswallet.util.ExceptionHandler;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SeedCreatedWithAnotherWallet;
-import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.util.ExceptionHandler;
 import io.realm.Realm;
 
@@ -263,9 +258,9 @@ public class BaseFragment extends Fragment {
                 .setMessage(R.string.seed_update_alert_message)
                 .setPositiveButton(R.string.seed_update_alert_confirm_cta, (dialog, which) -> {
                     dialog.dismiss();
-                    String newSeed = NanoUtil.generateSeed();
+                    String newSeed = NOSUtil.generateSeed();
                     String newSeedDisplay = newSeed.replaceAll("(.{4})", "$1 ");
-                    String address = NanoUtil.publicToAddress(NanoUtil.privateToPublic(NanoUtil.seedToPrivate(newSeed)));
+                    String address = NOSUtil.publicToAddress(NOSUtil.privateToPublic(NOSUtil.seedToPrivate(newSeed)));
                     AlertDialog addressDialog = builder.setTitle(R.string.seed_update_address_alert_title)
                             .setMessage(getString(R.string.seed_update_address_alert_message, newSeedDisplay, address))
                             .setPositiveButton(null, null)
@@ -337,7 +332,7 @@ public class BaseFragment extends Fragment {
         } else {
             builder = new AlertDialog.Builder(getContext());
         }
-        String address = NanoUtil.publicToAddress(NanoUtil.privateToPublic(NanoUtil.seedToPrivate(seed)));
+        String address = NOSUtil.publicToAddress(NOSUtil.privateToPublic(NOSUtil.seedToPrivate(seed)));
         String newSeedDisplay = seed.replaceAll("(.{4})", "$1 ");
         AlertDialog reminderDialog = builder.setTitle(R.string.seed_reminder_alert_title)
                 .setMessage(getString(R.string.seed_reminder_alert_message, newSeedDisplay, address))

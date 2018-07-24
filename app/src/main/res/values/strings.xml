@@ -189,6 +189,7 @@
     <string name="please_enter_value">Please enter value</string>
     <string name="choose_other_country">Choose other country</string>
     <string name="error_history_empty">History empty</string>
+    <string name="main_wallet">Main Wallet</string>
 
 
 </resources>

@@ -10,20 +10,13 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 import co.nos.noswallet.BuildConfig;
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.R;
-import co.nos.noswallet.analytics.AnalyticsEvents;
-import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.databinding.FragmentIntroWelcomeBinding;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
-import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
@@ -73,7 +66,7 @@ public class IntroWelcomeFragment extends BaseFragment {
                 // create wallet seed
                 realm.executeTransaction(realm -> {
                     Credentials credentials = realm.createObject(Credentials.class);
-                    credentials.setSeed(NanoUtil.generateSeed());
+                    credentials.setSeed(NOSUtil.generateSeed());
                 });
 
                 sharedPreferencesUtil.setFromNewWallet(true);

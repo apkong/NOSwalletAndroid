@@ -18,6 +18,10 @@ abstract public class BasePresenter<View extends BaseView> {
         return compositeDisposable = new CompositeDisposable();
     }
 
+    public void onDestroy(){
+
+    }
+
     public void addDisposable(Disposable disposable) {
         compositeDisposable.add(disposable);
     }

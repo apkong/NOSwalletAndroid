@@ -3,7 +3,7 @@ package co.nos.noswallet.model;
 import java.util.Arrays;
 import java.util.List;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.util.ExceptionHandler;
 import io.realm.RealmObject;
 
@@ -24,11 +24,8 @@ public class Credentials extends RealmObject {
     private Boolean hasSentToNewSeed;
 
     public static final List<Character> VALID_SEED_CHARACTERS = Arrays.asList(
-            'a', 'b', 'c', 'd', 'e', 'f',
-            //'g','h','i','j','k','l',
-           // 'm', 'n', 'o', 'q', 'p', 'r', 's', 't', 'v', 'w', 'u', 'x', 'y', 'z',
-           // '_',
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+            'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    );
 
     public Credentials() {
     }
@@ -46,7 +43,7 @@ public class Credentials extends RealmObject {
 
         this.seedIsSecure = true;
         this.seed = seed;
-        this.privateKey = NanoUtil.seedToPrivate(seed);
+        this.privateKey = NOSUtil.seedToPrivate(seed);
     }
 
     public String getPrivateKey() {
@@ -125,7 +122,7 @@ public class Credentials extends RealmObject {
 
     public String getPublicKey() {
         if (this.privateKey != null) {
-            return NanoUtil.privateToPublic(this.privateKey);
+            return NOSUtil.privateToPublic(this.privateKey);
         } else {
             return null;
         }
@@ -134,7 +131,7 @@ public class Credentials extends RealmObject {
     public Address getAddress() {
         String publicKey = getPublicKey();
         if (publicKey != null) {
-            return new Address(NanoUtil.publicToAddress(publicKey));
+            return new Address(NOSUtil.publicToAddress(publicKey));
         } else {
             return null;
         }
@@ -143,7 +140,7 @@ public class Credentials extends RealmObject {
     public String getAddressString() {
         String publicKey = getPublicKey();
         if (publicKey != null) {
-            return NanoUtil.publicToAddress(publicKey);
+            return NOSUtil.publicToAddress(publicKey);
         } else {
             return null;
         }
@@ -200,6 +197,10 @@ public class Credentials extends RealmObject {
                 ", pin='" + pin + '\'' +
                 ", hasCompletedLegalAgreements=" + hasCompletedLegalAgreements +
                 ", seedIsSecure=" + seedIsSecure +
+                ", publicKey=" + getPublicKey() +
+                ", addressString=" + getAddressString() +
+                ", address=" + getAddress() +
+                ", getHasSentToNewSeed=" + getHasSentToNewSeed() +
                 '}';
     }
 }

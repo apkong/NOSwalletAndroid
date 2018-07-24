@@ -12,7 +12,7 @@ import org.libsodium.jni.Sodium;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 
 /**
  * Address class
@@ -23,6 +23,11 @@ public class Address implements Serializable {
     private String amount;
 
     public static final BigDecimal RAW_PER_NANO = new BigDecimal("1000000000000000000000000000000");
+
+    @Override
+    public String toString() {
+        return "value: " + value + ", amount: " + amount;
+    }
 
     public Address() {
     }
@@ -87,14 +92,14 @@ public class Address implements Serializable {
         checkCharacters:
         for (int i = 0; i < parts[1].length(); i++) {
             char letter = parts[1].toLowerCase().charAt(i);
-            for (int j = 0; j < NanoUtil.addressCodeCharArray.length; j++) {
-                if (NanoUtil.addressCodeCharArray[j] == letter) {
+            for (int j = 0; j < NOSUtil.addressCodeCharArray.length; j++) {
+                if (NOSUtil.addressCodeCharArray[j] == letter) {
                     continue checkCharacters;
                 }
             }
             return false;
         }
-        byte[] shortBytes = NanoUtil.hexToBytes(NanoUtil.decodeAddressCharacters(parts[1]));
+        byte[] shortBytes = NOSUtil.hexToBytes(NOSUtil.decodeAddressCharacters(parts[1]));
         byte[] bytes = new byte[37];
         // Restore leading null bytes
         System.arraycopy(shortBytes, 0, bytes, bytes.length - shortBytes.length, shortBytes.length);
@@ -129,9 +134,7 @@ public class Address implements Serializable {
                     }
                 }
             }
-
         }
 
     }
-
 }

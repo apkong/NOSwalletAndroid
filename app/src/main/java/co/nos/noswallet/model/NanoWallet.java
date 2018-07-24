@@ -16,7 +16,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.bus.SendInvalidAmount;
 import co.nos.noswallet.bus.WalletClear;
@@ -30,8 +30,6 @@ import co.nos.noswallet.network.model.response.SubscribeResponse;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.util.ExceptionHandler;
 import co.nos.noswallet.util.NumberUtil;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.network.model.response.CurrentPriceResponse;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
@@ -460,7 +458,7 @@ public class NanoWallet {
     }
 
     public String getRepresentative() {
-        return representativeAddress != null ? NanoUtil.publicToAddress(representativeAddress) : PreconfiguredRepresentatives.getRepresentative();
+        return representativeAddress != null ? NOSUtil.publicToAddress(representativeAddress) : PreconfiguredRepresentatives.getRepresentative();
     }
 
 

@@ -37,7 +37,7 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
@@ -60,24 +60,6 @@ import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.UIUtil;
 import co.nos.noswallet.ui.scan.ScanActivity;
-import co.nos.noswallet.util.NumberUtil;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.HideOverlay;
-import co.nos.noswallet.bus.PinComplete;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SendInvalidAmount;
-import co.nos.noswallet.bus.ShowOverlay;
-import co.nos.noswallet.model.Address;
-import co.nos.noswallet.model.AvailableCurrency;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.network.model.response.ErrorResponse;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseFragment;
-import co.nos.noswallet.ui.common.KeyboardUtil;
-import co.nos.noswallet.ui.common.UIUtil;
 import co.nos.noswallet.util.NumberUtil;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
@@ -225,7 +207,7 @@ public class SendFragment extends BaseFragment {
 
         // updates to handle seed conversion 1.0.2
         if (newSeed != null) {
-            String address = NanoUtil.publicToAddress(NanoUtil.privateToPublic(NanoUtil.seedToPrivate(newSeed)));
+            String address = NOSUtil.publicToAddress(NOSUtil.privateToPublic(NOSUtil.seedToPrivate(newSeed)));
             binding.sendAddress.setText(address);
             setShortAddress();
         }

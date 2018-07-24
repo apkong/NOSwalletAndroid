@@ -27,7 +27,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import co.nos.noswallet.BuildConfig;
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.bus.SocketError;
 import co.nos.noswallet.model.Address;
@@ -68,6 +68,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
+import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
 /**
@@ -125,16 +126,35 @@ public class AccountService {
         wallet.setPublicKey(getPublicKey());
     }
 
+    protected OkHttpClient buildClient() {
+        final int timeoutInSeconds = TIMEOUT_MILLISECONDS;
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS);
+
+        builder.addNetworkInterceptor(loggingInterceptor);
+
+        return builder.build();
+    }
+
     /**
      * Initialize websocket and event listeners
      */
     private void initWebSocket() {
         // create websocket
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
         OkHttpClient client = new OkHttpClient.Builder()
                 .writeTimeout(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS)
                 .readTimeout(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS)
                 .connectTimeout(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS)
                 .pingInterval(TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .addNetworkInterceptor(loggingInterceptor)
                 .build();
 
         Request request = new Request.Builder()
@@ -342,10 +362,10 @@ public class AccountService {
         }
 
         if (block.getType().equals(BlockTypes.STATE.toString())) {
-            String calculatedHash = NanoUtil.computeStateHash(
-                    NanoUtil.addressToPublic(block.getAccount()),
+            String calculatedHash = NOSUtil.computeStateHash(
+                    NOSUtil.addressToPublic(block.getAccount()),
                     block.getPrevious(),
-                    NanoUtil.addressToPublic(block.getRepresentative()),
+                    NOSUtil.addressToPublic(block.getRepresentative()),
                     NumberUtil.getRawAsHex(block.getBalance()),
                     block.getLink());
             if (!blockInfo.getBalance().equals(block.getBalance())) {
@@ -362,9 +382,9 @@ public class AccountService {
                 return;
             }
         } else if (block.getType().equals(BlockTypes.SEND.toString())) {
-            String calculatedHash = NanoUtil.computeSendHash(
+            String calculatedHash = NOSUtil.computeSendHash(
                     block.getPrevious(),
-                    NanoUtil.addressToPublic(block.getDestination()),
+                    NOSUtil.addressToPublic(block.getDestination()),
                     block.getBalance());
             if (!blockInfo.getBalance().equals(NumberUtil.getRawFromHex(block.getBalance()))) {
                 ExceptionHandler.handle(new Exception("balance in send block doesn't match balance in block info"));
@@ -379,7 +399,7 @@ public class AccountService {
                 return;
             }
         } else if (block.getType().equals(BlockTypes.RECEIVE.toString())) {
-            String calculatedHash = NanoUtil.computeReceiveHash(block.getPrevious(), block.getSource());
+            String calculatedHash = NOSUtil.computeReceiveHash(block.getPrevious(), block.getSource());
             if (!hash.equals(calculatedHash)) {
                 ExceptionHandler.handle(new Exception("receive block hash doesn't match hash from block info"));
                 requestQueue.poll();
@@ -387,10 +407,10 @@ public class AccountService {
                 return;
             }
         } else if (block.getType().equals(BlockTypes.OPEN.toString())) {
-            String calculatedHash = NanoUtil.computeOpenHash(
+            String calculatedHash = NOSUtil.computeOpenHash(
                     block.getSource(),
-                    NanoUtil.addressToPublic(block.getRepresentative()),
-                    NanoUtil.addressToPublic(block.getAccount()));
+                    NOSUtil.addressToPublic(block.getRepresentative()),
+                    NOSUtil.addressToPublic(block.getAccount()));
             if (!hash.equals(calculatedHash)) {
                 ExceptionHandler.handle(new Exception("open block hash doesn't match hash from block info"));
                 requestQueue.poll();
@@ -398,9 +418,9 @@ public class AccountService {
                 return;
             }
         } else if (block.getType().equals(BlockTypes.CHANGE.toString())) {
-            String calculatedHash = NanoUtil.computeChangeHash(
+            String calculatedHash = NOSUtil.computeChangeHash(
                     block.getPrevious(),
-                    NanoUtil.addressToPublic(block.getRepresentative()));
+                    NOSUtil.addressToPublic(block.getRepresentative()));
             if (!hash.equals(calculatedHash)) {
                 ExceptionHandler.handle(new Exception("change block hash doesn't match hash from block info"));
                 requestQueue.poll();
@@ -763,7 +783,6 @@ public class AccountService {
         processQueue();
     }
 
-
     /**
      * Get credentials from realm and return address
      *
@@ -876,7 +895,6 @@ public class AccountService {
             }
         }
     }
-
 
     /**
      * Update frontier block in wallet and on any pending receive requests

@@ -59,7 +59,7 @@ public class SignatureTest extends InstrumentationTestCase {
         String pubKey = NanoUtil.addressToPublic(account);
         String signature = "0E5DC6C6CDBC96A9885B1DDB0E782BC04D9B2DCB107FDD4B8A3027695A3B3947BE8E6F413190AD304B8BC5129A50ECFB8DB918FAA3EEE2856C4449A329325E0A";
 
-        //assertEquals(theSignatureOnThatBlock, NanoUtil.sign(yourPrivateKey, oneOfYourBlocksHashes));
+        //assertEquals(theSignatureOnThatBlock, NOSUtil.sign(yourPrivateKey, oneOfYourBlocksHashes));
     }
 
     @After

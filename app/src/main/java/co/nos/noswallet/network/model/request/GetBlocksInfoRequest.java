@@ -1,5 +1,6 @@
 package co.nos.noswallet.network.model.request;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import co.nos.noswallet.network.model.Actions;
@@ -10,6 +11,7 @@ import co.nos.noswallet.network.model.BaseRequest;
  */
 
 public class GetBlocksInfoRequest extends BaseRequest {
+
     @SerializedName("action")
     private String action;
 
@@ -21,7 +23,7 @@ public class GetBlocksInfoRequest extends BaseRequest {
 
     public GetBlocksInfoRequest() {
         this.action = Actions.GET_BLOCKS_INFO.toString();
-        this.hashes = new String[] {""};
+        this.hashes = new String[]{""};
         this.balance = true;
     }
 

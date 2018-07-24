@@ -3,7 +3,7 @@ package co.nos.noswallet.network.model.request.block;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.gson.annotations.SerializedName;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.network.model.BlockTypes;
 
 /**
@@ -41,8 +41,8 @@ public class ReceiveBlock extends Block {
         this.type = BlockTypes.RECEIVE.toString();
         this.previous = previous;
         this.source = source;
-        String hash = NanoUtil.computeReceiveHash(previous, source);
-        this.signature = NanoUtil.sign(private_key, hash);
+        String hash = NOSUtil.computeReceiveHash(previous, source);
+        this.signature = NOSUtil.sign(private_key, hash);
     }
 
     public String getType() {
@@ -59,8 +59,8 @@ public class ReceiveBlock extends Block {
 
     public void setPrevious(String previous) {
         this.previous = previous;
-        String hash = NanoUtil.computeReceiveHash(previous, this.source);
-        this.signature = NanoUtil.sign(this.private_key, hash);
+        String hash = NOSUtil.computeReceiveHash(previous, this.source);
+        this.signature = NOSUtil.sign(this.private_key, hash);
     }
 
     public String getSource() {

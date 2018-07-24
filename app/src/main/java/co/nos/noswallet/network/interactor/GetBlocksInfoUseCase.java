@@ -4,22 +4,20 @@ import javax.inject.Inject;
 
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.network.NeuroClient;
-import co.nos.noswallet.network.nosModel.NeuroHistoryRequest;
-import co.nos.noswallet.network.nosModel.NeuroHistoryResponse;
+import co.nos.noswallet.network.nosModel.GetPendingBlocksRequest;
+import co.nos.noswallet.network.nosModel.GetPendingBlocksResponse;
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
-public class GetHistoryUseCase {
+public class GetBlocksInfoUseCase {
 
     private final NeuroClient neuroClient;
     private String accountNumber;
 
     @Inject
-    GetHistoryUseCase(NeuroClient neuroClient, Realm realm) {
+    GetBlocksInfoUseCase(NeuroClient neuroClient, Realm realm) {
         this.neuroClient = neuroClient;
         this.accountNumber = provideAccountNumber(realm);
     }
@@ -33,13 +31,12 @@ public class GetHistoryUseCase {
         }
     }
 
-    public Observable<NeuroHistoryResponse> execute() {
+    public Observable<GetPendingBlocksResponse> execute() {
         if (accountNumber == null) {
             return Observable.error(new IllegalStateException("missing seed!!!"));
         }
-        return neuroClient.getAccountHistory(new NeuroHistoryRequest(accountNumber, "100"))
+        return neuroClient.getPendingBlocks(new GetPendingBlocksRequest(accountNumber, "100"))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
-
 }
