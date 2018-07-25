@@ -108,9 +108,9 @@ public class GetPendingBlocksUseCase {
         );
     }
 
-    private ObservableSource<Object> processedBlockBasedOnPendingHash(final String pendingBlock) {
+    private ObservableSource<Object> processedBlockBasedOnPendingHash(final String blockHash) {
 
-        return api.getBlocksInfo(new GetBlocksInfoRequest(new String[]{pendingBlock}))
+        return api.getBlocksInfo(new GetBlocksInfoRequest(new String[]{blockHash}))
                 .flatMap(blocksInfoResponse -> {
 
                     final String balance = blocksInfoResponse.getBalance();
@@ -119,31 +119,25 @@ public class GetPendingBlocksUseCase {
                             .flatMap(accountInfoResponse -> api.generateWork(new WorkRequest(accountInfoResponse.frontier))
                                     .flatMap(workResponse -> {
 
-                                        String data = NOSUtil.computeStateHash(
+                                        String dataToSign = NOSUtil.computeStateHash(
                                                 publicKey,
                                                 accountInfoResponse.frontier,
-//                                                "3F2A84D61991395BADFDF08EEEEEAC2D859E76B54B76DEC145E09652D9C15FF5",
-                                                NOSUtil.addressToPublic(
-                                                        REPRESENTATIVE
-                                                ),
+                                                NOSUtil.addressToPublic(REPRESENTATIVE),
                                                 balance,
-                                                pendingBlock
+                                                blockHash
                                         );
-                                        String sign = NOSUtil.sign(privateKey, data);
+                                        String signatureFromData = NOSUtil.sign(privateKey, dataToSign);
 
-                                        System.out.println("data: " + data);
-                                        System.out.println("sign: " + sign);
+                                        System.out.println("data: " + dataToSign);
+                                        System.out.println("sign: " + signatureFromData);
 
                                         return api.process(new ProcessRequest(new ProcessBlock(
                                                 accountNumber,
                                                 accountInfoResponse.frontier,
-//                                                "3F2A84D61991395BADFDF08EEEEEAC2D859E76B54B76DEC145E09652D9C15FF5",
-                                                NOSUtil.addressToPublic(
-                                                        REPRESENTATIVE
-                                                ),
+                                                NOSUtil.addressToPublic(REPRESENTATIVE),
                                                 balance,
-                                                pendingBlock,
-                                                sign,
+                                                blockHash,
+                                                signatureFromData,
                                                 workResponse.work
 
                                         ))).map(any -> new Object());
