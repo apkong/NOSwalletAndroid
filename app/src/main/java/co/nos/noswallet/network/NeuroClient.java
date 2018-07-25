@@ -6,12 +6,20 @@ import java.util.concurrent.TimeUnit;
 
 import co.nos.noswallet.network.exception.ErrorDispatcher;
 import co.nos.noswallet.network.model.request.GetBlocksInfoRequest;
+import co.nos.noswallet.network.model.response.BlocksInfoResponse;
+import co.nos.noswallet.network.nosModel.AccountInfoRequest;
+import co.nos.noswallet.network.nosModel.AccountInfoResponse;
+import co.nos.noswallet.network.nosModel.GetBlocksInfoResponse;
 import co.nos.noswallet.network.nosModel.GetPendingBlocksRequest;
 import co.nos.noswallet.network.nosModel.GetPendingBlocksResponse;
 import co.nos.noswallet.network.nosModel.LoginRequest;
 import co.nos.noswallet.network.nosModel.LoginResponse;
 import co.nos.noswallet.network.nosModel.NeuroHistoryRequest;
 import co.nos.noswallet.network.nosModel.NeuroHistoryResponse;
+import co.nos.noswallet.network.nosModel.ProcessRequest;
+import co.nos.noswallet.network.nosModel.ProcessResponse;
+import co.nos.noswallet.network.nosModel.WorkRequest;
+import co.nos.noswallet.network.nosModel.WorkResponse;
 import io.reactivex.Observable;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
@@ -59,12 +67,27 @@ public class NeuroClient implements NeuroApi {
     }
 
     @Override
-    public Observable<Response<ResponseBody>> getBlocksInfo(GetBlocksInfoRequest request) {
+    public Observable<GetBlocksInfoResponse> getBlocksInfo(GetBlocksInfoRequest request) {
         return api.getBlocksInfo(request);
+    }
+
+    @Override
+    public Observable<AccountInfoResponse> getAccountInfo(AccountInfoRequest request) {
+        return api.getAccountInfo(request);
     }
 
     @Override
     public Observable<LoginResponse> login(LoginRequest request) {
         return api.login(request);
+    }
+
+    @Override
+    public Observable<WorkResponse> generateWork(WorkRequest request) {
+        return api.generateWork(request);
+    }
+
+    @Override
+    public Observable<ProcessResponse> process(ProcessRequest request) {
+        return api.process(request);
     }
 }

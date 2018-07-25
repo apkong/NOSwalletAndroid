@@ -1,7 +1,6 @@
 package co.nos.noswallet.ui.home;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -10,12 +9,7 @@ import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.network.interactor.GetHistoryUseCase;
 import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
 import co.nos.noswallet.network.nosModel.AccountHistory;
-import co.nos.noswallet.network.nosModel.GetPendingBlocksResponse;
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.disposables.SerialDisposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 public class HomePresenter extends BasePresenter<HomeView> {
 
@@ -53,6 +47,7 @@ public class HomePresenter extends BasePresenter<HomeView> {
 
 
     public void requestPending() {
+        System.out.println("requestPending()");
         getPendingBlocksUseCase.startObservePendingTransactions();
     }
 
