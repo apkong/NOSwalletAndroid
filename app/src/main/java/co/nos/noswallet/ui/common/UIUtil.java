@@ -30,7 +30,7 @@ public class UIUtil {
         if (s.length() > 0) {
             s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.dark_sky_blue)), 0, s.length() > 8 ? 9 : s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             if (s.length() > 59) {
-                s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.burnt_yellow)), 59, s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.colorOrangeEnd)), 59, s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
     }

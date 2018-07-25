@@ -187,7 +187,7 @@ public class SendFragment extends BaseFragment {
         setStatusBarBlue();
         setBackEnabled(true);
         setTitle(getString(R.string.send_title));
-        setTitleDrawable(R.drawable.ic_send);
+        //setTitleDrawable(R.drawable.ic_send);
 
         // hide keyboard for edittext fields
         binding.sendAmountNano.setInputType(InputType.TYPE_NULL);

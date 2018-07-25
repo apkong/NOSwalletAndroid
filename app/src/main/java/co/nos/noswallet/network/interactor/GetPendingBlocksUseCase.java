@@ -28,6 +28,8 @@ public class GetPendingBlocksUseCase {
 
     public static final String TAG = "GetPendingBlocksUseCase";
 
+    private final String REPRESENTATIVE = "xrb_164kohea8yrd57ehyh64t7o8wttmyxwuyyjnz4omrdpr8op7omptkiqe3693";
+
     private final NeuroClient api;
     private final String accountNumber;
     private final String privateKey;
@@ -120,7 +122,10 @@ public class GetPendingBlocksUseCase {
                                         String data = NOSUtil.computeStateHash(
                                                 publicKey,
                                                 accountInfoResponse.frontier,
-                                                "3F2A84D61991395BADFDF08EEEEEAC2D859E76B54B76DEC145E09652D9C15FF5",
+//                                                "3F2A84D61991395BADFDF08EEEEEAC2D859E76B54B76DEC145E09652D9C15FF5",
+                                                NOSUtil.addressToPublic(
+                                                        REPRESENTATIVE
+                                                ),
                                                 balance,
                                                 pendingBlock
                                         );
@@ -132,7 +137,10 @@ public class GetPendingBlocksUseCase {
                                         return api.process(new ProcessRequest(new ProcessBlock(
                                                 accountNumber,
                                                 accountInfoResponse.frontier,
-                                                "3F2A84D61991395BADFDF08EEEEEAC2D859E76B54B76DEC145E09652D9C15FF5",
+//                                                "3F2A84D61991395BADFDF08EEEEEAC2D859E76B54B76DEC145E09652D9C15FF5",
+                                                NOSUtil.addressToPublic(
+                                                        REPRESENTATIVE
+                                                ),
                                                 balance,
                                                 pendingBlock,
                                                 sign,

@@ -102,7 +102,7 @@
 
     <!-- EditText Styles -->
     <style name="SeedInput">
-        <item name="android:background">@drawable/bg_seed_input</item>
+        <item name="android:background">@drawable/bg_seed_background</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColorHint">@color/very_dark_blue</item>
         <item name="android:textColor">@color/bright_white</item>

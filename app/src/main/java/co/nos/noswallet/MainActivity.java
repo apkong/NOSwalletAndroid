@@ -350,4 +350,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     public ApplicationComponent getApplicationComponent() {
         return NOSApplication.getApplication(this).getApplicationComponent();
     }
+
+
 }

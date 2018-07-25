@@ -4,6 +4,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
+import co.nos.noswallet.NOSUtil;
+
 public class ProcessBlock implements Serializable {
     @SerializedName("type")
     public String type = "state";

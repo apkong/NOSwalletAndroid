@@ -280,7 +280,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
                 // if balance > 0, enable send button
                 binding.homeSendButton.setEnabled(true);
             } else {
-               //todo: uncomment later
+                //todo: uncomment later
                 //binding.homeSendButton.setEnabled(false);
             }
         }
@@ -314,7 +314,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
         }
 
         public void onClickSend(View view) {
-            Log.d(TAG,   "onClickSend() called with: view = [" + view + "]");
+            Log.d(TAG, "onClickSend() called with: view = [" + view + "]");
 
             if (getActivity() instanceof WindowControl) {
                 // navigate to send screen
@@ -371,5 +371,21 @@ public class HomeFragment extends BaseFragment implements HomeView {
         mainThreadEnsurer.runOnMainThread(() -> {
             binding.homeSwiperefresh.setRefreshing(false);
         });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (presenter != null) {
+            presenter.stopPending();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (presenter != null) {
+            presenter.requestPending();
+        }
     }
 }

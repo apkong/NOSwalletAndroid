@@ -51,9 +51,9 @@ public class HomePresenter extends BasePresenter<HomeView> {
         getPendingBlocksUseCase.startObservePendingTransactions();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void stopPending() {
+        System.out.println("requestPending()");
         getPendingBlocksUseCase.stopPendingTransactions();
     }
+
 }
