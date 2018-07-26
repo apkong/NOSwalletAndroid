@@ -14,15 +14,11 @@ import io.reactivex.disposables.SerialDisposable;
 public class HomePresenter extends BasePresenter<HomeView> {
 
     SerialDisposable historyDisposable = new SerialDisposable();
-    SerialDisposable pendingTransactionsDisposable = new SerialDisposable();
     private final GetHistoryUseCase getHistoryUseCase;
-    private final GetPendingBlocksUseCase getPendingBlocksUseCase;
 
     @Inject
-    public HomePresenter(GetHistoryUseCase getHistoryUseCase,
-                         GetPendingBlocksUseCase getPendingBlocksUseCase) {
+    public HomePresenter(GetHistoryUseCase getHistoryUseCase) {
         this.getHistoryUseCase = getHistoryUseCase;
-        this.getPendingBlocksUseCase = getPendingBlocksUseCase;
     }
 
     public void requestUpdateHistory() {
@@ -45,15 +41,5 @@ public class HomePresenter extends BasePresenter<HomeView> {
         addDisposable(historyDisposable);
     }
 
-
-    public void requestPending() {
-        System.out.println("requestPending()");
-        getPendingBlocksUseCase.startObservePendingTransactions();
-    }
-
-    public void stopPending() {
-        System.out.println("requestPending()");
-        getPendingBlocksUseCase.stopPendingTransactions();
-    }
 
 }

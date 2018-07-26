@@ -51,8 +51,9 @@ public class BaseFragment extends Fragment {
     /**
      * Set status bar color to dark blue
      */
+    @Deprecated
     protected void setStatusBarBlue() {
-        setStatusBarColor(R.color.very_dark_blue);
+        setStatusBarColor(R.color.colorAccent);
     }
 
     /**

@@ -163,8 +163,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
         RxBus.get().register(this);
 
         // set status bar to blue
-        setStatusBarBlue();
-        setTitle("");
+        setTitle(getString(R.string.main_wallet));
         //setTitleDrawable(R.drawable.ic_launcher192);
         setBackEnabled(false);
 
@@ -216,7 +215,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
             @Override
             public boolean onLongClick(View v) {
                 showHistoryEmpty();
-                presenter.requestPending();
                 return true;
             }
         });
@@ -258,7 +256,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
     public void receiveAccountCheck(AccountCheckResponse accountCheckResponse) {
         if (accountCheckResponse.getReady()) {
             // account is on the network, so send a pending request
-            presenter.requestPending();
+
         }
     }
 
@@ -377,7 +375,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
     public void onStop() {
         super.onStop();
         if (presenter != null) {
-            presenter.stopPending();
+
         }
     }
 
@@ -385,7 +383,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
     public void onStart() {
         super.onStart();
         if (presenter != null) {
-            presenter.requestPending();
+
         }
     }
 }

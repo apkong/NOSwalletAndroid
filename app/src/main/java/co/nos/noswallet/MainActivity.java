@@ -2,6 +2,7 @@ package co.nos.noswallet;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -257,14 +258,13 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     }
 
 
-
     /**
      * Set the status bar to a particular color
      *
      * @param color color resource id
      */
     @Override
-    public void setStatusBarColor(int color) {
+    public void setStatusBarColor(@ColorRes int color) {
         // we can only set it 5.x and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();

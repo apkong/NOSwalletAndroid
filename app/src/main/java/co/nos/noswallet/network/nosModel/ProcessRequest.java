@@ -11,6 +11,7 @@ public class ProcessRequest {
 
     public ProcessRequest(ProcessBlock block) {
         this.block = createShittyJson(block);
+        System.out.println(this);
     }
 
     private String createShittyJson(ProcessBlock block) {
@@ -24,5 +25,13 @@ public class ProcessRequest {
                 "    \"signature\": \"" + block.signature + "\",\n" +
                 "    \"work\": \"" + block.work + "\"\n}" +
                 "\n";
+    }
+
+    @Override
+    public String toString() {
+        return "ProcessRequest{" +
+                "\"action\" : \"" + action + '\"' +
+                ", \"block\" : \"" + block + '\"' +
+                '}';
     }
 }

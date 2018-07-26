@@ -249,6 +249,7 @@ public class NOSUtil {
      * @return Signed message
      */
     public static String sign(String private_key, String data) {
+        Log.d(TAG, "sign() called with: private_key = [" + private_key + "], data = [" + data + "]");
         Sodium sodium = NaCl.sodium();
         byte[] data_b = hexToBytes(data);
         byte[] private_key_b = hexToBytes(private_key);
@@ -257,7 +258,9 @@ public class NOSUtil {
         int[] signature_len = new int[1];
 
         Sodium.crypto_sign_ed25519_detached(signature, signature_len, data_b, data_b.length, private_key_b);
-        return bytesToHex(signature);
+        String ret = bytesToHex(signature);
+        Log.d(TAG, "sign() returned with: " + ret);
+        return ret;
     }
 
     /**

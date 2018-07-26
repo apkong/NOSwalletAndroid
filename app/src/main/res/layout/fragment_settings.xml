@@ -45,19 +45,21 @@
             app:layout_constraintTop_toBottomOf="@+id/dialog_appbar" />
 
         <Spinner
+            android:visibility="gone"
             android:id="@+id/settings_local_currency_spinner"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="38dp"
             android:layout_marginRight="38dp"
             android:background="@drawable/bg_spinner"
+            android:popupBackground="@color/kiwi_green_light"
             android:prompt="@string/settings_local_currency"
             android:spinnerMode="dropdown"
             android:theme="@style/TextStyle15"
-            android:popupBackground="@color/kiwi_green_light"
             app:layout_constraintTop_toBottomOf="@+id/settings_local_currency" />
 
         <android.support.v7.widget.AppCompatImageView
+            android:visibility="gone"
             android:id="@+id/settings_local_currency_spinner_check"
             android:layout_width="13dp"
             android:layout_height="18dp"
@@ -69,6 +71,8 @@
             app:srcCompat="@drawable/ic_check" />
 
         <android.support.v7.widget.AppCompatImageView
+            android:visibility="gone"
+
             android:id="@+id/settings_local_currency_spinner_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -120,19 +124,18 @@
             style="@style/TextStyle4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:alpha="0.35"
-            android:text="@{version}"
-            android:gravity="center"
             android:layout_marginBottom="10dp"
-            tools:text="v1.0 (10)"
-            app:layout_constraintBottom_toTopOf="@+id/settings_log_out" />
+            android:alpha="0.35"
+            android:gravity="center"
+            android:text="@{version}"
+            app:layout_constraintBottom_toTopOf="@+id/settings_log_out"
+            tools:text="v1.0 (10)" />
 
         <TextView
             android:id="@+id/settings_log_out"
-            style="@style/TextStyle14"
+            style="@style/CancelButton"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:background="@drawable/bg_border_top_dark"
+            android:layout_margin="16dp"
             android:gravity="center"
             android:onClick="@{handlers::onClickLogOut}"
             android:text="@string/settings_log_out"

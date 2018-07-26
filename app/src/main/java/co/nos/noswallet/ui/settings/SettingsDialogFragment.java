@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -44,15 +45,6 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.PinComplete;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.model.AvailableCurrency;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.StringWithTag;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
@@ -122,7 +114,7 @@ public class SettingsDialogFragment extends BaseDialogFragment {
         binding.setShowCurrency(showCurrency);
         binding.setVersion(getString(R.string.version_display, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
 
-        setStatusBarWhite(view);
+        setStatusBarColor(R.color.colorAccent);
 
         // set disclaimer links
         createLink(binding.settingsDisclaimer, R.string.settings_disclaimer);
@@ -244,7 +236,8 @@ public class SettingsDialogFragment extends BaseDialogFragment {
         if (Reprint.isHardwarePresent() && Reprint.hasFingerprintRegistered()) {
             // show fingerprint dialog
             LayoutInflater factory = LayoutInflater.from(getContext());
-            @SuppressLint("InflateParams") final View viewFingerprint = factory.inflate(R.layout.view_fingerprint, null);
+            @SuppressLint("InflateParams")
+            final View viewFingerprint = factory.inflate(R.layout.view_fingerprint, null);
             showFingerprintDialog(viewFingerprint);
             com.github.ajalt.reprint.rxjava2.RxReprint.authenticate()
                     .subscribe(result -> {

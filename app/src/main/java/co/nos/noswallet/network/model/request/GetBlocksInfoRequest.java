@@ -33,6 +33,12 @@ public class GetBlocksInfoRequest extends BaseRequest {
         this.balance = true;
     }
 
+    public GetBlocksInfoRequest(String singleHash) {
+        this.action = Actions.GET_BLOCKS_INFO.toString();
+        this.hashes = new String[]{singleHash};
+        this.balance = true;
+    }
+
     public String getAction() {
         return action;
     }

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.annotation.ColorRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -61,23 +62,17 @@ public class BaseDialogFragment extends DialogFragment {
     }
 
     /**
-     * Set status bar color to dark blue
-     */
-    protected void setStatusBarBlue() {
-        setStatusBarColor(R.color.very_dark_blue);
-    }
-
-    /**
      * Set status bar color to white
      *
      * @param view an active view
      */
+    @Deprecated
     protected void setStatusBarWhite(View view) {
         setStatusBarColor(R.color.bright_white);
         setIconsDark(view);
     }
 
-    private void setStatusBarColor(int color) {
+    protected void setStatusBarColor(@ColorRes int color) {
         if (getActivity() instanceof WindowControl) {
             ((WindowControl) getActivity()).setStatusBarColor(color);
         }

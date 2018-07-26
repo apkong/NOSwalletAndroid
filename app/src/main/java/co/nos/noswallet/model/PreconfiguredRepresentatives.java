@@ -12,6 +12,10 @@ import timber.log.Timber;
 
 public class PreconfiguredRepresentatives {
     private static List<String> representatives = Arrays.asList(
+            "xrb_164kohea8yrd57ehyh64t7o8wttmyxwuyyjnz4omrdpr8op7omptkiqe3693"
+    );
+
+    private static List<String> legacy_nano_representatives = Arrays.asList(
             "xrb_1q3hqecaw15cjt7thbtxu3pbzr1eihtzzpzxguoc37bj1wc5ffoh7w74gi6p",
             "xrb_3crzecs58y9gd1ucqcfcdsh56ywty5ixzqk41oa5d3i1ggm4bd6c9q5u34m3",
             "xrb_1w77aapnijnm5mo16r3xtpqu7n459r61fqpcdt3kxfmz8gtqgzbozswxmduy",

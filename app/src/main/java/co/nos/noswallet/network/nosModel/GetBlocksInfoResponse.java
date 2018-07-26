@@ -48,4 +48,9 @@ public class GetBlocksInfoResponse implements Serializable {
         return getProcessBlock().balance;
     }
 
+    public String getAmount() {
+        String key = this.blocks.keySet().iterator().next();
+        BlocksValue first = this.blocks.get(key);
+        return first.amount;
+    }
 }

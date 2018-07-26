@@ -2,6 +2,7 @@ package co.nos.noswallet.network.interactor;
 
 import android.util.Log;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +22,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.disposables.SerialDisposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
@@ -85,7 +87,11 @@ public class GetPendingBlocksUseCase {
         pendingTransactionsDisposable.set(
                 Observable.interval(1, 15, TimeUnit.SECONDS)
                         .flatMap(aLong -> api.getPendingBlocks(new GetPendingBlocksRequest(accountNumber, "100"))
-                                .onErrorReturnItem(new GetPendingBlocksResponse())
+                                .onErrorResumeNext(throwable -> {
+                                    System.err.println(throwable.getCause());
+                                    throwable.printStackTrace();
+                                    return Observable.just(new GetPendingBlocksResponse());
+                                })
                                 .flatMap(getPendingBlocksResponse -> {
                                     if (getPendingBlocksResponse.isEmpty())
                                         return Observable.empty();
@@ -115,35 +121,72 @@ public class GetPendingBlocksUseCase {
 
                     final String balance = blocksInfoResponse.getBalance();
 
+                    final String amount = blocksInfoResponse.getAmount();
+
+                    System.out.println("blocksInfoResponse.balance = " + balance);
+
                     return api.getAccountInfo(new AccountInfoRequest(accountNumber))
-                            .flatMap(accountInfoResponse -> api.generateWork(new WorkRequest(accountInfoResponse.frontier))
-                                    .flatMap(workResponse -> {
+                            .flatMap(accountInfoResponse -> {
 
-                                        String dataToSign = NOSUtil.computeStateHash(
-                                                publicKey,
-                                                accountInfoResponse.frontier,
-                                                NOSUtil.addressToPublic(REPRESENTATIVE),
-                                                balance,
-                                                blockHash
-                                        );
-                                        String signatureFromData = NOSUtil.sign(privateKey, dataToSign);
+                                String accountBalance = accountInfoResponse.balance;
 
-                                        System.out.println("data: " + dataToSign);
-                                        System.out.println("sign: " + signatureFromData);
+                                System.out.println("accountInfoResponse.balance = " + accountBalance);
 
-                                        return api.process(new ProcessRequest(new ProcessBlock(
-                                                accountNumber,
-                                                accountInfoResponse.frontier,
-                                                NOSUtil.addressToPublic(REPRESENTATIVE),
-                                                balance,
-                                                blockHash,
-                                                signatureFromData,
-                                                workResponse.work
+                                return api.generateWork(new WorkRequest(accountInfoResponse.frontier))
+                                        .flatMap(workResponse -> {
 
-                                        ))).map(any -> new Object());
-                                    }));
+                                            String totalBalance = sumBigValues(amount, accountBalance);
+                                            System.out.println("totalBalance = " + totalBalance);
+
+                                            String dataToSign = NOSUtil.computeStateHash(
+                                                    publicKey,
+                                                    accountInfoResponse.frontier,
+                                                    NOSUtil.addressToPublic(REPRESENTATIVE),
+                                                    getRawAsHex(totalBalance),
+                                                    blockHash
+                                            );
+
+                                            String signatureFromData = NOSUtil.sign(privateKey, dataToSign);
+
+                                            System.out.println("data: " + dataToSign);
+                                            System.out.println("sign: " + signatureFromData);
+
+                                            return api.process(new ProcessRequest(new ProcessBlock(
+                                                            accountNumber,
+                                                            accountInfoResponse.frontier,
+                                                            REPRESENTATIVE,
+                                                            totalBalance,
+                                                            blockHash,
+                                                            signatureFromData,
+                                                            workResponse.work)
+                                                    )
+                                            ).map(any -> new Object());
+                                        });
+                            });
                 });
     }
+
+    private String sumBigValues(String balance, String accountBalance) {
+        return new BigInteger(balance).add(new BigInteger(accountBalance)).toString();
+    }
+
+    public static String getRawAsHex(String raw) {
+        // convert to hex
+        String hex = new BigInteger(raw).toString(16);
+
+        // left-pad with zeros to be 32 length
+        StringBuilder sb = new StringBuilder();
+        for (int toPrepend = 32 - hex.length(); toPrepend > 0; toPrepend--) {
+            sb.append('0');
+        }
+        sb.append(hex);
+        return sb.toString().toUpperCase();
+    }
+
+    public static String getRawFromHex(String hex) {
+        return new BigInteger(hex, 16).toString(10);
+    }
+
 
     public void stopPendingTransactions() {
         //todo:

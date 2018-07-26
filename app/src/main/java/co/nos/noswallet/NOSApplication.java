@@ -8,12 +8,15 @@ import android.util.Base64;
 
 import com.github.ajalt.reprint.core.Reprint;
 
+import javax.inject.Inject;
+
 import co.nos.noswallet.di.activity.ActivityComponent;
 import co.nos.noswallet.di.activity.ActivityModule;
 import co.nos.noswallet.di.activity.DaggerActivityComponent;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.di.application.ApplicationModule;
 import co.nos.noswallet.di.application.DaggerApplicationComponent;
+import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
 import co.nos.noswallet.util.Vault;
 import io.realm.Realm;
 import timber.log.Timber;
@@ -24,6 +27,9 @@ import timber.log.Timber;
 
 public class NOSApplication extends MultiDexApplication {
     private ApplicationComponent mApplicationComponent;
+
+    @Inject
+    GetPendingBlocksUseCase getPendingBlocksUseCase;
 
     public void onCreate() {
         super.onCreate();
@@ -41,6 +47,8 @@ public class NOSApplication extends MultiDexApplication {
                 .applicationModule(new ApplicationModule(this))
                 .build();
 
+        mApplicationComponent.inject(this);
+
         // initialize vault
         Vault.initializeVault(this);
         generateEncryptionKey();
@@ -49,6 +57,9 @@ public class NOSApplication extends MultiDexApplication {
         Reprint.initialize(this);
 
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+
+
+        getPendingBlocksUseCase.startObservePendingTransactions();
     }
 
     /**

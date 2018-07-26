@@ -3,6 +3,7 @@ package co.nos.noswallet.di.application;
 
 import javax.inject.Named;
 
+import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.di.analytics.AnalyticsModule;
 import co.nos.noswallet.di.persistence.PersistenceModule;
@@ -27,4 +28,7 @@ public interface ApplicationComponent {
     // encryption key
     @Named("encryption_key")
     byte[] providesEncryptionKey();
+
+
+    void inject(NOSApplication nosApplication);
 }
