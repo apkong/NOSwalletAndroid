@@ -9,7 +9,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import co.nos.noswallet.NOSUtil;
-import co.nos.noswallet.model.Credentials;
+import co.nos.noswallet.db.CredentialsProvider;
+import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.network.model.request.GetBlocksInfoRequest;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
@@ -22,63 +23,30 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.disposables.SerialDisposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import io.realm.Realm;
 
 public class GetPendingBlocksUseCase {
 
     public static final String TAG = "GetPendingBlocksUseCase";
 
-    private final String REPRESENTATIVE = "xrb_164kohea8yrd57ehyh64t7o8wttmyxwuyyjnz4omrdpr8op7omptkiqe3693";
-
     private final NeuroClient api;
     private final String accountNumber;
     private final String privateKey;
     private final String publicKey;
+    private final String REPRESENTATIVE;
 
     private SerialDisposable pendingTransactionsDisposable = new SerialDisposable();
 
     @Inject
-    GetPendingBlocksUseCase(NeuroClient api, Realm realm) {
+    GetPendingBlocksUseCase(NeuroClient api,
+                            CredentialsProvider provider,
+                            RepresentativesProvider representativesProvider) {
         this.api = api;
-        this.accountNumber = provideAccountNumber(realm);
-        this.privateKey = providePrivateKey(realm);
-        this.publicKey = providePublicKey(realm);
+        this.accountNumber = provider.provideAccountNumber();
+        this.privateKey = provider.providePrivateKey();
+        this.publicKey = provider.providePublicKey();
+        this.REPRESENTATIVE = representativesProvider.provideRepresentative();
     }
-
-    String providePublicKey(Realm realm) {
-        Credentials credentials = provideCredentials(realm);
-        if (credentials != null) {
-            return credentials.getPublicKey();
-        } else {
-            return null;
-        }
-    }
-
-    String provideAccountNumber(Realm realm) {
-        Credentials credentials = provideCredentials(realm);
-        if (credentials != null) {
-            return credentials.getAddressString();
-        } else {
-            return null;
-        }
-    }
-
-    Credentials provideCredentials(Realm realm) {
-        Credentials credentials = realm.where(Credentials.class).findFirst();
-        return credentials;
-    }
-
-    String providePrivateKey(Realm realm) {
-        Credentials credentials = provideCredentials(realm);
-        if (credentials != null) {
-            return credentials.getPrivateKey();
-        } else {
-            return null;
-        }
-    }
-
 
     public void startObservePendingTransactions() {
         if (pendingTransactionsDisposable == null) {

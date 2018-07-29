@@ -416,4 +416,8 @@ public class NOSUtil {
     public static boolean isEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
     }
+
+    public static String substractBigIntegers(String left,String right){
+        return new BigInteger(left).subtract(new BigInteger(right)).toString();
+    }
 }

@@ -7,12 +7,11 @@ import javax.inject.Named;
 
 import co.nos.noswallet.bus.Logout;
 import co.nos.noswallet.bus.RxBus;
+import co.nos.noswallet.db.CredentialsProvider;
 import co.nos.noswallet.db.Migration;
-import co.nos.noswallet.di.application.ApplicationScope;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.util.Vault;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.RxBus;
+import co.nos.noswallet.db.RandomFetchedRepresentativesProvider;
+import co.nos.noswallet.db.RealmCredentialsProvider;
+import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.di.application.ApplicationScope;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import co.nos.noswallet.util.Vault;
@@ -90,5 +89,17 @@ public class PersistenceModule {
         } else {
             return Vault.generateKey();
         }
+    }
+
+    @Provides
+    @ApplicationScope
+    CredentialsProvider providesCredentialsProvider(RealmCredentialsProvider provider) {
+        return provider;
+    }
+
+    @Provides
+    @ApplicationScope
+    RepresentativesProvider providesRepresentativeProvider(RandomFetchedRepresentativesProvider provider) {
+        return provider;
     }
 }

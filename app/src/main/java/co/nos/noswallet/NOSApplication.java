@@ -47,7 +47,6 @@ public class NOSApplication extends MultiDexApplication {
                 .applicationModule(new ApplicationModule(this))
                 .build();
 
-        mApplicationComponent.inject(this);
 
         // initialize vault
         Vault.initializeVault(this);
@@ -58,6 +57,7 @@ public class NOSApplication extends MultiDexApplication {
 
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 
+        mApplicationComponent.inject(this);
 
         getPendingBlocksUseCase.startObservePendingTransactions();
     }
