@@ -92,14 +92,12 @@ public class PersistenceModule {
     }
 
     @Provides
-    @ApplicationScope
-    CredentialsProvider providesCredentialsProvider(RealmCredentialsProvider provider) {
-        return provider;
+    CredentialsProvider providesCredentialsProvider(Realm realm) {
+        return new RealmCredentialsProvider(realm);
     }
 
     @Provides
-    @ApplicationScope
-    RepresentativesProvider providesRepresentativeProvider(RandomFetchedRepresentativesProvider provider) {
-        return provider;
+    RepresentativesProvider providesRepresentativeProvider() {
+        return new RandomFetchedRepresentativesProvider();
     }
 }

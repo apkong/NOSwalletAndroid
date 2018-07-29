@@ -35,6 +35,7 @@ import co.nos.noswallet.bus.WalletSubscribeUpdate;
 import co.nos.noswallet.databinding.FragmentHomeBinding;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
+import co.nos.noswallet.network.interactor.SendCoinsUseCase;
 import co.nos.noswallet.network.model.response.AccountCheckResponse;
 import co.nos.noswallet.network.model.response.AccountHistoryResponseItem;
 import co.nos.noswallet.network.nosModel.AccountHistory;
@@ -50,6 +51,10 @@ import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
 import co.nos.noswallet.util.ExceptionHandler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
 /**
@@ -75,6 +80,9 @@ public class HomeFragment extends BaseFragment implements HomeView {
 
     @Inject
     NanoWallet wallet;
+
+    @Inject
+    SendCoinsUseCase sendCoinsUseCase;
 
     @Inject
     AnalyticsService analyticsService;
@@ -219,7 +227,32 @@ public class HomeFragment extends BaseFragment implements HomeView {
             }
         });
 
+        binding.homeSendButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                trySendCoins();
+                return true;
+            }
+        });
+
         return view;
+    }
+
+    private void trySendCoins() {
+        Log.d(TAG, "trySendCoins() called");
+        Disposable s = sendCoinsUseCase.transferCoins("1", "xrb_3i1aq1cchnmbn9x5rsbap8b15akfh7wj7pwskuzi7ahz8oq6cobd99d4r3b7")
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) throws Exception {
+                        System.out.println("TRANSACTION DONE");
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        System.err.println("TRANSACTION FAILED : " + throwable);
+                        throwable.printStackTrace();
+                    }
+                });
     }
 
     private void showCredentials() {

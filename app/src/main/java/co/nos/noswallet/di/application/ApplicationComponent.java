@@ -5,6 +5,8 @@ import javax.inject.Named;
 
 import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.analytics.AnalyticsService;
+import co.nos.noswallet.db.CredentialsProvider;
+import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.di.analytics.AnalyticsModule;
 import co.nos.noswallet.di.persistence.PersistenceModule;
 import co.nos.noswallet.network.NeuroClient;
@@ -24,6 +26,10 @@ public interface ApplicationComponent {
     AnalyticsService provideAnalyticsService();
 
     NeuroClient providesNeuroClient();
+
+    CredentialsProvider providesCredentialsProvider();
+
+    RepresentativesProvider providesRepresentativesProvider();
 
     // encryption key
     @Named("encryption_key")

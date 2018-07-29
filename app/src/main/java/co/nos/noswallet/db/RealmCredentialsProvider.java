@@ -10,7 +10,7 @@ public class RealmCredentialsProvider implements CredentialsProvider {
     private final Realm realm;
 
     @Inject
-    RealmCredentialsProvider(Realm realm) {
+    public RealmCredentialsProvider(Realm realm) {
         this.realm = realm;
     }
 

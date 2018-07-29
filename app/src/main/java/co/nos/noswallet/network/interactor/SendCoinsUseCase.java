@@ -1,5 +1,7 @@
 package co.nos.noswallet.network.interactor;
 
+import android.util.Log;
+
 import javax.inject.Inject;
 
 import co.nos.noswallet.NOSUtil;
@@ -15,6 +17,8 @@ import io.reactivex.Observable;
 import static co.nos.noswallet.network.interactor.GetPendingBlocksUseCase.getRawAsHex;
 
 public class SendCoinsUseCase {
+
+    public static final String TAG = SendCoinsUseCase.class.getSimpleName();
 
     private final NeuroClient api;
     private final String accountNumber;
@@ -40,7 +44,7 @@ public class SendCoinsUseCase {
 
     public Observable<Object> transferCoins(String amount, String destinationAcount) {
         String realAmount = format30(amount);
-        return transferCoinsInFormat30(realAmount,destinationAcount);
+        return transferCoinsInFormat30(realAmount, destinationAcount);
     }
 
     public Observable<Object> transferCoinsInFormat30(String amount,
@@ -62,17 +66,29 @@ public class SendCoinsUseCase {
                                              String representative,
                                              String private_key) {
 
+        Log.d(TAG, "transferCoins() called with: " +
+                "sendingAccount = [" + sendingAccount + "], " +
+                "publicKey = [" + publicKey + "], " +
+                "destinationAccount = [" + destinationAccount + "], " +
+                "amount = [" + amount + "], " +
+                "representative = [" + representative + "], " +
+                "private_key = [" + private_key + "]");
+
         return api.getAccountInfo(new AccountInfoRequest(sendingAccount))
                 .flatMap(accountInfoResponse -> {
+
+                    System.out.println("Account info resppnse: " + accountInfoResponse);
 
                     String accountBalance = accountInfoResponse.balance;
 
                     return api.generateWork(new WorkRequest(accountInfoResponse.frontier))
                             .flatMap(workResponse -> {
                                 String totalBalance = NOSUtil.substractBigIntegers(accountBalance, amount);
+
                                 System.out.println("totalBalance = " + totalBalance);
 
                                 String link = NOSUtil.addressToPublic(destinationAccount);
+                                System.out.println("link = " + link);
 
                                 String dataToSign = NOSUtil.computeStateHash(
                                         publicKey,
