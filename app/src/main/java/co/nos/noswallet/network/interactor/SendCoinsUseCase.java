@@ -77,7 +77,7 @@ public class SendCoinsUseCase {
         return api.getAccountInfo(new AccountInfoRequest(sendingAccount))
                 .flatMap(accountInfoResponse -> {
 
-                    System.out.println("Account info resppnse: " + accountInfoResponse);
+                    System.out.println("Account info response: " + accountInfoResponse);
 
                     String accountBalance = accountInfoResponse.balance;
 

@@ -227,20 +227,15 @@ public class HomeFragment extends BaseFragment implements HomeView {
             }
         });
 
-        binding.homeSendButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                trySendCoins();
-                return true;
-            }
-        });
-
         return view;
     }
 
     private void trySendCoins() {
         Log.d(TAG, "trySendCoins() called");
-        Disposable s = sendCoinsUseCase.transferCoins("1", "xrb_3i1aq1cchnmbn9x5rsbap8b15akfh7wj7pwskuzi7ahz8oq6cobd99d4r3b7")
+        Disposable s = sendCoinsUseCase.transferCoins("1",
+                "xrb_1e4az53g13ijej566xybe46ef7em8x3cydaqeukd4yxrokqm5pemfa4b96a7"
+//                "xrb_3i1aq1cchnmbn9x5rsbap8b15akfh7wj7pwskuzi7ahz8oq6cobd99d4r3b7"
+        )
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Object>() {
                     @Override
                     public void accept(Object o) throws Exception {
