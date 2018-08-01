@@ -14,6 +14,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Guideline;
 import android.support.v4.content.ContextCompat;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,65 +30,39 @@ import android.widget.TextView;
 
 import com.github.ajalt.reprint.core.AuthenticationFailureReason;
 import com.github.ajalt.reprint.core.Reprint;
-import com.hwangjr.rxbus.annotation.Subscribe;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
 import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.R;
-import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.HideOverlay;
-import co.nos.noswallet.bus.PinComplete;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SendInvalidAmount;
-import co.nos.noswallet.bus.ShowOverlay;
-import co.nos.noswallet.databinding.FragmentSendBinding;
+import co.nos.noswallet.databinding.FragmentSendCoinsBinding;
 import co.nos.noswallet.model.Address;
-import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NOSWallet;
-import co.nos.noswallet.network.interactor.SendCoinsUseCase;
-import co.nos.noswallet.network.model.response.ErrorResponse;
-import co.nos.noswallet.network.model.response.ProcessResponse;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.UIUtil;
 import co.nos.noswallet.ui.scan.ScanActivity;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-import io.realm.Realm;
 
 import static android.app.Activity.RESULT_OK;
 
 /**
  * Send Screen
  */
-public class SendFragment extends BaseFragment {
-    private FragmentSendBinding binding;
-    public static String TAG = SendFragment.class.getSimpleName();
-    private boolean localCurrencyActive = false;
+public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
+    private FragmentSendCoinsBinding binding;
+    public static String TAG = SendCoinsFragment.class.getSimpleName();
+
     private AlertDialog fingerprintDialog;
     private static final String ARG_NEW_SEED = "argNewSeed";
     private String newSeed;
 
     @Inject
-    NOSWallet nosWallet;
-
-    @Inject
-    SendCoinsUseCase sendCoinsUseCase;
-
-    @Inject
-    SharedPreferencesUtil sharedPreferencesUtil;
-
-    @Inject
-    Realm realm;
+    SendCoinsPresenter presenter;
 
     @BindingAdapter("layout_constraintGuide_percent")
     public static void setLayoutConstraintGuidePercent(Guideline guideline, float percent) {
@@ -101,9 +76,9 @@ public class SendFragment extends BaseFragment {
      *
      * @return New instance of SendFragment
      */
-    public static SendFragment newInstance() {
+    public static SendCoinsFragment newInstance() {
         Bundle args = new Bundle();
-        SendFragment fragment = new SendFragment();
+        SendCoinsFragment fragment = new SendCoinsFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -113,10 +88,10 @@ public class SendFragment extends BaseFragment {
      *
      * @return New instance of SendFragment
      */
-    public static SendFragment newInstance(String newSeed) {
+    public static SendCoinsFragment newInstance(String newSeed) {
         Bundle args = new Bundle();
         args.putString(ARG_NEW_SEED, newSeed);
-        SendFragment fragment = new SendFragment();
+        SendCoinsFragment fragment = new SendCoinsFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -142,7 +117,6 @@ public class SendFragment extends BaseFragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.send_camera:
-                //analyticsService.track(AnalyticsEvents.ADDRESS_SCAN_CAMERA_VIEWED);
                 startScanActivity(getString(R.string.scan_send_instruction_label), false);
                 return true;
         }
@@ -168,8 +142,6 @@ public class SendFragment extends BaseFragment {
 
         //analyticsService.track(AnalyticsEvents.SEND_VIEWED);
 
-        // subscribe to bus
-        RxBus.get().register(this);
 
         // change keyboard mode
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -177,9 +149,10 @@ public class SendFragment extends BaseFragment {
 
         // inflate the view
         binding = DataBindingUtil.inflate(
-                inflater, R.layout.fragment_send, container, false);
+                inflater, R.layout.fragment_send_coins, container, false);
         view = binding.getRoot();
         binding.setHandlers(new ClickHandlers());
+
 
         setStatusBarBlue();
         setBackEnabled(true);
@@ -188,12 +161,13 @@ public class SendFragment extends BaseFragment {
 
         // hide keyboard for edittext fields
         binding.sendAmountNano.setInputType(InputType.TYPE_NULL);
+        binding.sendAmountLocalcurrency.setVisibility(View.GONE);
         binding.sendAmountLocalcurrency.setInputType(InputType.TYPE_NULL);
 
         // set active and inactive states for edittext fields
         binding.sendAmountNano.setOnFocusChangeListener((view1, b) -> toggleFieldFocus((EditText) view1, b, false));
         binding.sendAmountLocalcurrency.setOnFocusChangeListener((view1, b) -> toggleFieldFocus((EditText) view1, b, true));
-        binding.sendAmountLocalcurrency.setHint(NumberFormat.getCurrencyInstance(getLocalCurrency().getLocale()).format(0));
+        binding.sendAmountLocalcurrency.setHint(NumberFormat.getCurrencyInstance(Locale.ENGLISH).format(0));
         binding.setShowAmount(true);
 
         binding.sendAddress.setOnFocusChangeListener((view12, hasFocus) -> binding.setShowAmount(!hasFocus));
@@ -209,6 +183,8 @@ public class SendFragment extends BaseFragment {
             setShortAddress();
         }
 
+        presenter.attachView(this);
+
         return view;
     }
 
@@ -216,7 +192,6 @@ public class SendFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         // unregister from bus
-        RxBus.get().unregister(this);
     }
 
     @Override
@@ -232,6 +207,7 @@ public class SendFragment extends BaseFragment {
 
                     // set to scanned value
                     if (address.getAddress() != null) {
+                        presenter.setTargetAddress(address.getAddress());
                         binding.sendAddress.setText(address.getAddress());
                     }
 
@@ -239,102 +215,6 @@ public class SendFragment extends BaseFragment {
                 }
             }
         }
-    }
-
-
-    public AvailableCurrency getLocalCurrency() {
-        return sharedPreferencesUtil.getLocalCurrency();
-    }
-
-    /**
-     * Event that occurs if an amount entered is invalid
-     *
-     * @param sendInvalidAmount Send Invalid Amount event
-     */
-    @Subscribe
-    public void receiveInvalidAmount(SendInvalidAmount sendInvalidAmount) {
-        // reset amount to max in wallet
-        // show alert with a message to the user letting them know the amount they entered
-        showError(R.string.send_amount_too_large_alert_title, R.string.send_amount_too_large_alert_message);
-    }
-
-    /**
-     * Catch errors from the service
-     *
-     * @param errorResponse Error Resposne event
-     */
-    @Subscribe
-    public void receiveServiceError(ErrorResponse errorResponse) {
-        RxBus.get().post(new HideOverlay());
-        // show alert with a message to the user letting them know the amount they entered
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
-        } else {
-            builder = new AlertDialog.Builder(getContext());
-        }
-        builder.setMessage(R.string.send_error_alert_message)
-                .setPositiveButton(R.string.send_amount_too_large_alert_cta, (dialog, which) -> {
-                    goBack();
-                })
-                .show();
-    }
-
-    /**
-     * Received a successful send response so go back
-     *
-     * @param processResponse Process Response
-     */
-    @Subscribe
-    public void receiveProcessResponse(ProcessResponse processResponse) {
-        RxBus.get().post(new HideOverlay());
-        //accountService.requestUpdate();
-        //analyticsService.track(AnalyticsEvents.SEND_FINISHED);
-
-        // updates to handle seed conversion 1.0.2
-        if (newSeed != null) {
-            realm.beginTransaction();
-            Credentials credentials = realm.where(Credentials.class).findFirst();
-            if (credentials != null) {
-                credentials.setHasSentToNewSeed(true);
-                credentials.setNewlyGeneratedSeed(newSeed);
-            }
-            realm.commitTransaction();
-            AlertDialog.Builder builder;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
-            } else {
-                builder = new AlertDialog.Builder(getContext());
-            }
-
-            builder.setTitle(R.string.seed_update_send_completed_alert_title)
-                    .setMessage(R.string.seed_update_send_completed_alert_message)
-                    .setPositiveButton(R.string.seed_update_send_completed_alert_confirm, (dialog, which) -> goBack())
-                    .show();
-        } else {
-            goBack();
-        }
-    }
-
-    /**
-     * Pin entered correctly
-     *
-     * @param pinComplete PinComplete object
-     */
-    @Subscribe
-    public void receivePinComplete(PinComplete pinComplete) {
-        executeSend();
-    }
-
-    @Subscribe
-    public void receiveCreatePin(CreatePin pinComplete) {
-        realm.beginTransaction();
-        Credentials credentials = realm.where(Credentials.class).findFirst();
-        if (credentials != null) {
-            credentials.setPin(pinComplete.getPin());
-        }
-        realm.commitTransaction();
-        executeSend();
     }
 
     private boolean validateAddress() {
@@ -352,18 +232,19 @@ public class SendFragment extends BaseFragment {
     }
 
     private void setCurrentTypedCoins(String value) {
-         binding.sendAmountNano.setText(value);
+        binding.sendAmountNano.setText(value);
     }
 
     private void enableSendIfPossible() {
-        Address destination = new Address(binding.sendAddress.getText().toString());
+        boolean enableSend = presenter.canTransferNeuros(getCurrentTypedCoins());
 
-        boolean enableSend = destination.isValidAddress() && nosWallet.canTransferNeuros(getCurrentTypedCoins());
+        binding.sendSendButton.setBackgroundResource(enableSend ? R.drawable.bg_large_button : R.drawable.bg_large_button_gray);
 
         binding.sendSendButton.setEnabled(enableSend);
     }
 
-    private void showError(int title, int message) {
+    @Override
+    public void showError(int title, int message) {
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
@@ -373,6 +254,21 @@ public class SendFragment extends BaseFragment {
         builder.setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.send_amount_too_large_alert_cta, (dialog, which) -> {
+                })
+                .show();
+    }
+
+    @Override
+    public void showAmountSent(String sendAmount, String targetAddress) {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(getContext());
+        }
+        builder.setTitle(R.string.transfer_succeess)
+                .setMessage("" + sendAmount + " successfully send to " + targetAddress)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 })
                 .show();
     }
@@ -399,14 +295,12 @@ public class SendFragment extends BaseFragment {
      * @param isLocalCurrency Is this view the local currency view?
      */
     private void toggleFieldFocus(EditText v, boolean hasFocus, boolean isLocalCurrency) {
-        localCurrencyActive = isLocalCurrency;
 
         v.setTextSize(TypedValue.COMPLEX_UNIT_SP, hasFocus ? 20f : 16f);
         binding.sendAmountNanoSymbol.setAlpha(hasFocus && !isLocalCurrency ? 1.0f : 0.5f);
 
         // clear amounts
         setCurrentTypedCoins("");
-
 
         // set local currency decimal separator if local currency is active, otherwise . for nano
         //binding.sendKeyboardDecimal.setText(localCurrencyActive ? wallet.getDecimalSeparator() : ".");
@@ -418,37 +312,9 @@ public class SendFragment extends BaseFragment {
      * @param value String value of character pressed
      */
     private void updateAmount(CharSequence value) {
-//        if (value.equals(getString(R.string.send_keyboard_delete))) {
-//            // delete last character
-//            if (localCurrencyActive) {
-//                if (wallet.getLocalCurrencyAmount().length() > 0) {
-//                    wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount().substring(0, wallet.getLocalCurrencyAmount().length() - 1));
-//                }
-//            } else {
-//                if (wallet.getSendNanoAmount().length() > 0) {
-//                    wallet.setSendNanoAmount(wallet.getSendNanoAmount().substring(0, wallet.getSendNanoAmount().length() - 1));
-//                }
-//            }
-//        } else if ((!localCurrencyActive && value.equals(getString(R.string.send_keyboard_decimal))) || (localCurrencyActive && value.equals(wallet.getDecimalSeparator()))) {
-//            // decimal point
-//            if (localCurrencyActive) {
-//                if (!wallet.getLocalCurrencyAmount().contains(value)) {
-//                    wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount() + value);
-//                }
-//            } else {
-//                if (!wallet.getSendNanoAmount().contains(value)) {
-//                    wallet.setSendNanoAmount(wallet.getSendNanoAmount() + value);
-//                }
-//            }
-//        } else {
-//            // digits
-//            if (localCurrencyActive) {
-//                wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount() + value);
-//            } else {
-//                wallet.setSendNanoAmount(wallet.getSendNanoAmount() + value);
-//            }
-//        }
+        Log.d(TAG, "updateAmount() called with: value = [" + value + "]");
 
+        presenter.updateAmount(value);
         enableSendIfPossible();
     }
 
@@ -465,37 +331,15 @@ public class SendFragment extends BaseFragment {
         enableSendIfPossible();
     }
 
-    private void executeSend() {
-        System.out.println("execute send()");
-        String destinationAccount = binding.sendAddress.getText().toString();
-        String coinsAmount = getCurrentTypedCoins();
 
-        Address destination = new Address(destinationAccount);
+    @Override
+    public void onCurrentInputReceived(String currentInput) {
+        setCurrentTypedCoins(currentInput);
+    }
 
-        if (destination.isValidAddress() && nosWallet.canTransferNeuros(coinsAmount)) {
-            RxBus.get().post(new ShowOverlay());
-            String sendAmount = nosWallet.getRawToTransfer(coinsAmount);
+    @Override
+    public void showError(String message) {
 
-            Disposable s = sendCoinsUseCase.transferCoins(sendAmount, destinationAccount)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<Object>() {
-                        @Override
-                        public void accept(Object o) throws Exception {
-                            RxBus.get().post(new HideOverlay());
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
-                        }
-                    });
-
-
-            //analyticsService.track(AnalyticsEvents.SEND_BEGAN);
-        } else {
-            showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
-        }
     }
 
     public class ClickHandlers {
@@ -532,12 +376,13 @@ public class SendFragment extends BaseFragment {
             binding.sendAmountNano.requestFocus();
         }
 
+        @SuppressLint("CheckResult")
         public void onClickSend(View view) {
             if (!validateAddress()) {
                 return;
             }
 
-            Credentials credentials = realm.where(Credentials.class).findFirst();
+            Credentials credentials = presenter.provideCredentials();
 
             if (Reprint.isHardwarePresent() && Reprint.hasFingerprintRegistered()) {
                 // show fingerprint dialog
@@ -568,16 +413,14 @@ public class SendFragment extends BaseFragment {
 
         public void onClickMax(View view) {
             //analyticsService.track(AnalyticsEvents.SEND_MAX_AMOUNT_USED);
-            String maxNeuros = nosWallet.getTotalNeurosAmount();
-            binding.sendAmountNano.setText(maxNeuros);
-
+            String maxNeuros = presenter.getTotalNeurosAmount();
+            presenter.updateAmountFromCode(maxNeuros);
             enableSendIfPossible();
         }
 
         public void onClickNumKeyboard(View view) {
             updateAmount(((Button) view).getText());
         }
-
     }
 
     private void showFingerprintDialog(View view) {
@@ -603,7 +446,8 @@ public class SendFragment extends BaseFragment {
                 textView.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_sky_blue));
             }
             textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_fingerprint_success, 0, 0, 0);
-            executeSend();
+
+            presenter.attemptSendCoins(getCurrentTypedCoins());
 
             // close dialog after 1 second
             final Handler handler = new Handler();
@@ -628,5 +472,15 @@ public class SendFragment extends BaseFragment {
             }
             textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_fingerprint_error, 0, 0, 0);
         }
+    }
+
+    @Override
+    public void showLoading() {
+        binding.getRoot().findViewById(R.id.fragment_send_overlay).setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideLoading() {
+        binding.getRoot().findViewById(R.id.fragment_send_overlay).setVisibility(View.GONE);
     }
 }

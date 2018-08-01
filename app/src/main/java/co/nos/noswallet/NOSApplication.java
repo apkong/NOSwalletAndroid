@@ -16,6 +16,7 @@ import co.nos.noswallet.di.activity.DaggerActivityComponent;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.di.application.ApplicationModule;
 import co.nos.noswallet.di.application.DaggerApplicationComponent;
+import co.nos.noswallet.model.NOSWallet;
 import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
 import co.nos.noswallet.util.Vault;
 import io.realm.Realm;
@@ -26,6 +27,16 @@ import timber.log.Timber;
  */
 
 public class NOSApplication extends MultiDexApplication {
+
+    static NOSApplication context;
+
+    private NOSWallet nosWallet = new NOSWallet();
+
+    public static NOSWallet getNosWallet() {
+        return getApplication(context).nosWallet;
+    }
+
+
     private ApplicationComponent mApplicationComponent;
 
     @Inject
@@ -33,6 +44,7 @@ public class NOSApplication extends MultiDexApplication {
 
     public void onCreate() {
         super.onCreate();
+        context = this;
 
         // initialize Realm database
         Realm.init(this);
@@ -95,5 +107,6 @@ public class NOSApplication extends MultiDexApplication {
                 .activityModule(new ActivityModule(activity))
                 .build();
     }
+
 
 }

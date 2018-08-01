@@ -9,8 +9,10 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import co.nos.noswallet.NOSUtil;
+import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.db.CredentialsProvider;
 import co.nos.noswallet.db.RepresentativesProvider;
+import co.nos.noswallet.model.CurrentAccountBalance;
 import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.network.model.request.GetBlocksInfoRequest;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
@@ -96,7 +98,10 @@ public class GetPendingBlocksUseCase {
                     return api.getAccountInfo(new AccountInfoRequest(accountNumber))
                             .flatMap(accountInfoResponse -> {
 
+
                                 String accountBalance = accountInfoResponse.balance;
+
+                                RxBus.get().post(new CurrentAccountBalance(accountBalance));
 
                                 System.out.println("accountInfoResponse.balance = " + accountBalance);
 

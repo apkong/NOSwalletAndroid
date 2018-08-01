@@ -37,6 +37,7 @@ import io.realm.Realm;
 /**
  * Nano wallet that holds transactions and current prices
  */
+@Deprecated
 public class NanoWallet {
     private BigDecimal accountBalance;
     private BigDecimal localCurrencyPrice;
@@ -52,6 +53,7 @@ public class NanoWallet {
     private List<AccountHistoryResponseItem> accountHistory;
 
     // for sending
+    @Deprecated
     private String sendNanoAmount;
     private String sendLocalCurrencyAmount;
     private String publicKey;
@@ -210,7 +212,6 @@ public class NanoWallet {
     public String sanitizeNoCommas(String amount) {
         return amount.replaceAll("[^\\d.]", "");
     }
-
 
     /**
      * Set Nano amount which will also set the local currency amount
@@ -491,6 +492,11 @@ public class NanoWallet {
         localCurrencyPrice = new BigDecimal(subscribeResponse.getPrice());
         btcPrice = new BigDecimal(subscribeResponse.getBtc());
         RxBus.get().post(new WalletSubscribeUpdate());
+    }
+
+    @Subscribe
+    public void currentAccountBalance(CurrentAccountBalance currentAccountBalance){
+        accountBalance = currentAccountBalance.value;
     }
 
     /**

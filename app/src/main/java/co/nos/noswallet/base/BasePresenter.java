@@ -19,7 +19,7 @@ abstract public class BasePresenter<View extends BaseView> {
     }
 
     public void onDestroy(){
-
+        compositeDisposable.clear();
     }
 
     public void addDisposable(Disposable disposable) {

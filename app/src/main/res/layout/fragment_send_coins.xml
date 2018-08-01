@@ -13,7 +13,7 @@
 
         <variable
             name="handlers"
-            type="co.nos.noswallet.ui.send.SendFragment.ClickHandlers" />
+            type="co.nos.noswallet.ui.send.SendCoinsFragment.ClickHandlers" />
     </data>
 
     <android.support.constraint.ConstraintLayout
@@ -401,6 +401,36 @@
             android:visibility="@{safeUnbox(showAmount) ? View.VISIBLE : View.GONE}"
             app:constraint_referenced_ids="send_amounts_background,send_amount_nano_container,send_max_button,send_amounts_divider,send_arrows,send_amount_localcurrency"
             tools:visibility="visible" />
+
+        <co.nos.noswallet.ui.common.OverlayView
+            android:id="@+id/fragment_send_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:alpha="0.77"
+            tools:background="#000">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:layout_margin="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/progressBar"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+
+                android:text="Processing..."
+                android:textColor="#fff"
+                android:textSize="22dp" />
+
+
+        </co.nos.noswallet.ui.common.OverlayView>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

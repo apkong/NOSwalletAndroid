@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.db.CredentialsProvider;
-import co.nos.noswallet.model.PreconfiguredRepresentatives;
+import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
 import co.nos.noswallet.network.nosModel.ProcessBlock;
@@ -25,13 +25,17 @@ public class SendCoinsUseCase {
     private final String privateKey;
     private final String publicKey;
 
+    private final String representative;
+
     @Inject
     public SendCoinsUseCase(NeuroClient api,
-                            CredentialsProvider provider) {
+                            CredentialsProvider provider,
+                            RepresentativesProvider representativesProvider) {
         this.api = api;
         this.accountNumber = provider.provideAccountNumber();
         this.privateKey = provider.providePrivateKey();
         this.publicKey = provider.providePublicKey();
+        this.representative = representativesProvider.provideRepresentative();
     }
 
     String format30(String amount) {
@@ -54,7 +58,7 @@ public class SendCoinsUseCase {
                 publicKey,
                 destinationAccount,
                 amount,
-                PreconfiguredRepresentatives.getRepresentative(),
+                representative,
                 privateKey
         );
     }

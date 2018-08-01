@@ -23,6 +23,7 @@ import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.pin.CreatePinDialogFragment;
 import co.nos.noswallet.ui.pin.PinDialogFragment;
 import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
+import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import dagger.Component;
@@ -84,4 +85,6 @@ public interface ActivityComponent {
     void inject(EmailAddressFragment emailAddressFragment);
 
     void inject(DoneFragment doneFragment);
+
+    void inject(SendCoinsFragment sendCoinsFragment);
 }

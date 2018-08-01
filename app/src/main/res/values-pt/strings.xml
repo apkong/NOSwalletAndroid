@@ -150,5 +150,6 @@
     <string name="seed_reminder_alert_message">Devído a uma atualização de segurança, você migrou sua Seed de Carteira.\n\nSua nova seed é\n%1$s\n\nSeu novo endereço é\n%2$s\n\nDesconecte e conecte novamente com sua nova seed</string>
     <string name="seed_reminder_alert_neutral_cta">Confirmar</string>
     <string name="seed_reminder_alert_confirm_cta">Desconectar</string>
+    <string name="please_specify_destination_address">Please specify valid destination address</string>
 
 </resources>

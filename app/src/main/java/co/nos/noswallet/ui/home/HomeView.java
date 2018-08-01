@@ -10,4 +10,5 @@ public interface HomeView extends BaseView {
 
     void showHistoryEmpty();
 
+    void onBalanceFormattedReceived(String formatted);
 }

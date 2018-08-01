@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hwangjr.rxbus.annotation.Subscribe;
@@ -35,8 +36,8 @@ import co.nos.noswallet.bus.WalletSubscribeUpdate;
 import co.nos.noswallet.databinding.FragmentHomeBinding;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
+import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
 import co.nos.noswallet.network.interactor.SendCoinsUseCase;
-import co.nos.noswallet.network.model.response.AccountCheckResponse;
 import co.nos.noswallet.network.model.response.AccountHistoryResponseItem;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
@@ -47,14 +48,11 @@ import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.home.adapter.HistoryAdapter;
 import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
+import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
 import co.nos.noswallet.util.ExceptionHandler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
 /**
@@ -71,6 +69,9 @@ public class HomeFragment extends BaseFragment implements HomeView {
     private WalletController controller;
     public static String TAG = HomeFragment.class.getSimpleName();
     private boolean logoutClicked = false;
+
+    @Inject
+    CheckAccountBalanceUseCase checkAccountBalanceUseCase;
 
     @Inject
     HomePresenter presenter;
@@ -230,24 +231,10 @@ public class HomeFragment extends BaseFragment implements HomeView {
         return view;
     }
 
-    private void trySendCoins() {
-        Log.d(TAG, "trySendCoins() called");
-        Disposable s = sendCoinsUseCase.transferCoins("1",
-                "xrb_1e4az53g13ijej566xybe46ef7em8x3cydaqeukd4yxrokqm5pemfa4b96a7"
-//                "xrb_3i1aq1cchnmbn9x5rsbap8b15akfh7wj7pwskuzi7ahz8oq6cobd99d4r3b7"
-        )
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Object>() {
-                    @Override
-                    public void accept(Object o) throws Exception {
-                        System.out.println("TRANSACTION DONE");
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        System.err.println("TRANSACTION FAILED : " + throwable);
-                        throwable.printStackTrace();
-                    }
-                });
+    @Override
+    public void onResume() {
+        super.onResume();
+        presenter.checkAccountBalance();
     }
 
     private void showCredentials() {
@@ -278,14 +265,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
     @Subscribe
     public void receiveSubscribe(WalletSubscribeUpdate walletSubscribeUpdate) {
         updateAmounts();
-    }
-
-    @Subscribe
-    public void receiveAccountCheck(AccountCheckResponse accountCheckResponse) {
-        if (accountCheckResponse.getReady()) {
-            // account is on the network, so send a pending request
-
-        }
     }
 
     @Deprecated
@@ -327,6 +306,14 @@ public class HomeFragment extends BaseFragment implements HomeView {
                 .show();
     }
 
+    @Override
+    public void onBalanceFormattedReceived(String formatted) {
+        TextView view = binding.getRoot().findViewById(R.id.home_top_balance);
+        if (view != null) {
+            view.setText(formatted);
+        }
+    }
+
     public class ClickHandlers {
         public void onClickReceive(View view) {
             if (getActivity() instanceof WindowControl) {
@@ -346,7 +333,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
                 // navigate to send screen
 
                 ((WindowControl) getActivity()).getFragmentUtility().add(
-                        SendFragment.newInstance(),
+                        SendCoinsFragment.newInstance(),
                         FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
                         FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
                         SendFragment.TAG
@@ -403,7 +390,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
     public void onStop() {
         super.onStop();
         if (presenter != null) {
-
+            presenter.onDestroy();
         }
     }
 
@@ -411,7 +398,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
     public void onStart() {
         super.onStart();
         if (presenter != null) {
-
+            presenter.onStart();
         }
     }
 }

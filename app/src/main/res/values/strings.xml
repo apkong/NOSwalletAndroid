@@ -191,5 +191,9 @@
     <string name="error_history_empty">History empty</string>
     <string name="main_wallet">Main Wallet</string>
 
+    <string name="please_specify_destination_address">Please specify valid destination address</string>
+    <string name="cannot_transfer">Coins amount too large</string>
+    <string name="transfer_succeess">Transfer success</string>
+
 
 </resources>

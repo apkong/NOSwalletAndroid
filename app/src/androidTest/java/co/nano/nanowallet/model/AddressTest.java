@@ -11,7 +11,9 @@ import org.junit.runner.RunWith;
 import javax.inject.Inject;
 
 import co.nano.nanowallet.di.activity.TestActivityComponent;
-import co.nano.nanowallet.util.SharedPreferencesUtil;
+import co.nos.noswallet.model.Address;
+import co.nos.noswallet.model.NanoWallet;
+import co.nos.noswallet.util.SharedPreferencesUtil;
 
 /**
  * Test the Nano Utility functions
