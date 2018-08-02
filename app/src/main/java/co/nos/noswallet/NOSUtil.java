@@ -9,6 +9,7 @@ import android.util.Log;
 import org.libsodium.jni.NaCl;
 import org.libsodium.jni.Sodium;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Collection;
@@ -419,6 +420,6 @@ public class NOSUtil {
     }
 
     public static String substractBigIntegers(String left,String right){
-        return new BigInteger(left).subtract(new BigInteger(right)).toString();
+        return new BigDecimal(left).subtract(new BigDecimal(right)).toString();
     }
 }

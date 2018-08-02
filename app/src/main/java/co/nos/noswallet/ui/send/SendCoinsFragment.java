@@ -210,11 +210,15 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                         presenter.setTargetAddress(address.getAddress());
                         binding.sendAddress.setText(address.getAddress());
                     }
-
                     setShortAddress();
                 }
             }
         }
+    }
+
+    @Override
+    public void showError(String message) {
+        showError(R.string.send_error_alert_title, message);
     }
 
     private boolean validateAddress() {
@@ -237,14 +241,11 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
     private void enableSendIfPossible() {
         boolean enableSend = presenter.canTransferNeuros(getCurrentTypedCoins());
-
         binding.sendSendButton.setBackgroundResource(enableSend ? R.drawable.bg_large_button : R.drawable.bg_large_button_gray);
-
         binding.sendSendButton.setEnabled(enableSend);
     }
 
-    @Override
-    public void showError(int title, int message) {
+    public void showError(int title, String message) {
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
@@ -256,6 +257,11 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                 .setPositiveButton(R.string.send_amount_too_large_alert_cta, (dialog, which) -> {
                 })
                 .show();
+    }
+
+    @Override
+    public void showError(int title, int message) {
+        showError(title, getString(message));
     }
 
     @Override
@@ -267,22 +273,8 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
             builder = new AlertDialog.Builder(getContext());
         }
         builder.setTitle(R.string.transfer_succeess)
-                .setMessage("" + sendAmount + " successfully send to " + targetAddress)
+                .setMessage(getString(R.string.sent_coins_amount_to_address, sendAmount, targetAddress))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                })
-                .show();
-    }
-
-    private void showError(int title, String message) {
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
-        } else {
-            builder = new AlertDialog.Builder(getContext());
-        }
-        builder.setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(R.string.send_amount_too_large_alert_cta, (dialog, which) -> {
                 })
                 .show();
     }
@@ -337,11 +329,6 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         setCurrentTypedCoins(currentInput);
     }
 
-    @Override
-    public void showError(String message) {
-
-    }
-
     public class ClickHandlers {
         /**
          * Listener for styling updates when text changes
@@ -383,7 +370,6 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                 System.out.println("address invalid");
                 return;
             }
-
             Credentials credentials = presenter.provideCredentials();
 
             if (Reprint.isHardwarePresent() && Reprint.hasFingerprintRegistered()) {

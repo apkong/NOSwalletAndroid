@@ -220,14 +220,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
 
         presenter.requestUpdateHistory();
 
-        binding.homeReceiveButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                showHistoryEmpty();
-                return true;
-            }
-        });
-
         return view;
     }
 

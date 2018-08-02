@@ -65,6 +65,9 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
                     }, new Consumer<Throwable>() {
                         @Override
                         public void accept(Throwable throwable) throws Exception {
+                            view.hideLoading();
+                            System.err.println("error sending coins " + throwable);
+                            throwable.printStackTrace();
                             view.showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
                         }
                     }));

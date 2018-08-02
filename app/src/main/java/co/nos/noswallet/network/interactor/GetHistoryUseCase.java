@@ -17,7 +17,7 @@ public class GetHistoryUseCase {
     private String accountNumber;
 
 
-    private volatile NeuroHistoryResponse cachedResponse;
+    public volatile NeuroHistoryResponse cachedResponse;
 
     @Inject
     GetHistoryUseCase(NeuroClient neuroClient, Realm realm) {

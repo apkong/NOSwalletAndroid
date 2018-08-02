@@ -6,6 +6,8 @@ import javax.inject.Inject;
 
 public class NOSWallet {
 
+    static final BigDecimal tenPowerTo30 = new BigDecimal(10).pow(30);
+
 
     private volatile String neuros = "0"; // for example 2 (which is equivalent for 2 with 30 zeros
     private volatile String rawAmount = "0"; //for example 2 with 30 zeros
@@ -71,6 +73,9 @@ public class NOSWallet {
     }
 
     public String getRawToTransfer(String coinsAmount) {
-        return coinsAmount + zeros(30);
+
+        String result = new BigDecimal(coinsAmount).multiply(tenPowerTo30).toString();
+        System.out.println("coins amount:  " + coinsAmount + ", result: " + result);
+        return result;
     }
 }

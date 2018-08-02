@@ -2,6 +2,7 @@ package co.nos.noswallet.network.interactor;
 
 import android.util.Log;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -96,7 +97,7 @@ public class GetPendingBlocksUseCase {
                                 String _accountBalance = accountInfoResponse.balance;
                                 String _frontier = accountInfoResponse.frontier;
 
-                                String _previousBlock =  accountInfoResponse.frontier;
+                                String _previousBlock = accountInfoResponse.frontier;
 
                                 if (accountInfoResponse.isFreshAccount()) {
                                     _accountBalance = "0";
@@ -144,12 +145,13 @@ public class GetPendingBlocksUseCase {
     }
 
     private String sumBigValues(String balance, String accountBalance) {
-        return new BigInteger(balance).add(new BigInteger(accountBalance)).toString();
+        return new BigDecimal(balance).add(new BigDecimal(accountBalance)).toString();
     }
 
     public static String getRawAsHex(String raw) {
         // convert to hex
-        String hex = new BigInteger(raw).toString(16);
+
+        String hex = new BigInteger(raw.split("\\.")[0]).toString(16);
 
         // left-pad with zeros to be 32 length
         StringBuilder sb = new StringBuilder();
@@ -160,21 +162,5 @@ public class GetPendingBlocksUseCase {
         return sb.toString().toUpperCase();
     }
 
-    public static String getRawFromHex(String hex) {
-        return new BigInteger(hex, 16).toString(10);
-    }
-
-
-    public void stopPendingTransactions() {
-        //todo:
-        if (pendingTransactionsDisposable != null) {
-            pendingTransactionsDisposable.dispose();
-            pendingTransactionsDisposable = null;
-        }
-    }
-
-    private String readableBlocks(GetPendingBlocksResponse getPendingBlocksResponse) {
-        return Arrays.toString(getPendingBlocksResponse.blocks.toArray());
-    }
 
 }

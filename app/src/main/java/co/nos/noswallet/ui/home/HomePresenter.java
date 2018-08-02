@@ -34,6 +34,10 @@ public class HomePresenter extends BasePresenter<HomeView> {
 
         view.showLoading();
 
+        if (getHistoryUseCase.cachedResponse != null) {
+            view.showHistory(getHistoryUseCase.cachedResponse.history);
+        }
+
         historyDisposable.set(getHistoryUseCase.execute()
                 .subscribe(neuroHistoryResponse -> {
                     view.hideLoading();
@@ -49,7 +53,6 @@ public class HomePresenter extends BasePresenter<HomeView> {
                 }));
         addDisposable(historyDisposable);
     }
-
 
     public void checkAccountBalance() {
         addDisposable(checkAccountBalanceUseCase.execute()
