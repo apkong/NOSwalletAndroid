@@ -216,6 +216,10 @@ public class BaseFragment extends Fragment {
     }
 
     protected void showPinScreen(String subtitle) {
+        showPinScreen(subtitle, null);
+    }
+
+    protected void showPinScreen(String subtitle, Runnable action) {
         if (getActivity() instanceof WindowControl) {
             PinDialogFragment dialog = PinDialogFragment.newInstance(subtitle);
             dialog.show(((WindowControl) getActivity()).getFragmentUtility().getFragmentManager(),
@@ -226,7 +230,12 @@ public class BaseFragment extends Fragment {
 
             // reset status bar to blue when dialog is closed
             if (dialog.getDialog() != null) {
-                dialog.getDialog().setOnDismissListener(dialogInterface -> setStatusBarBlue());
+                dialog.getDialog().setOnDismissListener(dialogInterface -> {
+                    setStatusBarBlue();
+                    if (action != null) {
+                        action.run();
+                    }
+                });
             }
         }
     }

@@ -378,7 +378,9 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
         @SuppressLint("CheckResult")
         public void onClickSend(View view) {
+            System.out.println("onClickSend()");
             if (!validateAddress()) {
+                System.out.println("address invalid");
                 return;
             }
 
@@ -405,7 +407,12 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                             }
                         });
             } else if (credentials != null && credentials.getPin() != null) {
-                showPinScreen(getString(R.string.send_pin_description, getCurrentTypedCoins()));
+                showPinScreen(getString(R.string.send_pin_description, getCurrentTypedCoins()), new Runnable() {
+                    @Override
+                    public void run() {
+                        presenter.attemptSendCoins(getCurrentTypedCoins());
+                    }
+                });
             } else if (credentials != null && credentials.getPin() == null) {
                 showCreatePinScreen();
             }

@@ -389,6 +389,9 @@ public class HomeFragment extends BaseFragment implements HomeView {
     @Override
     public void onStop() {
         super.onStop();
+        if (binding.homeSwiperefresh != null) {
+            binding.homeSwiperefresh.setRefreshing(false);
+        }
         if (presenter != null) {
             presenter.onDestroy();
         }

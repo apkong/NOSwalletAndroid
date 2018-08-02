@@ -7,9 +7,7 @@ import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.network.nosModel.NeuroHistoryRequest;
 import co.nos.noswallet.network.nosModel.NeuroHistoryResponse;
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
@@ -17,6 +15,9 @@ public class GetHistoryUseCase {
 
     private final NeuroClient neuroClient;
     private String accountNumber;
+
+
+    private volatile NeuroHistoryResponse cachedResponse;
 
     @Inject
     GetHistoryUseCase(NeuroClient neuroClient, Realm realm) {
@@ -37,9 +38,21 @@ public class GetHistoryUseCase {
         if (accountNumber == null) {
             return Observable.error(new IllegalStateException("missing seed!!!"));
         }
+
+        if (cachedResponse != null) {
+            return Observable.fromCallable(() -> cachedResponse).concatWith(executeFresh());
+        } else {
+            return executeFresh();
+        }
+    }
+
+    private Observable<NeuroHistoryResponse> executeFresh() {
         return neuroClient.getAccountHistory(new NeuroHistoryRequest(accountNumber, "100"))
+                .map(s -> {
+                    cachedResponse = s;
+                    return s;
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
-
 }

@@ -334,6 +334,7 @@ public class NOSUtil {
     }
 
     public static byte[] hexToBytes(String hex) throws NumberFormatException {
+        System.out.println("hexToBytes called : "+hex);
         hex = hex.length() % 2 != 0 ? "0" + hex : hex;
 
         byte[] b = new byte[hex.length() / 2];

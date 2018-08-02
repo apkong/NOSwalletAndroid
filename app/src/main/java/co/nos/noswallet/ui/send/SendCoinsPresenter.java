@@ -1,5 +1,8 @@
 package co.nos.noswallet.ui.send;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import javax.inject.Inject;
 
 import co.nos.noswallet.NOSApplication;
@@ -9,6 +12,7 @@ import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NOSWallet;
 import co.nos.noswallet.network.interactor.SendCoinsUseCase;
+import co.nos.noswallet.network.nosModel.ProcessResponse;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -35,7 +39,6 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
 
     public void attemptSendCoins(String coinsAmount) {
-
         if (!targetAddressValid()) {
             String message = view.getString(R.string.please_specify_destination_address);
             view.showError(message);
@@ -52,11 +55,12 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
             addDisposable(sendCoinsUseCase.transferCoins(sendAmount, targetAddress)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<Object>() {
+                    .subscribe(new Consumer<ProcessResponse>() {
                         @Override
-                        public void accept(Object o) throws Exception {
+                        public void accept(ProcessResponse o) throws Exception {
                             view.hideLoading();
-                            view.showAmountSent(sendAmount, targetAddress);
+                            BigDecimal dec = new BigDecimal(sendAmount).divide(new BigDecimal("10").pow(30), RoundingMode.DOWN);
+                            view.showAmountSent(dec.toEngineeringString(), targetAddress);
                         }
                     }, new Consumer<Throwable>() {
                         @Override
@@ -64,9 +68,6 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
                             view.showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
                         }
                     }));
-
-
-            //analyticsService.track(AnalyticsEvents.SEND_BEGAN);
         } else {
             view.showError(R.string.send_error_alert_title, R.string.cannot_transfer);
         }
@@ -134,7 +135,8 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public boolean canTransferNeuros(String currentTypedCoins) {
-        if (currentTypedCoins.isEmpty() || currentTypedCoins.equals("0")) return false;
+        if (currentTypedCoins.isEmpty() || new BigDecimal(currentTypedCoins).equals(BigDecimal.ZERO))
+            return false;
         return nosWallet.canTransferNeuros(currentTypedCoins);
     }
 

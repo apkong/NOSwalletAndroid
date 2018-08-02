@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 import co.nos.noswallet.network.exception.ErrorDispatcher;
 import co.nos.noswallet.network.model.request.GetBlocksInfoRequest;
-import co.nos.noswallet.network.model.response.BlocksInfoResponse;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
 import co.nos.noswallet.network.nosModel.AccountInfoResponse;
 import co.nos.noswallet.network.nosModel.GetBlocksInfoResponse;
@@ -22,9 +21,7 @@ import co.nos.noswallet.network.nosModel.WorkRequest;
 import co.nos.noswallet.network.nosModel.WorkResponse;
 import io.reactivex.Observable;
 import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 

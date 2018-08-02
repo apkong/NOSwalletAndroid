@@ -9,10 +9,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import co.nos.noswallet.NOSUtil;
-import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.db.CredentialsProvider;
 import co.nos.noswallet.db.RepresentativesProvider;
-import co.nos.noswallet.model.CurrentAccountBalance;
 import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.network.model.request.GetBlocksInfoRequest;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
@@ -20,6 +18,7 @@ import co.nos.noswallet.network.nosModel.GetPendingBlocksRequest;
 import co.nos.noswallet.network.nosModel.GetPendingBlocksResponse;
 import co.nos.noswallet.network.nosModel.ProcessBlock;
 import co.nos.noswallet.network.nosModel.ProcessRequest;
+import co.nos.noswallet.network.nosModel.ProcessResponse;
 import co.nos.noswallet.network.nosModel.WorkRequest;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -69,22 +68,18 @@ public class GetPendingBlocksUseCase {
                                 }).flatMapIterable(getPendingBlocksResponse -> getPendingBlocksResponse.blocks)
                                 .flatMap(this::processedBlockBasedOnPendingHash))
                         .subscribeOn(Schedulers.io())
-                        .subscribe(new Consumer<Object>() {
-                            @Override
-                            public void accept(Object success) throws Exception {
-                                System.out.println("success");
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                Log.e(TAG, "onError: throwable: " + throwable.getMessage());
-                                throwable.printStackTrace();
-                            }
-                        })
+                        .subscribe(success -> System.out.println("success :  " + success.hash),
+                                new Consumer<Throwable>() {
+                                    @Override
+                                    public void accept(Throwable throwable) throws Exception {
+                                        Log.e(TAG, "onError: throwable: " + throwable.getMessage());
+                                        throwable.printStackTrace();
+                                    }
+                                })
         );
     }
 
-    private ObservableSource<Object> processedBlockBasedOnPendingHash(final String blockHash) {
+    private ObservableSource<ProcessResponse> processedBlockBasedOnPendingHash(final String blockHash) {
 
         return api.getBlocksInfo(new GetBlocksInfoRequest(new String[]{blockHash}))
                 .flatMap(blocksInfoResponse -> {
@@ -98,14 +93,24 @@ public class GetPendingBlocksUseCase {
                     return api.getAccountInfo(new AccountInfoRequest(accountNumber))
                             .flatMap(accountInfoResponse -> {
 
+                                String _accountBalance = accountInfoResponse.balance;
+                                String _frontier = accountInfoResponse.frontier;
 
-                                String accountBalance = accountInfoResponse.balance;
+                                String _previousBlock =  accountInfoResponse.frontier;
 
-                                RxBus.get().post(new CurrentAccountBalance(accountBalance));
+                                if (accountInfoResponse.isFreshAccount()) {
+                                    _accountBalance = "0";
+                                    _frontier = publicKey;
+                                    _previousBlock = "0";
+                                }
+
+                                final String previousBlock = _previousBlock;
+                                final String accountBalance = _accountBalance;
+                                final String frontier = _frontier;
 
                                 System.out.println("accountInfoResponse.balance = " + accountBalance);
 
-                                return api.generateWork(new WorkRequest(accountInfoResponse.frontier))
+                                return api.generateWork(new WorkRequest(frontier))
                                         .flatMap(workResponse -> {
 
                                             String totalBalance = sumBigValues(amount, accountBalance);
@@ -113,7 +118,7 @@ public class GetPendingBlocksUseCase {
 
                                             String dataToSign = NOSUtil.computeStateHash(
                                                     publicKey,
-                                                    accountInfoResponse.frontier,
+                                                    previousBlock,
                                                     NOSUtil.addressToPublic(REPRESENTATIVE),
                                                     getRawAsHex(totalBalance),
                                                     blockHash
@@ -125,15 +130,14 @@ public class GetPendingBlocksUseCase {
                                             System.out.println("sign: " + signatureFromData);
 
                                             return api.process(new ProcessRequest(new ProcessBlock(
-                                                            accountNumber,
-                                                            accountInfoResponse.frontier,
-                                                            REPRESENTATIVE,
-                                                            totalBalance,
-                                                            blockHash,
-                                                            signatureFromData,
-                                                            workResponse.work)
-                                                    )
-                                            ).map(any -> new Object());
+                                                    accountNumber,
+                                                    previousBlock,
+                                                    REPRESENTATIVE,
+                                                    totalBalance,
+                                                    blockHash,
+                                                    signatureFromData,
+                                                    workResponse.work)
+                                            )).onErrorReturnItem(new ProcessResponse());
                                         });
                             });
                 });

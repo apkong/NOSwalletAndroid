@@ -33,12 +33,11 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
     }
 
     private String readableAmount(String amount) {
-        if (amount.length() > 5) {
-            String part1 = amount.substring(0, 5);
-            String part2 = amount.substring(5, amount.length());
-            int len = part2.length();
+        if (amount.length() > 1) {
+            String part1 = amount.substring(0, 1);
+            String part2 = amount.substring(1, Math.min(amount.length(), 5));
 
-            return "~" + part1 + " x 10 ^" + (len);
+            return "~" + part1 + "." + part2 + " NOS";
         } else return amount;
     }
 

@@ -8,9 +8,11 @@ import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.db.CredentialsProvider;
 import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.NeuroClient;
+import co.nos.noswallet.network.exception.ProcessResponseException;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
 import co.nos.noswallet.network.nosModel.ProcessBlock;
 import co.nos.noswallet.network.nosModel.ProcessRequest;
+import co.nos.noswallet.network.nosModel.ProcessResponse;
 import co.nos.noswallet.network.nosModel.WorkRequest;
 import io.reactivex.Observable;
 
@@ -46,12 +48,11 @@ public class SendCoinsUseCase {
         return sb.toString();
     }
 
-    public Observable<Object> transferCoins(String amount, String destinationAcount) {
-        String realAmount = format30(amount);
-        return transferCoinsInFormat30(realAmount, destinationAcount);
+    public Observable<ProcessResponse> transferCoins(String amount, String destinationAcount) {
+        return transferCoinsInFormat30(amount, destinationAcount);
     }
 
-    public Observable<Object> transferCoinsInFormat30(String amount,
+    public Observable<ProcessResponse> transferCoinsInFormat30(String amount,
                                                       String destinationAccount) {
         return transferCoins(
                 accountNumber,
@@ -63,12 +64,12 @@ public class SendCoinsUseCase {
         );
     }
 
-    private Observable<Object> transferCoins(String sendingAccount,
-                                             String publicKey,
-                                             String destinationAccount,
-                                             String amount,
-                                             String representative,
-                                             String private_key) {
+    private Observable<ProcessResponse> transferCoins(String sendingAccount,
+                                                      String publicKey,
+                                                      String destinationAccount,
+                                                      String amount,
+                                                      String representative,
+                                                      String private_key) {
 
         Log.d(TAG, "transferCoins() called with: " +
                 "sendingAccount = [" + sendingAccount + "], " +
@@ -116,7 +117,13 @@ public class SendCoinsUseCase {
                                                 signatureFromData,
                                                 workResponse.work)
                                         )
-                                ).map(any -> new Object());
+                                ).flatMap(processResponse -> {
+                                    if (processResponse.isSuccessfull()) {
+                                        return Observable.just(processResponse);
+                                    } else {
+                                        return Observable.error(new ProcessResponseException(processResponse));
+                                    }
+                                });
                             });
                 });
     }
