@@ -69,6 +69,7 @@ import static android.app.Activity.RESULT_OK;
 /**
  * Send Screen
  */
+@Deprecated
 public class SendFragment extends BaseFragment {
     private FragmentSendBinding binding;
     public static String TAG = SendFragment.class.getSimpleName();

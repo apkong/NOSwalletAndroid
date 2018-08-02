@@ -1,10 +1,10 @@
 package co.nos.noswallet.network.interactor;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -32,10 +32,12 @@ public class GetPendingBlocksUseCase {
     public static final String TAG = "GetPendingBlocksUseCase";
 
     private final NeuroClient api;
-    private final String accountNumber;
-    private final String privateKey;
-    private final String publicKey;
-    private final String REPRESENTATIVE;
+    private final CredentialsProvider credentialsProvider;
+    private final RepresentativesProvider representativesProvider;
+    private String accountNumber;
+    private String privateKey;
+    private String publicKey;
+    private String REPRESENTATIVE;
 
     private SerialDisposable pendingTransactionsDisposable = new SerialDisposable();
 
@@ -44,18 +46,28 @@ public class GetPendingBlocksUseCase {
                             CredentialsProvider provider,
                             RepresentativesProvider representativesProvider) {
         this.api = api;
-        this.accountNumber = provider.provideAccountNumber();
-        this.privateKey = provider.providePrivateKey();
-        this.publicKey = provider.providePublicKey();
+        this.credentialsProvider = provider;
+        this.representativesProvider = representativesProvider;
+        fillData();
+    }
+
+    private void fillData() {
+        this.accountNumber = credentialsProvider.provideAccountNumber();
+        this.privateKey = credentialsProvider.providePrivateKey();
+        this.publicKey = credentialsProvider.providePublicKey();
         this.REPRESENTATIVE = representativesProvider.provideRepresentative();
     }
 
     public void startObservePendingTransactions() {
+        System.out.println("startObservePendingTransactions()");
         if (pendingTransactionsDisposable == null) {
             pendingTransactionsDisposable = new SerialDisposable();
         }
+
+        fillData();
+
         pendingTransactionsDisposable.set(
-                Observable.interval(1, 15, TimeUnit.SECONDS)
+                Observable.interval(3, 15, TimeUnit.SECONDS)
                         .flatMap(aLong -> api.getPendingBlocks(new GetPendingBlocksRequest(accountNumber, "100"))
                                 .onErrorResumeNext(throwable -> {
                                     System.err.println(throwable.getCause());
@@ -148,8 +160,9 @@ public class GetPendingBlocksUseCase {
         return new BigDecimal(balance).add(new BigDecimal(accountBalance)).toString();
     }
 
-    public static String getRawAsHex(String raw) {
+    public static String getRawAsHex(@NonNull String raw) {
         // convert to hex
+
 
         String hex = new BigInteger(raw.split("\\.")[0]).toString(16);
 

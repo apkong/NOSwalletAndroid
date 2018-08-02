@@ -138,7 +138,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public boolean canTransferNeuros(String currentTypedCoins) {
-        if (currentTypedCoins.isEmpty() || new BigDecimal(currentTypedCoins).equals(BigDecimal.ZERO))
+        if (currentTypedCoins == null || currentTypedCoins.isEmpty() || new BigDecimal(currentTypedCoins).equals(BigDecimal.ZERO))
             return false;
         return nosWallet.canTransferNeuros(currentTypedCoins);
     }

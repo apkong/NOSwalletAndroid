@@ -2,6 +2,7 @@ package co.nos.noswallet.network.interactor;
 
 import android.util.Log;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import co.nos.noswallet.NOSUtil;
@@ -48,12 +49,12 @@ public class SendCoinsUseCase {
         return sb.toString();
     }
 
-    public Observable<ProcessResponse> transferCoins(String amount, String destinationAcount) {
+    public Observable<ProcessResponse> transferCoins(@Nonnull String amount, String destinationAcount) {
         return transferCoinsInFormat30(amount, destinationAcount);
     }
 
-    public Observable<ProcessResponse> transferCoinsInFormat30(String amount,
-                                                      String destinationAccount) {
+    public Observable<ProcessResponse> transferCoinsInFormat30(@Nonnull String amount,
+                                                               String destinationAccount) {
         return transferCoins(
                 accountNumber,
                 publicKey,
@@ -67,7 +68,7 @@ public class SendCoinsUseCase {
     private Observable<ProcessResponse> transferCoins(String sendingAccount,
                                                       String publicKey,
                                                       String destinationAccount,
-                                                      String amount,
+                                                      @Nonnull String amount,
                                                       String representative,
                                                       String private_key) {
 
@@ -84,7 +85,11 @@ public class SendCoinsUseCase {
 
                     System.out.println("Account info response: " + accountInfoResponse);
 
-                    String accountBalance = accountInfoResponse.balance;
+                    String _accountBalance = accountInfoResponse.balance;
+                    if (_accountBalance == null) {
+                        _accountBalance = "0";
+                    }
+                    final String accountBalance = _accountBalance;
 
                     return api.generateWork(new WorkRequest(accountInfoResponse.frontier))
                             .flatMap(workResponse -> {

@@ -10,6 +10,7 @@ import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.model.NOSWallet;
 import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
 import co.nos.noswallet.network.interactor.GetHistoryUseCase;
+import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.SerialDisposable;
@@ -21,13 +22,16 @@ public class HomePresenter extends BasePresenter<HomeView> {
     SerialDisposable historyDisposable = new SerialDisposable();
     private final GetHistoryUseCase getHistoryUseCase;
     private final CheckAccountBalanceUseCase checkAccountBalanceUseCase;
+    private final GetPendingBlocksUseCase getPendingBlocksUseCase;
 
 
     @Inject
     public HomePresenter(GetHistoryUseCase getHistoryUseCase,
+                         GetPendingBlocksUseCase getPendingBlocksUseCase,
                          CheckAccountBalanceUseCase checkAccountBalanceUseCase) {
         this.getHistoryUseCase = getHistoryUseCase;
         this.checkAccountBalanceUseCase = checkAccountBalanceUseCase;
+        this.getPendingBlocksUseCase = getPendingBlocksUseCase;
     }
 
     public void requestUpdateHistory() {
@@ -74,6 +78,6 @@ public class HomePresenter extends BasePresenter<HomeView> {
     }
 
     public void onStart() {
-
+        getPendingBlocksUseCase.startObservePendingTransactions();
     }
 }

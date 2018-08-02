@@ -14,6 +14,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
+
 import co.nos.noswallet.util.SecureRandomUtil;
 
 public class NOSUtil {
@@ -335,7 +337,7 @@ public class NOSUtil {
     }
 
     public static byte[] hexToBytes(String hex) throws NumberFormatException {
-        System.out.println("hexToBytes called : "+hex);
+        System.out.println("hexToBytes called : " + hex);
         hex = hex.length() % 2 != 0 ? "0" + hex : hex;
 
         byte[] b = new byte[hex.length() / 2];
@@ -419,7 +421,7 @@ public class NOSUtil {
         return collection == null || collection.isEmpty();
     }
 
-    public static String substractBigIntegers(String left,String right){
+    public static String substractBigIntegers(@Nonnull String left, @Nonnull String right) {
         return new BigDecimal(left).subtract(new BigDecimal(right)).toString();
     }
 }

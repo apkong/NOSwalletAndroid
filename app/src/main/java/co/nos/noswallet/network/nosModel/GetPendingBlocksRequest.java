@@ -22,4 +22,13 @@ public class GetPendingBlocksRequest implements Serializable {
 
     public GetPendingBlocksRequest() {
     }
+
+    @Override
+    public String toString() {
+        return "GetPendingBlocksRequest{" +
+                "action='" + action + '\'' +
+                ", account='" + account + '\'' +
+                ", count='" + count + '\'' +
+                '}';
+    }
 }

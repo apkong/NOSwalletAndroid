@@ -393,12 +393,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                             }
                         });
             } else if (credentials != null && credentials.getPin() != null) {
-                showPinScreen(getString(R.string.send_pin_description, getCurrentTypedCoins()), new Runnable() {
-                    @Override
-                    public void run() {
-                        presenter.attemptSendCoins(getCurrentTypedCoins());
-                    }
-                });
+                showPinScreen(getString(R.string.send_pin_description, getCurrentTypedCoins()), () -> presenter.attemptSendCoins(getCurrentTypedCoins()));
             } else if (credentials != null && credentials.getPin() == null) {
                 showCreatePinScreen();
             }

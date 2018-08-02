@@ -71,7 +71,6 @@ public class NOSApplication extends MultiDexApplication {
 
         mApplicationComponent.inject(this);
 
-        getPendingBlocksUseCase.startObservePendingTransactions();
     }
 
     /**
