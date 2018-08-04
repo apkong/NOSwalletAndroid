@@ -76,7 +76,7 @@
 
     <!-- Receive Screen -->
     <string name="receive_title">Receber</string>
-    <string name="receive_instructions">Escaneie o QR code\nabaixo para receber NANO</string>
+    <string name="receive_instructions">Escaneie o QR code\nabaixo para receber NOS</string>
     <string name="receive_copy_cta">Copiar Endereço</string>
     <string name="receive_address_label">Endereço NOS</string>
     <string name="receive_copy_message"><![CDATA[<font color=\"#ffffff\">Seu Endereço NOS foi copiado.<br>Compartilhe com um amigo para receber NOS!</font>]]></string>
@@ -151,5 +151,7 @@
     <string name="seed_reminder_alert_neutral_cta">Confirmar</string>
     <string name="seed_reminder_alert_confirm_cta">Desconectar</string>
     <string name="please_specify_destination_address">Please specify valid destination address</string>
+    <string name="failed_to_receive_history">Failed to receive history, try again later</string>
+    <string name="processing_transfer">Processing...</string>
 
 </resources>

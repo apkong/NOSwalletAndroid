@@ -75,8 +75,10 @@ public class GetPendingBlocksUseCase {
                                     return Observable.just(new GetPendingBlocksResponse());
                                 })
                                 .flatMap(getPendingBlocksResponse -> {
-                                    if (getPendingBlocksResponse.isEmpty())
+                                    if (getPendingBlocksResponse.isEmpty()) {
+
                                         return Observable.empty();
+                                    }
                                     return Observable.just(getPendingBlocksResponse);
                                 }).flatMapIterable(getPendingBlocksResponse -> getPendingBlocksResponse.blocks)
                                 .flatMap(this::processedBlockBasedOnPendingHash))
@@ -163,7 +165,6 @@ public class GetPendingBlocksUseCase {
     public static String getRawAsHex(@NonNull String raw) {
         // convert to hex
 
-
         String hex = new BigInteger(raw.split("\\.")[0]).toString(16);
 
         // left-pad with zeros to be 32 length
@@ -174,6 +175,4 @@ public class GetPendingBlocksUseCase {
         sb.append(hex);
         return sb.toString().toUpperCase();
     }
-
-
 }

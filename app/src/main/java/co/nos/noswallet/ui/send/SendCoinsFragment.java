@@ -357,6 +357,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         }
 
         public void onClickConfirm(View view) {
+            presenter.setTargetAddress(binding.sendAddress.getText().toString().trim());
             binding.setShowAmount(true);
             setShortAddress();
             KeyboardUtil.hideKeyboard(getActivity());

@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.NOSUtil;
+import co.nos.noswallet.R;
 import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.model.NOSWallet;
 import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
@@ -13,17 +14,14 @@ import co.nos.noswallet.network.interactor.GetHistoryUseCase;
 import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.SerialDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class HomePresenter extends BasePresenter<HomeView> {
 
-    SerialDisposable historyDisposable = new SerialDisposable();
     private final GetHistoryUseCase getHistoryUseCase;
     private final CheckAccountBalanceUseCase checkAccountBalanceUseCase;
     private final GetPendingBlocksUseCase getPendingBlocksUseCase;
-
 
     @Inject
     public HomePresenter(GetHistoryUseCase getHistoryUseCase,
@@ -35,49 +33,47 @@ public class HomePresenter extends BasePresenter<HomeView> {
     }
 
     public void requestUpdateHistory() {
-
-        view.showLoading();
-
         if (getHistoryUseCase.cachedResponse != null) {
             view.showHistory(getHistoryUseCase.cachedResponse.history);
         }
 
-        historyDisposable.set(getHistoryUseCase.execute()
+        view.showLoading();
+        addDisposable(getHistoryUseCase.execute()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(neuroHistoryResponse -> {
                     view.hideLoading();
-                    ArrayList<AccountHistory> hist = neuroHistoryResponse.history;
-                    if (NOSUtil.isEmpty(hist)) {
-                        //todo:
+                    ArrayList<AccountHistory> history = neuroHistoryResponse.history;
+                    if (NOSUtil.isEmpty(history)) {
                         view.showHistoryEmpty();
+                    } else {
+                        view.showHistory(history);
                     }
-                    view.showHistory(neuroHistoryResponse.history);
                 }, throwable -> {
                     view.hideLoading();
-                    view.showHistoryEmpty();
+                    view.showError(view.getString(R.string.failed_to_receive_history));
                 }));
-        addDisposable(historyDisposable);
+
     }
 
-    public void checkAccountBalance() {
+    public void requestAccountBalanceCheck() {
         addDisposable(checkAccountBalanceUseCase.execute()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        String amount = NOSWallet.rawToNeuros(s);
-                        NOSApplication.getNosWallet().setNeuros(amount);
-                        view.onBalanceFormattedReceived(amount + " NOS");
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        System.err.println("error: " + throwable);
-                    }
-                }));
+                .subscribe(balance -> {
+
+                    String amount = NOSWallet.rawToNeuros(balance);
+                    NOSApplication.getNosWallet().setNeuros(amount);
+                    view.onBalanceFormattedReceived(amount + " NOS");
+
+                }, throwable -> System.err.println("error: " + throwable)));
     }
 
     public void onStart() {
+        this.requestUpdateHistory();
+        this.requestAccountBalanceCheck();
         getPendingBlocksUseCase.startObservePendingTransactions();
     }
+
+
 }

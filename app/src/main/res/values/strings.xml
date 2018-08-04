@@ -76,7 +76,7 @@
 
     <!-- Receive Screen -->
     <string name="receive_title">Receive</string>
-    <string name="receive_instructions">Scan the QR code\nbelow to receive NANO</string>
+    <string name="receive_instructions">Scan the QR code\nbelow to receive NOS</string>
     <string name="receive_copy_cta">Copy Address</string>
     <string name="receive_address_label">NOS Address</string>
     <string name="receive_copy_message"><![CDATA[<font color=\"#ffffff\">Your NOS Address has been copied.<br>Share it with a friend to receive NOS!</font>]]></string>
@@ -195,6 +195,8 @@
     <string name="cannot_transfer">Coins amount invalid, please enter valid value</string>
     <string name="transfer_succeess">Transfer success</string>
     <string name="sent_coins_amount_to_address">%s NOS successfully transferred to address %s</string>
+    <string name="failed_to_receive_history">Failed to receive history, try again later</string>
+    <string name="processing_transfer">Processing...</string>
 
 
 </resources>

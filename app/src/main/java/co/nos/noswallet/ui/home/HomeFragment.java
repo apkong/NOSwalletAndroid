@@ -29,7 +29,6 @@ import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.base.MainThreadEnsurer;
 import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SocketError;
 import co.nos.noswallet.bus.WalletHistoryUpdate;
 import co.nos.noswallet.bus.WalletPriceUpdate;
 import co.nos.noswallet.bus.WalletSubscribeUpdate;
@@ -52,7 +51,6 @@ import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
-import co.nos.noswallet.util.ExceptionHandler;
 import io.realm.Realm;
 
 /**
@@ -196,6 +194,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
         binding.homeRecyclerview.setAdapter(historyAdapter = new HistoryAdapter());
         binding.homeSwiperefresh.setOnRefreshListener(() -> {
             presenter.requestUpdateHistory();
+            presenter.requestAccountBalanceCheck();
 
             new Handler().postDelayed(() -> binding.homeSwiperefresh.setRefreshing(false), 5000);
         });
@@ -216,8 +215,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
             showSeedReminderAlert(credentials.getNewlyGeneratedSeed());
         }
 
-        showCredentials();
-
         presenter.requestUpdateHistory();
 
         return view;
@@ -226,20 +223,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
     @Override
     public void onResume() {
         super.onResume();
-        presenter.checkAccountBalance();
-    }
-
-    private void showCredentials() {
-        Credentials credentials = realm.where(Credentials.class).findFirst();
-        if (credentials != null) {
-
-            Log.d(TAG, "showCredentials() called");
-            Log.d(TAG, credentials.toString());
-            Log.d(TAG, "public key: " + credentials.getPublicKey());
-
-        } else {
-            ExceptionHandler.handle(new Exception("Problem accessing generated seed"));
-        }
+        presenter.requestAccountBalanceCheck();
     }
 
     @Subscribe
@@ -257,16 +241,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
     @Subscribe
     public void receiveSubscribe(WalletSubscribeUpdate walletSubscribeUpdate) {
         updateAmounts();
-    }
-
-    @Deprecated
-    @Subscribe
-    public void receiveError(SocketError error) {
-//        binding.homeSwiperefresh.setRefreshing(false);
-//        Toast.makeText(getContext(),
-//                getString(R.string.error_message),
-//                Toast.LENGTH_SHORT)
-//                .show();
     }
 
     private void updateAmounts() {
@@ -292,10 +266,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
 
     @Override
     public void showHistoryEmpty() {
-        Toast.makeText(getContext(),
-                getString(R.string.error_history_empty),
-                Toast.LENGTH_SHORT)
-                .show();
+        showError(getString(R.string.error_history_empty));
     }
 
     @Override
@@ -304,6 +275,11 @@ public class HomeFragment extends BaseFragment implements HomeView {
         if (view != null) {
             view.setText(formatted);
         }
+    }
+
+    @Override
+    public void showError(String string) {
+        Toast.makeText(getContext(), string, Toast.LENGTH_SHORT).show();
     }
 
     public class ClickHandlers {
@@ -384,6 +360,11 @@ public class HomeFragment extends BaseFragment implements HomeView {
         if (binding.homeSwiperefresh != null) {
             binding.homeSwiperefresh.setRefreshing(false);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         if (presenter != null) {
             presenter.onDestroy();
         }

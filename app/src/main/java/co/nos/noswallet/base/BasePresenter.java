@@ -14,10 +14,6 @@ abstract public class BasePresenter<View extends BaseView> {
         this.view = view;
     }
 
-    public CompositeDisposable resetDisposables() {
-        return compositeDisposable = new CompositeDisposable();
-    }
-
     public void onDestroy(){
         compositeDisposable.clear();
     }

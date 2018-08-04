@@ -79,6 +79,8 @@ public class Address implements Serializable {
     }
 
     public boolean isValidAddress() {
+        if (value == null) return false;
+
         String[] parts = value.split("_");
         if (parts.length != 2) {
             return false;

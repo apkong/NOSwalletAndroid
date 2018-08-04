@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -40,7 +39,6 @@ import co.nos.noswallet.databinding.FragmentSettingsBinding;
 import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.StringWithTag;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
@@ -63,9 +61,6 @@ public class SettingsDialogFragment extends BaseDialogFragment {
 
     @Inject
     Realm realm;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     AnalyticsService analyticsService;
@@ -143,7 +138,6 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                     customData.put("currency", key.toString());
                     analyticsService.track(AnalyticsEvents.LOCAL_CURRENCY_SELECTED, customData);
                     // update currency amounts
-                    accountService.requestSubscribe();
                 }
             }
 

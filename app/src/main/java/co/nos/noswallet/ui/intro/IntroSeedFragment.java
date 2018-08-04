@@ -20,7 +20,6 @@ import co.nos.noswallet.bus.CreatePin;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentIntroSeedBinding;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
@@ -44,9 +43,6 @@ public class IntroSeedFragment extends BaseFragment {
 
     @Inject
     Realm realm;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     SharedPreferencesUtil sharedPreferencesUtil;
@@ -204,7 +200,6 @@ public class IntroSeedFragment extends BaseFragment {
          */
         public void onClickConfirm(View view) {
             createAndStoreCredentials(binding.introSeedSeed.getText().toString());
-            accountService.open();
 
             sharedPreferencesUtil.setConfirmedSeedBackedUp(true);
 

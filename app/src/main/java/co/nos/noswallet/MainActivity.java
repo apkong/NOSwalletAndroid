@@ -34,7 +34,6 @@ import co.nos.noswallet.di.activity.DaggerActivityComponent;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
@@ -56,9 +55,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
     @Inject
     Realm realm;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     NanoWallet nanoWallet;
@@ -104,19 +100,9 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     protected void onPause() {
         super.onPause();
         // stop websocket on pause
-        if (accountService != null) {
-            accountService.close();
-        }
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // start websocket on resume
-        if (accountService != null && realm != null && !realm.isClosed() && realm.where(Credentials.class).findFirst() != null) {
-            accountService.open();
-        }
-    }
 
     @Override
     protected void onDestroy() {
@@ -205,9 +191,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         // delete user seed data before logging out
         final RealmResults<Credentials> results = realm.where(Credentials.class).findAll();
         realm.executeTransaction(realm1 -> results.deleteAllFromRealm());
-
-        // stop the websocket
-        accountService.close();
 
         // clear wallet
         nanoWallet.clear();

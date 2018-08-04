@@ -36,9 +36,6 @@ public interface NeuroApi {
     Observable<AccountInfoResponse> getAccountInfo(@Body AccountInfoRequest request);
 
     @POST("/")
-    Observable<LoginResponse> login(@Body LoginRequest request);
-
-    @POST("/")
     Observable<WorkResponse> generateWork(@Body WorkRequest request);
 
     @POST("/")

@@ -11,8 +11,6 @@ import co.nos.noswallet.network.nosModel.AccountInfoResponse;
 import co.nos.noswallet.network.nosModel.GetBlocksInfoResponse;
 import co.nos.noswallet.network.nosModel.GetPendingBlocksRequest;
 import co.nos.noswallet.network.nosModel.GetPendingBlocksResponse;
-import co.nos.noswallet.network.nosModel.LoginRequest;
-import co.nos.noswallet.network.nosModel.LoginResponse;
 import co.nos.noswallet.network.nosModel.NeuroHistoryRequest;
 import co.nos.noswallet.network.nosModel.NeuroHistoryResponse;
 import co.nos.noswallet.network.nosModel.ProcessRequest;
@@ -58,8 +56,7 @@ public class NeuroClient implements NeuroApi {
     }
 
     @Override
-    public Observable<GetPendingBlocksResponse> getPendingBlocks(GetPendingBlocksRequest
-                                                                         request) {
+    public Observable<GetPendingBlocksResponse> getPendingBlocks(GetPendingBlocksRequest request) {
         return api.getPendingBlocks(request);
     }
 
@@ -71,11 +68,6 @@ public class NeuroClient implements NeuroApi {
     @Override
     public Observable<AccountInfoResponse> getAccountInfo(AccountInfoRequest request) {
         return api.getAccountInfo(request);
-    }
-
-    @Override
-    public Observable<LoginResponse> login(LoginRequest request) {
-        return api.login(request);
     }
 
     @Override

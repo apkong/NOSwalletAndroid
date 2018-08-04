@@ -14,7 +14,6 @@ import co.nos.noswallet.kyc.phoneNumber.PhoneNumberFragment;
 import co.nos.noswallet.kyc.pinKeyboard.PinKeyboardFragment;
 import co.nos.noswallet.kyc.smsCode.SmsCodeFragment;
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.home.HomeFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
@@ -32,8 +31,6 @@ import dagger.Component;
         dependencies = {ApplicationComponent.class})
 @ActivityScope
 public interface ActivityComponent {
-    @ActivityScope
-    AccountService provideAccountService();
 
     @ActivityScope
     KycUserDataRepository provideKycUserDataRepository();
@@ -44,7 +41,6 @@ public interface ActivityComponent {
     @ActivityScope
     Gson provideGson();
 
-    void inject(AccountService accountService);
 
     void inject(CreatePinDialogFragment createPinDialogFragment);
 

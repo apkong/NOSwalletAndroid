@@ -25,7 +25,6 @@ import co.nos.noswallet.bus.CreatePin;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentIntroNewWalletBinding;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
@@ -45,9 +44,6 @@ public class IntroNewWalletFragment extends BaseFragment {
 
     @Inject
     Realm realm;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     SharedPreferencesUtil sharedPreferencesUtil;
@@ -100,8 +96,6 @@ public class IntroNewWalletFragment extends BaseFragment {
         // bind data to view
         binding.setHandlers(new ClickHandlers());
         binding.introNewWalletMessage.setText(Html.fromHtml(getString(R.string.intro_new_wallet_message)));
-
-        accountService.open();
 
 //        if (credentials != null && !credentials.getHasAnsweredAnalyticsQuestion()) {
 //            showAnalyticsOptIn(analyticsService, realm);
