@@ -22,7 +22,7 @@ public class Address implements Serializable {
     private String value;
     private String amount;
 
-    public static final BigDecimal RAW_PER_NANO = new BigDecimal("1000000000000000000000000000000");
+    public static final BigDecimal RAW_PER_NEURO = new BigDecimal("100");
 
     public Address() {
     }
@@ -40,9 +40,13 @@ public class Address implements Serializable {
         return value.contains("nano_");
     }
 
+    public boolean hasNEURAddressFormat() {
+        return value.contains("eur_");
+    }
+
     public String getShortString() {
         int frontStartIndex = 0;
-        int frontEndIndex = hasXrbAddressFormat() ? 9 : 10;
+        int frontEndIndex = hasNEURAddressFormat() ? 9 : 10;
         int backStartIndex = value.length() - 5;
         return value.substring(frontStartIndex, frontEndIndex) +
                 "..." +
@@ -52,7 +56,7 @@ public class Address implements Serializable {
     public Spannable getColorizedShortSpannable() {
         Spannable s = new SpannableString(getShortString());
         int frontStartIndex = 0;
-        int frontEndIndex = hasXrbAddressFormat() ? 9 : 10;
+        int frontEndIndex = hasNEURAddressFormat() ? 9 : 10;
         int backStartIndex = s.length() - 5;
 
         // colorize the string
@@ -124,7 +128,7 @@ public class Address implements Serializable {
                 }
                 if (uri.getQueryParameter("amount") != null && !uri.getQueryParameter("amount").equals("")) {
                     try {
-                        this.amount = (new BigDecimal(uri.getQueryParameter("amount")).divide(RAW_PER_NANO)).toString();
+                        this.amount = (new BigDecimal(uri.getQueryParameter("amount")).divide(RAW_PER_NEURO)).toString();
                     } catch (NumberFormatException e) {
                     }
                 }
