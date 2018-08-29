@@ -32,7 +32,7 @@ android {
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
 //        buildConfigField "String", "CONNECTION_URL", "\"wss://light.nano.org:443\""
-        buildConfigField "String", "CONNECTION_URL", "\"http://wb.cryptware.de:51234\""
+        buildConfigField "String", "CONNECTION_URL", "\"http://genesis-beta.nosnode.net:51234\""
     }
     buildTypes {
         debug {
