@@ -28,6 +28,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
     private final Realm realm;
     private final SendCoinsUseCase sendCoinsUseCase;
+    static final BigDecimal RAW_PER_NEURO = new BigDecimal("100");
 
 
     @Inject
@@ -59,7 +60,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
                         @Override
                         public void accept(ProcessResponse o) throws Exception {
                             view.hideLoading();
-                            BigDecimal dec = new BigDecimal(sendAmount).divide(new BigDecimal("10").pow(30), RoundingMode.DOWN);
+                            BigDecimal dec = new BigDecimal(sendAmount).divide(RAW_PER_NEURO, RoundingMode.DOWN);
                             view.showAmountSent(dec.toEngineeringString(), targetAddress);
                         }
                     }, new Consumer<Throwable>() {

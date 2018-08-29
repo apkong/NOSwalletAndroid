@@ -7,6 +7,7 @@ import javax.inject.Inject;
 public class NOSWallet {
 
     static final BigDecimal tenPowerTo30 = new BigDecimal(10).pow(30);
+    static final BigDecimal RAW_PER_NEURO = new BigDecimal("100");
 
 
     private volatile String neuros = "0"; // for example 2 (which is equivalent for 2 with 30 zeros
@@ -24,13 +25,8 @@ public class NOSWallet {
 
     public static String rawToNeuros(String rawAmount) {
 
-        String result;
-        int diff = rawAmount.length() - 30;
-        if (rawAmount.length() < 30) {
-            result = "0";
-        } else {
-            result = rawAmount.substring(0, diff);
-        }
+        String result = (new BigDecimal(rawAmount).divide(RAW_PER_NEURO)).toString();
+
         System.out.println("rawToNeuros(" + rawAmount + ") == " + result);
         return result;
     }
@@ -74,7 +70,7 @@ public class NOSWallet {
 
     public String getRawToTransfer(String coinsAmount) {
 
-        String result = new BigDecimal(coinsAmount).multiply(tenPowerTo30).toString();
+        String result = new BigDecimal(coinsAmount).multiply(RAW_PER_NEURO).toString();
         System.out.println("coins amount:  " + coinsAmount + ", result: " + result);
         return result;
     }

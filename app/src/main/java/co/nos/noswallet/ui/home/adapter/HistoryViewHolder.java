@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
+
 import co.nos.noswallet.R;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 
@@ -18,6 +20,7 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
     ImageView icon;
 
     TextView balance, account;
+    static final BigDecimal RAW_PER_NEURO = new BigDecimal("100");
 
     public HistoryViewHolder(View itemView) {
         super(itemView);
@@ -28,7 +31,8 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
 
     public void bind(AccountHistory accountHistory) {
         icon.setImageResource(accountHistory.isSend() ? R.drawable.ic_send : R.drawable.ic_receive);
-        balance.setText(readableAmount(accountHistory.amount));
+  //      balance.setText(readableAmount(accountHistory.amount));
+        balance.setText((new BigDecimal(accountHistory.amount).divide(RAW_PER_NEURO)).toString() + " NEURO");
         account.setText(createSpannable(accountHistory.account));
     }
 
