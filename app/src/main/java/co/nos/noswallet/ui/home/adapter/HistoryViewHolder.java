@@ -37,7 +37,7 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
             String part1 = amount.substring(0, 1);
             String part2 = amount.substring(1, Math.min(amount.length(), 5));
 
-            return "~" + part1 + "." + part2 + " NOS";
+            return "~" + part1 + "." + part2 + " NEURO";
         } else return amount;
     }
 

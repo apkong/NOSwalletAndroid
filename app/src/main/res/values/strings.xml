@@ -4,7 +4,7 @@
     <string name="version_display">NOS Stablecoin Ltd\nV%1$s (%2$d)</string>
 
     <!-- Intro Screens -->
-    <string name="intro_welcome_title">Welcome to NOS NEURO Wallet</string>
+    <string name="intro_welcome_title">Welcome to your NOS Wallet</string>
     <string name="intro_welcome_new_wallet_cta">Create a new wallet</string>
     <string name="intro_welcome_have_wallet_cta">Enter existing Wallet Seed</string>
     <string name="intro_seed_steps">%d / 2</string>
@@ -12,19 +12,19 @@
     <string name="intro_seed_seed_label">Seed</string>
     <string name="intro_seed_seed_hint">(Seed Address)</string>
     <string name="intro_seed_confirm_cta">Confirm Seed</string>
-    <string name="intro_new_wallet_title">Your NEURO Wallet Seed</string>
-    <string name="intro_new_wallet_message"><![CDATA[<font color=\"#000034\">Your NEURO Wallet Seed is a unique code that enables you to access your wallet on the NEURO network.<br><br>It is the only way for you to recover your wallet and access any NEURO deposit you may have.</font><br><br><font color=\"#ee4b66\">We do not have access to it and cannot recover your Wallet Seed or any funds in your wallet without your Wallet Seed.</font><br><br><font color=\"#000034\">You are solely responsible for recording your Wallet Seed in a safe and secure place and manner.</font> <font color=\"#ee4b66\">Never share your Wallet Seed with anyone.</font>]]></string>
+    <string name="intro_new_wallet_title">Your NOS Wallet Seed</string>
+    <string name="intro_new_wallet_message"><![CDATA[<font color=\"#000034\">Your NOS Wallet Seed is a unique code that enables you to access your wallet on the NEURO network.<br><br>It is the only way for you to recover your wallet and access any NEURO deposit you may have.</font><br><br><font color=\"#ee4b66\">We do not have access to it and cannot recover your Wallet Seed or any funds in your wallet without your Wallet Seed.</font><br><br><font color=\"#000034\">You are solely responsible for recording your Wallet Seed in a safe and secure place and manner.</font> <font color=\"#ee4b66\">Never share your Wallet Seed with anyone.</font>]]></string>
     <string name="intro_new_wallet_confirm">I Understand, Continue</string>
     <string name="intro_new_wallet_seed_copied">Your Wallet Seed is pastable for 2 minutes. After, you can access it in Settings.\n\nPlease backup your Wallet Seed somewhere safe like 1Password, LastPass, or print it out and put it in a safe.</string>
     <string name="intro_new_wallet_seed_done">Okay</string>
     <string name="intro_new_wallet_seed_label">Tap to copy</string>
     <string name="intro_new_wallet_seed_copied_title">Wallet Seed Copied</string>
-    <string name="intro_new_wallet_continue_title">Welcome to NEURO Wallet!</string>
+    <string name="intro_new_wallet_continue_title">Welcome to NOS Wallet!</string>
     <string name="intro_new_wallet_continue_message">Please confirm you have properly stored your Wallet Seed somewhere safe.</string>
     <string name="intro_new_wallet_continue_positive">I have backed up my Wallet Seed</string>
     <string name="intro_new_wallet_continue_negative">Back</string>
     <string name="intro_legal_title">Terms and Conditions</string>
-    <string name="intro_legal_description">Your use of this NEURO Wallet mobile application is subject to your agreement to all terms and conditions of the End User License Agreement and Privacy Policy linked below (collectively, the "Terms and Conditions"). Please tap the links below and read all Terms and Conditions carefully. By checking the boxes below and tapping “Agree”, you acknowledge that you have read, understand and agree to all of the Terms and Conditions, which are binding legal agreements. If you do not understand or agree to any of the Terms and Conditions, you are not licensed or authorized to use this application and should delete it from your device.</string>
+    <string name="intro_legal_description">Your use of this NOS Wallet mobile application is subject to your agreement to all terms and conditions of the End User License Agreement and Privacy Policy linked below (collectively, the "Terms and Conditions"). Please tap the links below and read all Terms and Conditions carefully. By checking the boxes below and tapping “Agree”, you acknowledge that you have read, understand and agree to all of the Terms and Conditions, which are binding legal agreements. If you do not understand or agree to any of the Terms and Conditions, you are not licensed or authorized to use this application and should delete it from your device.</string>
     <string name="intro_legal_confirm">Agree</string>
     <string name="intro_legal_deny">Disagree</string>
     <string name="intro_legal_checkbox_eula_label">End User License Agreement</string>
@@ -114,7 +114,7 @@
     <string name="send_confirm_address_cta">Confirm Address</string>
     <string name="send_fingerprint_title">Send NEURO</string>
     <string name="send_pin_description">Send %s NEURO?</string>
-    <string name="send_fingerprint_description">Confirm fingerprint to send %s NOS</string>
+    <string name="send_fingerprint_description">Confirm fingerprint to send %s NEURO</string>
     <string name="send_fingerprint_hint">Touch sensor</string>
     <string name="send_fingerprint_success">Fingerprint recognized</string>
 
@@ -128,12 +128,12 @@
 
     <!-- Seed Update Alert -->
     <string name="seed_update_alert_title">Critical: Update Your Wallet Seed</string>
-    <string name="seed_update_alert_message">In version 1.0, we discovered a critical bug in the way Wallet Seeds were generated. This requires you to generate a brand new wallet seed and transfer your NEURO to a new wallet if your wallet was created via NEURO Wallet for Android.</string>
+    <string name="seed_update_alert_message">In version 1.0, we discovered a critical bug in the way Wallet Seeds were generated. This requires you to generate a brand new wallet seed and transfer your NEURO to a new wallet if your wallet was created via NOS Wallet for Android.</string>
     <string name="seed_update_alert_cancel_cta">My seed was created via another wallet</string>
     <string name="seed_update_alert_confirm_cta">Generate new wallet seed</string>
 
     <string name="seed_update_address_alert_title">Copy your new Wallet Seed and transfer funds</string>
-    <string name="seed_update_address_alert_message">In the future, you will use this newly generated Wallet Seed to access your NEURO. Write it down and save it somewhere secure. Note: screenshots do not work in NEURO Wallet\n\nYour new Wallet Seed is\n%1$s\n\nYour new Wallet Address is\n%2$s</string>
+    <string name="seed_update_address_alert_message">In the future, you will use this newly generated Wallet Seed to access your NEURO. Write it down and save it somewhere secure. Note: screenshots do not work in NOS Wallet\n\nYour new Wallet Seed is\n%1$s\n\nYour new Wallet Address is\n%2$s</string>
     <string name="seed_update_address_alert_neutral_cta">I have copied my wallet seed</string>
     <string name="seed_update_address_alert_confirm_cta">Transfer balance to new wallet</string>
 
@@ -143,7 +143,7 @@
     <string name="seed_update_verify_cancel">Cancel</string>
 
     <string name="seed_update_send_completed_alert_title">Log into your new wallet</string>
-    <string name="seed_update_send_completed_alert_message">Log out of this wallet and log in to NEURO Wallet for Android again with your new seed you recently copied.</string>
+    <string name="seed_update_send_completed_alert_message">Log out of this wallet and log in to NOS Wallet for Android again with your new seed you recently copied.</string>
     <string name="seed_update_send_completed_alert_confirm">Okay</string>
 
     <string name="seed_reminder_alert_title">New Wallet Seed Reminder</string>
@@ -194,7 +194,7 @@
     <string name="please_specify_destination_address">Please specify valid destination address</string>
     <string name="cannot_transfer">Coins amount invalid, please enter valid value</string>
     <string name="transfer_succeess">Transfer success</string>
-    <string name="sent_coins_amount_to_address">%s NOS successfully transferred to address %s</string>
+    <string name="sent_coins_amount_to_address">%s NEURO successfully transferred to address %s</string>
     <string name="failed_to_receive_history">Failed to receive history, try again later</string>
     <string name="processing_transfer">Processing...</string>
 

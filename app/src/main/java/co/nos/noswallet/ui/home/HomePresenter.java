@@ -64,7 +64,7 @@ public class HomePresenter extends BasePresenter<HomeView> {
 
                     String amount = NOSWallet.rawToNeuros(balance);
                     NOSApplication.getNosWallet().setNeuros(amount);
-                    view.onBalanceFormattedReceived(amount + " NOS");
+                    view.onBalanceFormattedReceived(amount + " NEURO");
 
                 }, throwable -> System.err.println("error: " + throwable)));
     }

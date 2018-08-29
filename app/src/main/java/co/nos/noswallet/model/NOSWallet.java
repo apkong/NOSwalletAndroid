@@ -36,7 +36,7 @@ public class NOSWallet {
     }
 
     public void setNeuros(String neuros) {
-        System.out.println("neuros: " + neuros + " NOS");
+        System.out.println("neuros: " + neuros + " NEURO");
         this.neuros = neuros;
         this.rawAmount = neurosToRaw(neuros);
     }
