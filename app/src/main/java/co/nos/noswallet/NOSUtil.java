@@ -168,12 +168,11 @@ public class NOSUtil {
 
     /**
      * Compute hash for a universal (state) block
-     *
-     * @param account        This account's xrb_ address.
-     * @param previous       Previous head block on account; 0 if open block.
-     * @param representative Representative xrb_ address.
-     * @param balance        Resulting balance
-     * @param link           Multipurpose Field
+     * @param account This account's eur_ address.
+     * @param previous Previous head block on account; 0 if open block.
+     * @param representative Representative eur_ address.
+     * @param balance Resulting balance
+     * @param link Multipurpose Field
      * @return String of hash
      */
     public static String computeStateHash(String account,
@@ -288,7 +287,7 @@ public class NOSUtil {
         reverse(check_b);
 
         StringBuilder resultAddress = new StringBuilder();
-        resultAddress.insert(0, "xrb_");
+        resultAddress.insert(0, "eur_");
         resultAddress.append(encodedAddress);
         resultAddress.append(encode(NOSUtil.bytesToHex(check_b)));
 
