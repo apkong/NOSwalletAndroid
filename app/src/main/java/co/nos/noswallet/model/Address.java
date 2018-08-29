@@ -89,7 +89,7 @@ public class Address implements Serializable {
         if (parts.length != 2) {
             return false;
         }
-        if (!parts[0].equals("xrb") && !parts[0].equals("nano")) {
+        if (!parts[0].equals("xrb") && !parts[0].equals("eur")) {
             return false;
         }
         if (parts[1].length() != 60) {
