@@ -10,6 +10,7 @@ import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.di.analytics.AnalyticsModule;
 import co.nos.noswallet.di.persistence.PersistenceModule;
 import co.nos.noswallet.model.NOSWallet;
+import co.nos.noswallet.network.ApiResponseMapper;
 import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import dagger.Component;
@@ -34,10 +35,14 @@ public interface ApplicationComponent {
 
     RepresentativesProvider providesRepresentativesProvider();
 
+    ApiResponseMapper providesApiResponseMapper();
+
     // encryption key
     @Named("encryption_key")
     byte[] providesEncryptionKey();
 
 
     void inject(NOSApplication nosApplication);
+
+
 }

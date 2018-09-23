@@ -7,6 +7,7 @@ import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.network.nosModel.NeuroHistoryRequest;
 import co.nos.noswallet.network.nosModel.NeuroHistoryResponse;
 import io.reactivex.Observable;
+import io.reactivex.exceptions.OnErrorNotImplementedException;
 import io.realm.Realm;
 
 public class GetHistoryUseCase {
@@ -33,7 +34,8 @@ public class GetHistoryUseCase {
     }
 
     public Observable<NeuroHistoryResponse> execute() {
-        return executeFresh();
+        return Observable.error(new OnErrorNotImplementedException(new Throwable("deprecated API")));
+//        return executeFresh();
     }
 
     private Observable<NeuroHistoryResponse> executeFresh() {

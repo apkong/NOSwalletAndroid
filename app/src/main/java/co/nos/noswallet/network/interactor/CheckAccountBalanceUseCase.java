@@ -7,6 +7,7 @@ import co.nos.noswallet.model.NOSWallet;
 import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
 import io.reactivex.Observable;
+import io.reactivex.exceptions.OnErrorNotImplementedException;
 
 public class CheckAccountBalanceUseCase {
 
@@ -24,6 +25,11 @@ public class CheckAccountBalanceUseCase {
     }
 
     public Observable<String> execute() {
+
+        if (true) {
+            return Observable.error(new OnErrorNotImplementedException(new Throwable("deprecated API")));
+        }
+
         return neuroClient
                 .getAccountInfo(new AccountInfoRequest(accountNumber))
                 .map(response -> {

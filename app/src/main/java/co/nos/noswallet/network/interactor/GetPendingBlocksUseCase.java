@@ -59,6 +59,9 @@ public class GetPendingBlocksUseCase {
     }
 
     public void startObservePendingTransactions() {
+
+
+        if (true) return;
         System.out.println("startObservePendingTransactions()");
         if (pendingTransactionsDisposable == null) {
             pendingTransactionsDisposable = new SerialDisposable();
