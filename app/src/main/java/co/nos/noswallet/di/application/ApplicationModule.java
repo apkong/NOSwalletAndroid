@@ -4,14 +4,12 @@ import android.content.Context;
 
 import java.nio.charset.Charset;
 
-import javax.inject.Singleton;
-
 import co.nos.noswallet.BuildConfig;
-import co.nos.noswallet.network.ApiResponseMapper;
-import co.nos.noswallet.network.MsgPackCompressor;
+import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
+import co.nos.noswallet.network.compression_stuff.MsgPackCompressor;
 import co.nos.noswallet.network.NeuroApi;
 import co.nos.noswallet.network.NeuroClient;
-import co.nos.noswallet.network.ZlipCompressor;
+import co.nos.noswallet.network.compression_stuff.ZlibCompressor;
 import co.nos.noswallet.network.exception.ErrorDispatcher;
 import dagger.Module;
 import dagger.Provides;
@@ -39,7 +37,7 @@ public class ApplicationModule {
         Charset charset = Charset.forName("UTF-8");
 
         MsgPackCompressor msgCompressor = new MsgPackCompressor(charset);
-        ZlipCompressor zlipCompressor = new ZlipCompressor(charset);
+        ZlibCompressor zlipCompressor = new ZlibCompressor(charset);
 
         return new ApiResponseMapper(msgCompressor, zlipCompressor);
     }

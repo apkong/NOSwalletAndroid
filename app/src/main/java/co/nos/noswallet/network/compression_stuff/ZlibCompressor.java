@@ -1,4 +1,4 @@
-package co.nos.noswallet.network;
+package co.nos.noswallet.network.compression_stuff;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,12 +10,12 @@ import java.util.zip.InflaterInputStream;
 
 import javax.inject.Inject;
 
-public class ZlipCompressor {
+public class ZlibCompressor {
 
     private final Charset charset;
 
     @Inject
-    public ZlipCompressor(Charset charset) {
+    public ZlibCompressor(Charset charset) {
         this.charset = charset;
     }
 

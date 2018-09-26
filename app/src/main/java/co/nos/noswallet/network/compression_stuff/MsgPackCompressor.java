@@ -1,4 +1,4 @@
-package co.nos.noswallet.network;
+package co.nos.noswallet.network.compression_stuff;
 
 import org.msgpack.MessagePack;
 import org.msgpack.type.ArrayValue;

@@ -1,8 +1,11 @@
 package co.nos.noswallet.network.nosModel;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+
+import co.nos.noswallet.util.Statics;
 
 public class GetPendingBlocksRequest implements Serializable {
 
@@ -25,10 +28,6 @@ public class GetPendingBlocksRequest implements Serializable {
 
     @Override
     public String toString() {
-        return "GetPendingBlocksRequest{" +
-                "action='" + action + '\'' +
-                ", account='" + account + '\'' +
-                ", count='" + count + '\'' +
-                '}';
+        return Statics.GSON.toJson(this);
     }
 }

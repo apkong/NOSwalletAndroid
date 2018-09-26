@@ -6,7 +6,6 @@ import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,10 +16,8 @@ import android.widget.TextView;
 
 import com.hwangjr.rxbus.annotation.Subscribe;
 
-import java.nio.charset.Charset;
 import java.util.UUID;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import co.nos.noswallet.analytics.AnalyticsEvents;
@@ -37,7 +34,12 @@ import co.nos.noswallet.di.activity.DaggerActivityComponent;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.ApiResponseMapper;
+import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
+import co.nos.noswallet.network.interactor.GetBlocksInfoUseCase;
+import co.nos.noswallet.network.nosModel.GetBlocksInfoResponse;
+import co.nos.noswallet.network.nosModel.GetPendingBlocksRequest;
+import co.nos.noswallet.network.websockets.NosNodeWebSocketListener;
+import co.nos.noswallet.network.websockets.WebsocketRunner;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
@@ -47,14 +49,12 @@ import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
-import okio.ByteString;
 
 public class MainActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent {
 
@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
     @Inject
     Realm realm;
+
+    @Inject
+    GetBlocksInfoUseCase getBlocksInfoUseCase;
 
     @Inject
     NanoWallet nanoWallet;
@@ -112,60 +115,95 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     }
 
     private void setupWebSockets() {
-        Log.d(TAG, "setupWebSockets() called");
-        OkHttpClient client = new OkHttpClient();
+
         String url = "wss:/backendtest.nosnode.net:8888/";
 
-        WebSocketListener listener = new WebSocketListener() {
-            @Override
-            public void onOpen(WebSocket webSocket, Response response) {
-                super.onOpen(webSocket, response);
-                Log.d(TAG, "onOpen() called with: webSocket = [" + webSocket + "], response = [" + response + "]");
-                String request = "{\"currency\":\"usd\",\"action\":\"get_pow\", \"account\":\"xrb_3bgmpjak8j9c3muqk8u7ctr3qec4wdsdke3rgu958kmzbe4ehbjoihfxgdk9\"}";
-                webSocket.send(ByteString.of(apiResponseMapper.serialize(request)));
-            }
+        WebsocketRunner runner = new WebsocketRunner(new OkHttpClient(),
+                url, new NosNodeWebSocketListener());
 
-            @Override
-            public void onMessage(WebSocket webSocket, String text) {
-                super.onMessage(webSocket, text);
-                byte[] response = apiResponseMapper.deserialize(text.getBytes());
+        runner.init();
 
-                Log.d(TAG, "onMessage1() called with: webSocket = [" + webSocket
-                        + "], text = [" + new String(response, Charset.forName("UTF-8")) + "]");
-            }
+        String account = getBlocksInfoUseCase.provideAccountNumber(realm);
 
-            @Override
-            public void onMessage(WebSocket webSocket, ByteString bytes) {
-                super.onMessage(webSocket, bytes);
-                byte[] response = apiResponseMapper.deserialize(bytes.toByteArray());
+        runner.send(new GetPendingBlocksRequest(account,"1"));
 
-                Log.d(TAG, "onMessage2() called with: webSocket = [" + webSocket + "], bytes = [" +
-                        new String(response, Charset.forName("UTF-8")) + "]");
-            }
+        Disposable disposable = runner.observeMessages()
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        System.out.println("onNext -> [" + s + "]");
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        System.err.println("onError -> [" + throwable.getMessage() + "]");
+                        throwable.printStackTrace();
+                    }
+                });
 
-            @Override
-            public void onClosing(WebSocket webSocket, int code, String reason) {
-                super.onClosing(webSocket, code, reason);
-                Log.d(TAG, "onClosing() called with: webSocket = [" + webSocket + "], code = [" + code + "], reason = [" + reason + "]");
-            }
-
-            @Override
-            public void onClosed(WebSocket webSocket, int code, String reason) {
-                super.onClosed(webSocket, code, reason);
-                Log.d(TAG, "onClosed() called with: webSocket = [" + webSocket + "], code = [" + code + "], reason = [" + reason + "]");
-            }
-
-            @Override
-            public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
-                super.onFailure(webSocket, t, response);
-                Log.d(TAG, "onFailure() called with: webSocket = [" + webSocket + "], t = [" + t + "], response = [" + response + "]");
-            }
-        };
-
-        Request request = new Request.Builder().url(url).build();
-        WebSocket ws = client.newWebSocket(request, listener);
-
-        client.dispatcher().executorService().shutdown();
+//        Log.d(TAG, "setupWebSockets() called");
+//        OkHttpClient client = new OkHttpClient();
+//
+//        WebSocketListener listener = new WebSocketListener() {
+//
+//            final Charset utf8 = Charset.forName("UTF-8");
+//
+//            @Override
+//            public void onOpen(WebSocket webSocket, Response response) {
+//                super.onOpen(webSocket, response);
+//                Log.w(TAG, "onOpen() called with: webSocket = [" + webSocket + "], response = [" + response + "]");
+//                String request = "{\"currency\":\"usd\",\"action\":\"get_pow\", \"account\":\"xrb_3bgmpjak8j9c3muqk8u7ctr3qec4wdsdke3rgu958kmzbe4ehbjoihfxgdk9\"}";
+////                webSocket.send(
+////                        ByteString.decodeHex(apiResponseMapper.toHexString(
+////                                apiResponseMapper.serialize(request)
+////                                )
+////                        )
+////                );
+//                webSocket.send(request);
+//            }
+//
+//            @Override
+//            public void onMessage(WebSocket webSocket, String text) {
+//                super.onMessage(webSocket, text);
+//               // byte[] response = apiResponseMapper.deserialize(text.getBytes());
+//
+//                Log.w(TAG, "onMessage1() called with: webSocket = [" + webSocket
+//                        + "], text = [" + text + "]");
+//            }
+//
+//            @Override
+//            public void onMessage(WebSocket webSocket, ByteString bytes) {
+//                super.onMessage(webSocket, bytes);
+//                //byte[] response = apiResponseMapper.deserialize(bytes.toByteArray());
+//
+//                Log.w(TAG, "onMessage2() called with: webSocket = [" + webSocket + "], bytes = [" +
+//                        bytes.string(utf8) + "]");
+//            }
+//
+//            @Override
+//            public void onClosing(WebSocket webSocket, int code, String reason) {
+//                super.onClosing(webSocket, code, reason);
+//                Log.e(TAG, "onClosing() called with: webSocket = [" + webSocket + "], code = [" + code + "], reason = [" + reason + "]");
+//            }
+//
+//            @Override
+//            public void onClosed(WebSocket webSocket, int code, String reason) {
+//                super.onClosed(webSocket, code, reason);
+//                Log.e(TAG, "onClosed() called with: webSocket = [" + webSocket + "], code = [" + code + "], reason = [" + reason + "]");
+//            }
+//
+//            @Override
+//            public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
+//                super.onFailure(webSocket, t, response);
+//                Log.e(TAG, "onFailure() called with: webSocket = [" + webSocket + "], t = [" + t + "], response = [" + response + "]");
+//            }
+//        };
+//
+//        Request request = new Request.Builder().url(url).build();
+//        WebSocket ws = client.newWebSocket(request, listener);
+//
+//        //client.dispatcher().executorService().shutdown();
     }
 
     static class ResponseDeserializer {

@@ -10,7 +10,7 @@ import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.di.analytics.AnalyticsModule;
 import co.nos.noswallet.di.persistence.PersistenceModule;
 import co.nos.noswallet.model.NOSWallet;
-import co.nos.noswallet.network.ApiResponseMapper;
+import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
 import co.nos.noswallet.network.NeuroClient;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import dagger.Component;

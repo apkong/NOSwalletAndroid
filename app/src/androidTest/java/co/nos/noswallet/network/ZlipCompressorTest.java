@@ -1,9 +1,10 @@
 package co.nos.noswallet.network;
 
 import org.junit.Assert;
-import org.junit.Test;
 
 import java.nio.charset.Charset;
+
+import co.nos.noswallet.network.compression_stuff.ZlibCompressor;
 
 //todo: fix tests
 public class ZlipCompressorTest {
@@ -11,7 +12,7 @@ public class ZlipCompressorTest {
     public static void main(String[] args) {
         final Charset charset = Charset.forName("UTF-8");
 
-        ZlipCompressor compressor = new ZlipCompressor(charset);
+        ZlibCompressor compressor = new ZlibCompressor(charset);
 
         byte[] result = compressor.compress("{\"currency\":\"usd\",\"action\":\"get_pow\", \"account\":\"xrb_3bgmpjak8j9c3muqk8u7ctr3qec4wdsdke3rgu958kmzbe4ehbjoihfxgdk9\"}".getBytes(charset));
 

@@ -22,7 +22,7 @@ public class GetBlocksInfoUseCase {
         this.accountNumber = provideAccountNumber(realm);
     }
 
-    String provideAccountNumber(Realm realm) {
+    public String provideAccountNumber(Realm realm) {
         Credentials credentials = realm.where(Credentials.class).findFirst();
         if (credentials != null) {
             return credentials.getAddressString();

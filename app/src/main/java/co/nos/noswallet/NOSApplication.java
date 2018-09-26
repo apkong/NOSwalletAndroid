@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Base64;
 
 import com.github.ajalt.reprint.core.Reprint;
+import com.google.gson.Gson;
 
 import javax.inject.Inject;
 
