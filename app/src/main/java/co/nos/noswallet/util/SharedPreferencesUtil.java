@@ -17,26 +17,26 @@ public class SharedPreferencesUtil {
     private static final String CONFIRMED_SEED_BACKEDUP = "confirmed_seed_backedup";
     private static final String FROM_NEW_WALLET = "from_new_wallet";
 
-    private final SharedPreferences mPrefs;
+    private final SharedPreferences preferences;
 
     public SharedPreferencesUtil(Context context) {
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    private boolean has(String key) {
-        return mPrefs.contains(key);
+    public boolean has(String key) {
+        return preferences.contains(key);
     }
 
-    private String get(String key, String defValue) {
-        return mPrefs.getString(key, defValue);
+    public String get(String key, String defValue) {
+        return preferences.getString(key, defValue);
     }
 
-    private boolean get(String key, boolean defValue) {
-        return mPrefs.getBoolean(key, defValue);
+    public boolean get(String key, boolean defValue) {
+        return preferences.getBoolean(key, defValue);
     }
 
-    private void set(String key, String value) {
-        SharedPreferences.Editor editor = mPrefs.edit();
+    public void set(String key, String value) {
+        SharedPreferences.Editor editor = preferences.edit();
 
         if (value != null) {
             editor.putString(key, value);
@@ -44,15 +44,15 @@ public class SharedPreferencesUtil {
             editor.remove(key);
         }
 
-        editor.apply();
+        editor.commit();
     }
 
-    private void set(String key, boolean value) {
-        SharedPreferences.Editor editor = mPrefs.edit();
+    public void set(String key, boolean value) {
+        SharedPreferences.Editor editor = preferences.edit();
 
         editor.putBoolean(key, value);
 
-        editor.apply();
+        editor.commit();
     }
 
     public boolean hasLocalCurrency() {

@@ -24,6 +24,10 @@ public class CheckAccountBalanceUseCase {
         this.nosWallet = nosWallet;
     }
 
+    public String getAccountInfoRequest(){
+        return new AccountInfoRequest(accountNumber).toString();
+    }
+
     public Observable<String> execute() {
 
         if (true) {

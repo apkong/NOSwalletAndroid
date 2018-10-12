@@ -21,6 +21,8 @@ import co.nos.noswallet.util.SecureRandomUtil;
 public class NOSUtil {
     public static final String TAG = "NOSUtil";
 
+    public static String prefix = "usd";
+
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
     public final static String addressCodeArray = "13456789abcdefghijkmnopqrstuwxyz";
     public final static char[] addressCodeCharArray = addressCodeArray.toCharArray();
@@ -169,9 +171,9 @@ public class NOSUtil {
     /**
      * Compute hash for a universal (state) block
      *
-     * @param account        This account's xrb_ address.
+     * @param account        This account's prefix_ address.
      * @param previous       Previous head block on account; 0 if open block.
-     * @param representative Representative xrb_ address.
+     * @param representative Representative prefix_ address.
      * @param balance        Resulting balance
      * @param link           Multipurpose Field
      * @return String of hash
@@ -270,7 +272,7 @@ public class NOSUtil {
      * Convert a Public Key to an Address
      *
      * @param public_key Public Key
-     * @return xrb address
+     * @return prefix_ address
      */
     public static String publicToAddress(String public_key) {
         Sodium sodium = NaCl.sodium();
@@ -288,12 +290,11 @@ public class NOSUtil {
         reverse(check_b);
 
         StringBuilder resultAddress = new StringBuilder();
-        resultAddress.insert(0, "xrb_");
+        resultAddress.insert(0, prefix+"_");
         resultAddress.append(encodedAddress);
         resultAddress.append(encode(NOSUtil.bytesToHex(check_b)));
 
         return resultAddress.toString();
-
     }
 
     /**

@@ -7,11 +7,9 @@ import okhttp3.Request;
 import okhttp3.WebSocket;
 import okio.ByteString;
 
-public class WebsocketRunner {
+public class WebsocketExecutor {
 
-    public static final String TAG = WebsocketRunner.class.getSimpleName();
-
-    public static final String ENDPOINT = "wss:/backendtest.nosnode.net:8888/";
+    public static final String TAG = WebsocketExecutor.class.getSimpleName();
 
     private final OkHttpClient client;
     private final String endpoint;
@@ -19,17 +17,24 @@ public class WebsocketRunner {
 
     private WebSocket webSocket;
 
-    public WebsocketRunner(OkHttpClient client,
-                           String endpoint,
-                           NosNodeWebSocketListener listener) {
+    public WebsocketExecutor(OkHttpClient client,
+                             String endpoint,
+                             NosNodeWebSocketListener listener) {
         this.client = client;
         this.endpoint = endpoint;
         this.listener = listener;
     }
 
-    public WebSocket init() {
+    public WebSocket init(int tasksSize, NosNodeWebSocketListener.IterableDoable started) {
         Request request = new Request.Builder().url(endpoint).build();
-        webSocket = client.newWebSocket(request, listener);
+        webSocket = client.newWebSocket(request, listener.doOnOpen(tasksSize, started));
+        client.dispatcher().executorService().shutdown();
+        return webSocket;
+    }
+
+    public WebSocket init(NosNodeWebSocketListener.Doable started) {
+        Request request = new Request.Builder().url(endpoint).build();
+        webSocket = client.newWebSocket(request, listener.doOnOpen(started));
         client.dispatcher().executorService().shutdown();
         return webSocket;
     }
@@ -51,11 +56,15 @@ public class WebsocketRunner {
     }
 
     public <T> void send(T request) {
+        send(request, webSocket);
+    }
+
+    public <T> void send(T request, WebSocket webSocket) {
         if (request == null) {
             throw new RuntimeException(new NullPointerException("websocket request cannot be null"));
         }
-        String dataToSend;
-        webSocket.send(dataToSend = request.toString());
-        System.out.println("[" + dataToSend + "] sent");
+        String dataToSend = request.toString();
+        System.out.println("sending [" + dataToSend + "]");
+        webSocket.send(dataToSend);
     }
 }

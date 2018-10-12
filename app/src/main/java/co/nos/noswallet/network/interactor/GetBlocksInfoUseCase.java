@@ -31,6 +31,15 @@ public class GetBlocksInfoUseCase {
         }
     }
 
+    public String getPublicKey(Realm realm) {
+        Credentials credentials = realm.where(Credentials.class).findFirst();
+        if (credentials != null) {
+            return credentials.getPublicKey();
+        } else {
+            return null;
+        }
+    }
+
     public Observable<GetPendingBlocksResponse> execute() {
         if (accountNumber == null) {
             return Observable.error(new IllegalStateException("missing seed!!!"));

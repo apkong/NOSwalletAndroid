@@ -41,14 +41,6 @@ public class SendCoinsUseCase {
         this.representative = representativesProvider.provideRepresentative();
     }
 
-    String format30(String amount) {
-        StringBuilder sb = new StringBuilder(amount);
-        for (int i = 0; i < 30; i++) {
-            sb.append("0");
-        }
-        return sb.toString();
-    }
-
     public Observable<ProcessResponse> transferCoins(@Nonnull String amount, String destinationAcount) {
         return transferCoinsInFormat30(amount, destinationAcount);
     }

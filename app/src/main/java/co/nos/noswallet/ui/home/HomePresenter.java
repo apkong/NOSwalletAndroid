@@ -1,5 +1,7 @@
 package co.nos.noswallet.ui.home;
 
+import com.google.gson.JsonElement;
+
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -13,7 +15,9 @@ import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
 import co.nos.noswallet.network.interactor.GetHistoryUseCase;
 import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
 import co.nos.noswallet.network.nosModel.AccountHistory;
+import co.nos.noswallet.network.websockets.WebsocketMachine;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -76,4 +80,27 @@ public class HomePresenter extends BasePresenter<HomeView> {
     }
 
 
+    private Disposable getHistoryDisposable = null;
+
+    public void observeUiCallbacks(WebsocketMachine websocketMachine) {
+        if (getHistoryDisposable != null) {
+            getHistoryDisposable.dispose();
+        }
+        getHistoryDisposable = (websocketMachine.observeUiTriggers()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<WebsocketMachine.SocketResponse>() {
+                    @Override
+                    public void accept(WebsocketMachine.SocketResponse response) throws Exception {
+                        if (response.isHistoryResponse()) {
+                            JsonElement element = response.response;
+
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                }));
+    }
 }

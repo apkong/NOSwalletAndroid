@@ -224,6 +224,10 @@ public class HomeFragment extends BaseFragment implements HomeView {
     public void onResume() {
         super.onResume();
         presenter.requestAccountBalanceCheck();
+        if (getActivity() instanceof HasWebsocketMachine) {
+            HasWebsocketMachine machineOwner = (HasWebsocketMachine) getActivity();
+            presenter.observeUiCallbacks(machineOwner.getWebsocketMachine());
+        }
     }
 
     @Subscribe
@@ -377,4 +381,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
             presenter.onStart();
         }
     }
+
+
 }

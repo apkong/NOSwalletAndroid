@@ -35,14 +35,13 @@ import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
 import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
+import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
 import co.nos.noswallet.network.interactor.GetBlocksInfoUseCase;
-import co.nos.noswallet.network.nosModel.GetBlocksInfoResponse;
-import co.nos.noswallet.network.nosModel.GetPendingBlocksRequest;
-import co.nos.noswallet.network.websockets.NosNodeWebSocketListener;
-import co.nos.noswallet.network.websockets.WebsocketRunner;
+import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
+import co.nos.noswallet.ui.home.HasWebsocketMachine;
 import co.nos.noswallet.ui.home.HomeFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
@@ -50,13 +49,10 @@ import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import okhttp3.OkHttpClient;
 
-public class MainActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent {
+public class MainActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent, HasWebsocketMachine {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -66,6 +62,11 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     protected ActivityComponent mActivityComponent;
     private FrameLayout mOverlay;
 
+    @Inject
+    WebsocketMachine websocketMachine;
+
+    @Inject
+    CheckAccountBalanceUseCase checkAccountBalanceUseCase;
     @Inject
     Realm realm;
 
@@ -110,113 +111,24 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
         initUi();
 
-
-        setupWebSockets();
     }
 
-    private void setupWebSockets() {
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-        String url = "wss:/backendtest.nosnode.net:8888/";
+        websocketMachine.start();
 
-        WebsocketRunner runner = new WebsocketRunner(new OkHttpClient(),
-                url, new NosNodeWebSocketListener());
+        D = websocketMachine.observeUiTriggers()
+                .subscribe(response -> {
+                    if (response.isHistoryResponse()) {
 
-        runner.init();
-
-        String account = getBlocksInfoUseCase.provideAccountNumber(realm);
-
-        runner.send(new GetPendingBlocksRequest(account,"1"));
-
-        Disposable disposable = runner.observeMessages()
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        System.out.println("onNext -> [" + s + "]");
                     }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        System.err.println("onError -> [" + throwable.getMessage() + "]");
-                        throwable.printStackTrace();
-                    }
-                });
+                }, throwable -> System.err.println(throwable));
 
-//        Log.d(TAG, "setupWebSockets() called");
-//        OkHttpClient client = new OkHttpClient();
-//
-//        WebSocketListener listener = new WebSocketListener() {
-//
-//            final Charset utf8 = Charset.forName("UTF-8");
-//
-//            @Override
-//            public void onOpen(WebSocket webSocket, Response response) {
-//                super.onOpen(webSocket, response);
-//                Log.w(TAG, "onOpen() called with: webSocket = [" + webSocket + "], response = [" + response + "]");
-//                String request = "{\"currency\":\"usd\",\"action\":\"get_pow\", \"account\":\"xrb_3bgmpjak8j9c3muqk8u7ctr3qec4wdsdke3rgu958kmzbe4ehbjoihfxgdk9\"}";
-////                webSocket.send(
-////                        ByteString.decodeHex(apiResponseMapper.toHexString(
-////                                apiResponseMapper.serialize(request)
-////                                )
-////                        )
-////                );
-//                webSocket.send(request);
-//            }
-//
-//            @Override
-//            public void onMessage(WebSocket webSocket, String text) {
-//                super.onMessage(webSocket, text);
-//               // byte[] response = apiResponseMapper.deserialize(text.getBytes());
-//
-//                Log.w(TAG, "onMessage1() called with: webSocket = [" + webSocket
-//                        + "], text = [" + text + "]");
-//            }
-//
-//            @Override
-//            public void onMessage(WebSocket webSocket, ByteString bytes) {
-//                super.onMessage(webSocket, bytes);
-//                //byte[] response = apiResponseMapper.deserialize(bytes.toByteArray());
-//
-//                Log.w(TAG, "onMessage2() called with: webSocket = [" + webSocket + "], bytes = [" +
-//                        bytes.string(utf8) + "]");
-//            }
-//
-//            @Override
-//            public void onClosing(WebSocket webSocket, int code, String reason) {
-//                super.onClosing(webSocket, code, reason);
-//                Log.e(TAG, "onClosing() called with: webSocket = [" + webSocket + "], code = [" + code + "], reason = [" + reason + "]");
-//            }
-//
-//            @Override
-//            public void onClosed(WebSocket webSocket, int code, String reason) {
-//                super.onClosed(webSocket, code, reason);
-//                Log.e(TAG, "onClosed() called with: webSocket = [" + webSocket + "], code = [" + code + "], reason = [" + reason + "]");
-//            }
-//
-//            @Override
-//            public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
-//                super.onFailure(webSocket, t, response);
-//                Log.e(TAG, "onFailure() called with: webSocket = [" + webSocket + "], t = [" + t + "], response = [" + response + "]");
-//            }
-//        };
-//
-//        Request request = new Request.Builder().url(url).build();
-//        WebSocket ws = client.newWebSocket(request, listener);
-//
-//        //client.dispatcher().executorService().shutdown();
     }
 
-    static class ResponseDeserializer {
-        static String deserialize(String s) {
-            return "";
-        }
-    }
-
-    static class ResponseSerializer {
-        static String serialize(String s) {
-            return "";
-        }
-    }
+    Disposable D;
 
     private void disableScreenCapture() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
@@ -225,10 +137,11 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     @Override
     protected void onPause() {
         super.onPause();
-        // stop websocket on pause
-
+        if (D != null) {
+            D.dispose();
+        }
+        websocketMachine.pause();
     }
-
 
     @Override
     protected void onDestroy() {
@@ -460,5 +373,8 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         return NOSApplication.getApplication(this).getApplicationComponent();
     }
 
-
+    @Override
+    public WebsocketMachine getWebsocketMachine() {
+        return websocketMachine;
+    }
 }

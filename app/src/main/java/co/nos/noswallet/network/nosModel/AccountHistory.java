@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class AccountHistory implements Serializable {
+
     @SerializedName("type")
     public String type;
 
@@ -19,7 +20,6 @@ public class AccountHistory implements Serializable {
 
     public AccountHistory() {
     }
-
 
     public boolean isSend() {
         return "send".equalsIgnoreCase(type);

@@ -13,12 +13,16 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 import co.nos.noswallet.NOSUtil;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 
 /**
  * Address class
  */
 
 public class Address implements Serializable {
+
+    private final CryptoCurrency cryptoCurrency;
+
     private String value;
     private String amount;
 
@@ -29,16 +33,18 @@ public class Address implements Serializable {
         return "value: " + value + ", amount: " + amount;
     }
 
-    public Address() {
+    public Address(String value) {
+        this(value, CryptoCurrency.NOLLAR);
     }
 
-    public Address(String value) {
+    public Address(String value, CryptoCurrency cryptoCurrency) {
         this.value = value;
+        this.cryptoCurrency = cryptoCurrency;
         parseAddress();
     }
 
-    public boolean hasXrbAddressFormat() {
-        return value.contains("xrb_");
+    public boolean haCryptoCurrencyAddressFormat() {
+        return value.contains(cryptoCurrency.getPrefix());
     }
 
     public boolean hasNanoAddressFormat() {
@@ -47,7 +53,7 @@ public class Address implements Serializable {
 
     public String getShortString() {
         int frontStartIndex = 0;
-        int frontEndIndex = hasXrbAddressFormat() ? 9 : 10;
+        int frontEndIndex = haCryptoCurrencyAddressFormat() ? 9 : 10;
         int backStartIndex = value.length() - 5;
         return value.substring(frontStartIndex, frontEndIndex) +
                 "..." +
@@ -57,7 +63,7 @@ public class Address implements Serializable {
     public Spannable getColorizedShortSpannable() {
         Spannable s = new SpannableString(getShortString());
         int frontStartIndex = 0;
-        int frontEndIndex = hasXrbAddressFormat() ? 9 : 10;
+        int frontEndIndex = haCryptoCurrencyAddressFormat() ? 9 : 10;
         int backStartIndex = s.length() - 5;
 
         // colorize the string
@@ -71,7 +77,7 @@ public class Address implements Serializable {
     }
 
     public String getAddressWithoutPrefix() {
-        return value.replace("xrb_", "");
+        return value.replace(cryptoCurrency.getPrefix(), "");
     }
 
     public String getAmount() {
@@ -85,7 +91,7 @@ public class Address implements Serializable {
         if (parts.length != 2) {
             return false;
         }
-        if (!parts[0].equals("xrb") && !parts[0].equals("nano")) {
+        if (!parts[0].equals(cryptoCurrency.getPrefixWithNoFloor()) && !parts[0].equals("nano")) {
             return false;
         }
         if (parts[1].length() != 60) {

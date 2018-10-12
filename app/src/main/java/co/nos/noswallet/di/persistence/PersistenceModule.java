@@ -96,8 +96,13 @@ public class PersistenceModule {
         return new RealmCredentialsProvider(realm);
     }
 
-    @Provides
+        @Provides
     RepresentativesProvider providesRepresentativeProvider() {
         return new RandomFetchedRepresentativesProvider();
     }
+//    @Provides
+//    @ApplicationScope
+//    RepresentativesProvider providesRepresentativeProvider(SharedPreferencesUtil util) {
+////        return new NetworkRepresentativesProvider(util);
+//    }
 }

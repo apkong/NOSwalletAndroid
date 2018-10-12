@@ -1,16 +1,13 @@
 package co.nos.noswallet.network.nosModel;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import io.reactivex.annotations.Experimental;
 
-import co.nos.noswallet.util.Statics;
+public class GetPendingBlocksRequest extends BaseWebsocketRequest {
 
-public class GetPendingBlocksRequest implements Serializable {
-
-    @SerializedName("action")
-    public String action = "pending";
+    private transient CryptoCurrency cryptoCurrency;
 
     @SerializedName("account")
     public String account;
@@ -18,16 +15,25 @@ public class GetPendingBlocksRequest implements Serializable {
     @SerializedName("count")
     public String count;
 
+    @Experimental
     public GetPendingBlocksRequest(String account, String count) {
-        this.account = account;
-        this.count = count;
+        this(account, count, CryptoCurrency.NOLLAR);
     }
 
-    public GetPendingBlocksRequest() {
+    public GetPendingBlocksRequest(String account, String count, CryptoCurrency currency) {
+        this.account = account;
+        this.count = count;
+        this.cryptoCurrency = currency;
     }
 
     @Override
-    public String toString() {
-        return Statics.GSON.toJson(this);
+    public String getActionName() {
+        return "get_pending_blocks";
     }
+
+    @Override
+    public String getCurrencyCode() {
+        return CryptoCurrency.NOLLAR.getCurrencyCode();
+    }
+
 }
