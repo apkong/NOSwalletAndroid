@@ -290,7 +290,7 @@ public class NOSUtil {
         reverse(check_b);
 
         StringBuilder resultAddress = new StringBuilder();
-        resultAddress.insert(0, prefix+"_");
+        resultAddress.insert(0, prefix + "_");
         resultAddress.append(encodedAddress);
         resultAddress.append(encode(NOSUtil.bytesToHex(check_b)));
 
@@ -304,6 +304,7 @@ public class NOSUtil {
      * @return Public Key
      */
     public static String addressToPublic(String encoded_address) {
+        Log.w(TAG, "addressToPublic: " + encoded_address);
         NaCl.sodium();
         String data = encoded_address.split("_")[1].substring(0, 52);
         byte[] data_b = NOSUtil.hexStringToByteArray(decodeAddressCharacters(data));

@@ -39,6 +39,7 @@ import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
 import co.nos.noswallet.network.interactor.SendCoinsUseCase;
 import co.nos.noswallet.network.model.response.AccountHistoryResponseItem;
 import co.nos.noswallet.network.nosModel.AccountHistory;
+import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.BaseFragment;
@@ -224,11 +225,31 @@ public class HomeFragment extends BaseFragment implements HomeView {
     public void onResume() {
         super.onResume();
         presenter.requestAccountBalanceCheck();
-        if (getActivity() instanceof HasWebsocketMachine) {
-            HasWebsocketMachine machineOwner = (HasWebsocketMachine) getActivity();
-            presenter.observeUiCallbacks(machineOwner.getWebsocketMachine());
+        WebsocketMachine machine = getWebSocketMachine();
+        if (machine != null) {
+            presenter.observeUiCallbacks(machine);
+
+            binding.homeReceiveButton.setOnLongClickListener(v -> {
+                machine.requestAccountInfo();
+                return false;
+            });
+            binding.homeSendButton.setOnLongClickListener(v -> {
+                machine.requestAccountHistory();
+                return false;
+            });
+
         }
     }
+
+    @Nullable
+    WebsocketMachine getWebSocketMachine() {
+        if (getActivity() instanceof HasWebsocketMachine) {
+            HasWebsocketMachine machineOwner = (HasWebsocketMachine) getActivity();
+            return (machineOwner.getWebsocketMachine());
+        }
+        return null;
+    }
+
 
     @Subscribe
     public void receiveHistory(WalletHistoryUpdate walletHistoryUpdate) {
@@ -381,6 +402,4 @@ public class HomeFragment extends BaseFragment implements HomeView {
             presenter.onStart();
         }
     }
-
-
 }

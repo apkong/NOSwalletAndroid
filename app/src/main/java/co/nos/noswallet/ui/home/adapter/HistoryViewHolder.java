@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import co.nos.noswallet.R;
 import co.nos.noswallet.network.nosModel.AccountHistory;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 
 public class HistoryViewHolder extends RecyclerView.ViewHolder {
 
@@ -29,16 +30,21 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
     public void bind(AccountHistory accountHistory) {
         icon.setImageResource(accountHistory.isSend() ? R.drawable.ic_send : R.drawable.ic_receive);
         balance.setText(readableAmount(accountHistory.amount));
-        account.setText(createSpannable(accountHistory.account));
+        account.setText(
+                (accountHistory.account)
+//                createSpannable(accountHistory.account)
+        );
     }
 
     private String readableAmount(String amount) {
-        if (amount.length() > 1) {
-            String part1 = amount.substring(0, 1);
-            String part2 = amount.substring(1, Math.min(amount.length(), 5));
-
-            return "~" + part1 + "." + part2 + " NOS";
-        } else return amount;
+        if (amount==null) return "";
+//        if (amount.length() > 1) {
+//            String part1 = amount.substring(0, 1);
+//            String part2 = amount.substring(1, Math.min(amount.length(), 5));
+//
+//            return "~" + part1 + "." + part2 + " " + CryptoCurrency.NOLLAR.getCurrencyCode();
+//        }
+        return amount;
     }
 
     private SpannableString createSpannable(String amount) {

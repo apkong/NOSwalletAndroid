@@ -15,6 +15,16 @@ public enum CryptoCurrency {
         this.currencyCode = currencyCode;
     }
 
+    public static String formatWith(String currency, String balance) {
+        for (CryptoCurrency cryptoCurrency : values()) {
+            if (cryptoCurrency.getCurrencyCode().equalsIgnoreCase(currency)) {
+                return balance + " " + currency;
+            }
+        }
+        System.err.println("unrecognized currency " + currency);
+        return balance;
+    }
+
     public String getCurrencyCode() {
         return currencyCode;
     }

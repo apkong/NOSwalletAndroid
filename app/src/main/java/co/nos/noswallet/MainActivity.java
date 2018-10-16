@@ -128,6 +128,12 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        websocketMachine.pause();
+    }
+
     Disposable D;
 
     private void disableScreenCapture() {
@@ -135,18 +141,11 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         if (D != null) {
             D.dispose();
         }
-        websocketMachine.pause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
         // unregister from bus
         RxBus.get().unregister(this);
 

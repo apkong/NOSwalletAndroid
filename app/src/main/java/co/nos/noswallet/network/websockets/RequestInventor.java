@@ -14,7 +14,6 @@ import co.nos.noswallet.network.nosModel.AccountInfoRequest;
 import co.nos.noswallet.network.nosModel.GetAccountHistoryRequest;
 import co.nos.noswallet.network.nosModel.GetPendingBlocksRequest;
 import co.nos.noswallet.network.nosModel.GetProofOfWorkRequest;
-import co.nos.noswallet.network.nosModel.GetRepresentativesRequest;
 import co.nos.noswallet.network.websockets.model.ProcessBlockRequest;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 
@@ -23,6 +22,7 @@ public class RequestInventor {
 
     private volatile String representative;
     private final String accountNumber, privateKey, publicKey;
+    private volatile String accountBalance, accountFrontier;
 
     @Inject
     public RequestInventor(CredentialsProvider credentialsProvider) {
@@ -47,8 +47,8 @@ public class RequestInventor {
         return new GetAccountHistoryRequest(accountNumber, "100").toString();
     }
 
-    public String getRepresentatives() {
-        return new GetRepresentativesRequest().toString();
+    public String getRepresentative() {
+        return representative;
     }
 
     public String generateWork(String frontier) {
@@ -108,6 +108,62 @@ public class RequestInventor {
         }
         sb.append(hex);
         return sb.toString().toUpperCase();
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public String getAccountBalance() {
+        return accountBalance;
+    }
+
+    public void setAccountBalance(String val) {
+        accountBalance = val;
+    }
+
+    public void setAccountFrontier(String val) {
+        accountFrontier = val;
+    }
+
+    public String getAccountFrontier() {
+        return accountFrontier;
+    }
+
+    public String processSendCoinsBlock(WebsocketMachine.PendingSendCoinsCredentialsBag bag) {
+        Log.d(TAG, "processSendCoinsBlock() called with: bag = [" + bag + "]");
+
+
+        String totalBalance = NOSUtil.substractBigIntegers(accountBalance, bag.amount);
+        String accountNumber = bag.accountNumber;
+        String previousBlock = bag.frontier;
+        String work = bag.work;
+        String link = NOSUtil.addressToPublic(bag.destinationAccount);
+        String dataToSign = NOSUtil.computeStateHash(
+                publicKey, previousBlock,
+                NOSUtil.addressToPublic(bag.representative),
+                getRawAsHex(totalBalance),
+                link
+        );
+
+        String signatureFromData = NOSUtil.sign(bag.privateKey, dataToSign);
+
+        System.out.println("data: " + dataToSign);
+        System.out.println("sign: " + signatureFromData);
+
+
+        String json = new ProcessBlockRequest(accountNumber, previousBlock,
+                totalBalance, link, signatureFromData, work)
+                .toString();
+        return json;
     }
 
 //    public String sendCoins(String amount, String destinationAccount) {

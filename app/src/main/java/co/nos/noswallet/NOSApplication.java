@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatDelegate;
 import android.util.Base64;
 
 import com.github.ajalt.reprint.core.Reprint;
-import com.google.gson.Gson;
 
 import javax.inject.Inject;
 
@@ -17,7 +16,7 @@ import co.nos.noswallet.di.activity.DaggerActivityComponent;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.di.application.ApplicationModule;
 import co.nos.noswallet.di.application.DaggerApplicationComponent;
-import co.nos.noswallet.model.NOSWallet;
+import co.nos.noswallet.model.NeuroWallet;
 import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
 import co.nos.noswallet.util.Vault;
 import io.realm.Realm;
@@ -31,9 +30,9 @@ public class NOSApplication extends MultiDexApplication {
 
     static NOSApplication context;
 
-    private NOSWallet nosWallet = new NOSWallet();
+    private NeuroWallet nosWallet = new NeuroWallet();
 
-    public static NOSWallet getNosWallet() {
+    public static NeuroWallet getNosWallet() {
         return getApplication(context).nosWallet;
     }
 

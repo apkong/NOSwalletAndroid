@@ -1,82 +1,53 @@
 package co.nos.noswallet.ui.home;
 
+import android.util.Log;
+
 import com.google.gson.JsonElement;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
 import co.nos.noswallet.NOSApplication;
-import co.nos.noswallet.NOSUtil;
-import co.nos.noswallet.R;
 import co.nos.noswallet.base.BasePresenter;
-import co.nos.noswallet.model.NOSWallet;
-import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
-import co.nos.noswallet.network.interactor.GetHistoryUseCase;
-import co.nos.noswallet.network.interactor.GetPendingBlocksUseCase;
+import co.nos.noswallet.model.NeuroWallet;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.ui.home.adapter.AccountHistoryModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+
+import static co.nos.noswallet.network.websockets.WebsocketMachine.safeCast;
 
 public class HomePresenter extends BasePresenter<HomeView> {
 
-    private final GetHistoryUseCase getHistoryUseCase;
-    private final CheckAccountBalanceUseCase checkAccountBalanceUseCase;
-    private final GetPendingBlocksUseCase getPendingBlocksUseCase;
+    public static final String TAG = HomePresenter.class.getSimpleName();
+
+    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
+    private final NeuroWallet nosWallet = NOSApplication.getNosWallet();
 
     @Inject
-    public HomePresenter(GetHistoryUseCase getHistoryUseCase,
-                         GetPendingBlocksUseCase getPendingBlocksUseCase,
-                         CheckAccountBalanceUseCase checkAccountBalanceUseCase) {
-        this.getHistoryUseCase = getHistoryUseCase;
-        this.checkAccountBalanceUseCase = checkAccountBalanceUseCase;
-        this.getPendingBlocksUseCase = getPendingBlocksUseCase;
+    public HomePresenter() {
+
     }
 
     public void requestUpdateHistory() {
-        if (getHistoryUseCase.cachedResponse != null) {
-            view.showHistory(getHistoryUseCase.cachedResponse.history);
-        }
-
-        view.showLoading();
-        addDisposable(getHistoryUseCase.execute()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(neuroHistoryResponse -> {
-                    view.hideLoading();
-                    ArrayList<AccountHistory> history = neuroHistoryResponse.history;
-                    if (NOSUtil.isEmpty(history)) {
-                        view.showHistoryEmpty();
-                    } else {
-                        view.showHistory(history);
-                    }
-                }, throwable -> {
-                    view.hideLoading();
-                    view.showError(view.getString(R.string.failed_to_receive_history));
-                }));
 
     }
 
     public void requestAccountBalanceCheck() {
-        addDisposable(checkAccountBalanceUseCase.execute()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(balance -> {
 
-                    String amount = NOSWallet.rawToNeuros(balance);
-                    NOSApplication.getNosWallet().setNeuros(amount);
-                    view.onBalanceFormattedReceived(amount + " NOS");
-
-                }, throwable -> System.err.println("error: " + throwable)));
     }
 
     public void onStart() {
         this.requestUpdateHistory();
         this.requestAccountBalanceCheck();
-        getPendingBlocksUseCase.startObservePendingTransactions();
     }
 
 
@@ -86,21 +57,64 @@ public class HomePresenter extends BasePresenter<HomeView> {
         if (getHistoryDisposable != null) {
             getHistoryDisposable.dispose();
         }
-        getHistoryDisposable = (websocketMachine.observeUiTriggers()
+        getHistoryDisposable = websocketMachine.observeUiTriggers()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<WebsocketMachine.SocketResponse>() {
                     @Override
                     public void accept(WebsocketMachine.SocketResponse response) throws Exception {
+                        Log.w(TAG, "observeUiCallbacks: onNext: " + response);
                         if (response.isHistoryResponse()) {
                             JsonElement element = response.response;
+                            if (element.isJsonObject()) {
+                                AccountHistoryModel model = safeCast(element, AccountHistoryModel.class);
+                                if (model != null) {
+                                    view.showHistory(new ArrayList<AccountHistory>() {{
+                                        add(new AccountHistory(model.balance, wellFormattedDate(model)));
+                                    }});
+                                }
+                            } else if (element.isJsonArray()) {
 
+                            }
+                        } else if (response.isAccountInformationResponse()) {
+                            Log.w(TAG, "got account information response");
+                            JsonElement element = response.response;
+                            AccountInfoModel model = safeCast(element, AccountInfoModel.class);
+                            if (model != null) {
+                                String balance = model.balance;
+                                String currency = response.currency == null ? CryptoCurrency.NOLLAR.getCurrencyCode() : response.currency;
+                                if (balance != null) {
+                                    String formattedCurrency = CryptoCurrency.formatWith(currency, balance);
+                                    view.onBalanceFormattedReceived(formattedCurrency);
+                                }
+                            }
                         }
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-
+                        Log.e(TAG, "accept: ", throwable);
                     }
-                }));
+                });
     }
+
+    private String wellFormattedDate(AccountHistoryModel model) {
+        String timestamp = model.modified_timestamp;
+        long asLong = stringToLong(timestamp);
+        if (asLong > -1) {
+            Date date = new Date(asLong * 1000);
+
+            return dateFormat.format(date);
+        } else {
+            return "";
+        }
+    }
+
+    private long stringToLong(String timestamp) {
+        try {
+            return Long.parseLong(timestamp);
+        } catch (NumberFormatException x) {
+            return -1L;
+        }
+    }
+
 }

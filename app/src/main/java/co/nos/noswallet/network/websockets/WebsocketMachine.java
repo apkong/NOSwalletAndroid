@@ -1,7 +1,10 @@
 package co.nos.noswallet.network.websockets;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.JsonElement;
@@ -9,7 +12,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.EOFException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
@@ -18,6 +24,7 @@ import co.nos.noswallet.BuildConfig;
 import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.nosModel.GetBlocksResponse;
 import co.nos.noswallet.network.websockets.model.WebSocketsState;
+import co.nos.noswallet.ui.home.HasWebsocketMachine;
 import co.nos.noswallet.util.S;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -26,11 +33,24 @@ import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import okhttp3.OkHttpClient;
 
+import static co.nos.noswallet.network.websockets.model.WebSocketsState.GET_ACCOUNT_INFO;
+import static co.nos.noswallet.network.websockets.model.WebSocketsState.TRANSFER_COINS_PROCESS_WORK;
+
 public class WebsocketMachine {
+
+    @Nullable
+    public static WebsocketMachine obtain(Activity activity) {
+        if (activity instanceof HasWebsocketMachine) {
+            return ((HasWebsocketMachine) activity).getWebsocketMachine();
+        }
+        return null;
+    }
 
     interface Mutator {
         PendingBlocksCredentialsBag mutate(PendingBlocksCredentialsBag ref);
     }
+
+    int retriesBecauseOfError = 0;
 
     private BehaviorSubject<SocketResponse> uiResponses = BehaviorSubject.create();
 
@@ -44,13 +64,18 @@ public class WebsocketMachine {
 
     private volatile WebsocketExecutor websocketExecutor;
 
-    private Handler handler = new Handler();
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     private CompositeDisposable disposable = new CompositeDisposable();
 
-    private AtomicReference<WebSocketsState> currentState = new AtomicReference<>(WebSocketsState.NONE);
-    private AtomicReference<PendingBlocksCredentialsBag> pendingBlocksBag =
-            new AtomicReference<>(new PendingBlocksCredentialsBag());
+    private AtomicReference<WebSocketsState> currentState = new AtomicReference<>(WebSocketsState.IDLE);
+    private AtomicReference<PendingBlocksCredentialsBag> pendingBlocksBag = new AtomicReference<>(new PendingBlocksCredentialsBag());
+    private AtomicReference<PendingSendCoinsCredentialsBag> pendingSendCoinsBag = new AtomicReference<>(new PendingSendCoinsCredentialsBag());
+    private AtomicBoolean accountHistoryRequested = new AtomicBoolean(false);
+    private AtomicBoolean accountInfoRequested = new AtomicBoolean(false);
+    public volatile String recentAccountBalance;
+
+    private final Runnable reconnectToApi = this::setupWebSockets;
 
     private final Runnable triggerGetAccountHistory = () -> {
         if (websocketExecutor != null && requestInventor != null) {
@@ -70,7 +95,7 @@ public class WebsocketMachine {
     }
 
     public void pause() {
-        disposable.clear();
+        handler.removeCallbacksAndMessages(null);
     }
 
     private void setupWebSockets() {
@@ -80,11 +105,7 @@ public class WebsocketMachine {
         websocketExecutor = new WebsocketExecutor(new OkHttpClient(),
                 url, new NosNodeWebSocketListener());
 
-        websocketExecutor.init(
-                (websocket) ->
-                        //fetch some representative at the first time
-                        websocketExecutor.send(requestInventor.getAccountHistory(), websocket)
-        );
+        websocketExecutor.init(webSocket -> websocketExecutor.send(requestInventor.getAccountHistory(), webSocket));
 
         Disposable disposable = websocketExecutor.observeMessages()
                 .subscribeOn(Schedulers.io())
@@ -95,77 +116,108 @@ public class WebsocketMachine {
     private void onError(Throwable err) {
         Log.e(TAG, "onError: ", err);
         err.printStackTrace();
-        if (err instanceof UnknownHostException) {
+        if (isNetworkError(err)) {
             //no internet here, retry after 3 seconds
             handler.removeCallbacksAndMessages(null);
-            if (retries < 4) {
-                ++retries;
-                handler.postDelayed(this::setupWebSockets, 3_000);
+            if (retriesBecauseOfError < 4) {
+                ++retriesBecauseOfError;
+                handler.removeCallbacks(reconnectToApi);
+                handler.postDelayed(reconnectToApi, 3_000);
+            } else {
+                Log.w(TAG, "onError: reached timeouts limit ");
             }
+        } else if (socketClosedError(err)) {
+            handler.removeCallbacks(null);
+            handler.postDelayed(reconnectToApi, 3_000);
+        } else {
+            Log.e(TAG, "onError: unrecognized error", err);
         }
     }
 
-    int retries = 0;
+    private boolean socketClosedError(Throwable err) {
+        return err instanceof EOFException;
+    }
+
+    private boolean isNetworkError(Throwable err) {
+        return err instanceof SocketTimeoutException || err instanceof UnknownHostException;
+    }
+
 
     @SuppressLint("LogNotTimber")
     private void recognize(String json) {
         Log.i(TAG, "onNext -> \n" + json);
-        SocketResponse response = S.GSON.fromJson(json, SocketResponse.class);
-        switch (String.valueOf(response.action).toLowerCase()) {
-            case "get_account_history": {
-                processGetAccountHistory(response);
-                break;
-            }
-            case "get_pending_blocks": {
-                processGetPendingBlocksResponse(response);
-                break;
-            }
-            case "get_account_information": {
-                processGetAccountInformationResponse(response);
-                break;
-            }
-            case "get_pow": {
-                processGenerateWorkResponse(response);
-                break;
-            }
-            case "publish_block": {
-                processPublishBlock(response);
-                break;
+        SocketResponse response = safeCast(json, SocketResponse.class);
+        if (response != null) {
+            switch (String.valueOf(response.action).toLowerCase()) {
+                case "get_account_history": {
+                    processGetAccountHistory(response);
+                    break;
+                }
+                case "get_pending_blocks": {
+                    processGetPendingBlocksResponse(response);
+                    break;
+                }
+                case "get_account_information": {
+                    processGetAccountInformationResponse(response);
+                    break;
+                }
+                case "get_pow": {
+                    processGenerateWorkResponse(response);
+                    break;
+                }
+                case "publish_block": {
+                    processPublishBlock(response);
+                    break;
+                }
             }
         }
         System.out.println("current pending blocks state: " + currentState.get());
         switch (currentState.get()) {
-            case NONE:
+            case IDLE:
                 break;
             case GET_ACCOUNT_HISTORY:
                 Log.i(TAG, "got " + currentState.get().name() + ". do nothing");
                 websocketExecutor.send(requestInventor.getAccountHistory());
+                pushState(WebSocketsState.IDLE);
                 break;
             case GET_PENDING_BLOCKS:
                 websocketExecutor.send(requestInventor.getPendingBlocks());
+                pushState(WebSocketsState.IDLE);
                 break;
             case GET_ACCOUNT_INFO:
                 websocketExecutor.send(requestInventor.getAccountInformation());
+                pushState(WebSocketsState.IDLE);
                 break;
             case GENERATE_WORK:
                 websocketExecutor.send(requestInventor.generateWork(
                         pendingBlocksBag.get().frontier
                 ));
+                pushState(WebSocketsState.IDLE);
                 break;
             case PROCESS_WORK:
                 websocketExecutor.send(requestInventor.processBlock(pendingBlocksBag.get()));
+                pushState(WebSocketsState.IDLE);
+                break;
+            case TRANSFER_COINS_GENERATE_WORK:
+                websocketExecutor.send(requestInventor.generateWork(pendingSendCoinsBag.get().frontier));
+                pushState(TRANSFER_COINS_PROCESS_WORK);
+                break;
+            case TRANSFER_COINS_PROCESS_WORK:
+                websocketExecutor.send(requestInventor.processSendCoinsBlock(pendingSendCoinsBag.get()));
+                pushState(WebSocketsState.GET_ACCOUNT_HISTORY);
                 break;
         }
-        pushState(WebSocketsState.NONE);
     }
 
     private void processPublishBlock(SocketResponse response) {
         Log.w(TAG, "processPublishBlock: " + response.toString());
         schedulePendingBlocksAfter(TIMEOUT);
+        uiResponses.onNext(response);
     }
 
     private void processGenerateWorkResponse(SocketResponse response) {
         Log.e(TAG, "processGenerateWorkResponse: " + response.toString());
+
         if (response.error != null) {
             System.err.println(response.error);
         } else {
@@ -174,9 +226,15 @@ public class WebsocketMachine {
                 JsonObject o = element.getAsJsonObject();
                 if (o.has("work")) {
                     String work = o.get("work").getAsString();
-                    Log.i(TAG, "got proof of work " + work);
-                    pushBagState(ref -> ref.proofOfWork(work));
-                    pushState(WebSocketsState.PROCESS_WORK);
+
+                    if (currentState.get() == TRANSFER_COINS_PROCESS_WORK) {
+                        PendingSendCoinsCredentialsBag bag = pendingSendCoinsBag.get();
+                        pendingSendCoinsBag.set(new PendingSendCoinsCredentialsBag(bag).withProofOfWork(work));
+                    } else {
+                        Log.i(TAG, "got proof of work " + work);
+                        pushBagState(ref -> ref.proofOfWork(work));
+                        pushState(WebSocketsState.PROCESS_WORK);
+                    }
                 }
             }
         }
@@ -202,23 +260,32 @@ public class WebsocketMachine {
                 }
 
                 _accountBalance = safeGetOr(object, "balance", "0");
-                _frontier = safeGetOr(object, "frontier", _frontier);
+                _frontier = safeGetOr(object, "frontier_block_hash", _frontier);
                 if (!_accountBalance.equals("0")) {
                     _previousBlock = _frontier;
                 } else {
                     _previousBlock = "0";
                 }
             }
+            uiResponses.onNext(response);
         }
 
         final String previousBlock = _previousBlock;
         final String accountBalance = _accountBalance;
+        recentAccountBalance = (accountBalance);
+        requestInventor.setAccountBalance(accountBalance);
         final String frontier = _frontier;
+        requestInventor.setAccountFrontier(frontier);
         pushBagState(ref -> ref.previousBlock(previousBlock)
                 .accountBalance(accountBalance)
                 .frontier(frontier)
         );
-        pushState(WebSocketsState.GENERATE_WORK);
+        if (accountInfoRequested.get()) {
+            accountInfoRequested.set(false);
+            pushState(WebSocketsState.IDLE);
+        } else {
+            pushState(WebSocketsState.GENERATE_WORK);
+        }
     }
 
     private void processGetAccountHistory(SocketResponse response) {
@@ -228,15 +295,20 @@ public class WebsocketMachine {
         } else {
             System.out.println(response.response);
             uiResponses.onNext(response);
-
         }
-        pushState(WebSocketsState.GET_PENDING_BLOCKS);
+        if (accountHistoryRequested.get()) {
+            accountHistoryRequested.set(false);
+            pushState(WebSocketsState.IDLE);
+        } else {
+            pushState(WebSocketsState.GET_PENDING_BLOCKS);
+        }
     }
 
     private void processGetPendingBlocksResponse(SocketResponse socketResponse) {
         System.out.println("processGetPendingBlocksResponse: " + socketResponse.response);
         if (socketResponse.error != null) {
             System.out.println(socketResponse.error);
+            noMoreBlockToProcess();
         } else {
             JsonElement blocksElement = socketResponse.response;
 
@@ -252,9 +324,15 @@ public class WebsocketMachine {
                 pushState(WebSocketsState.GET_ACCOUNT_INFO);
             } else {
                 //no further pending blocks,retry after 15 seconds
-                schedulePendingBlocksAfter(TIMEOUT);
+                noMoreBlockToProcess();
             }
         }
+    }
+
+    private void noMoreBlockToProcess() {
+        accountInfoRequested.set(true);
+        pushState(GET_ACCOUNT_INFO);
+        schedulePendingBlocksAfter(TIMEOUT);
     }
 
     private void pushState(WebSocketsState state) {
@@ -277,7 +355,51 @@ public class WebsocketMachine {
         return uiResponses;
     }
 
-    static <T> T safeCast(JsonElement json, Class<T> klazz) {
+    public void requestAccountHistory() {
+        Log.w(TAG, "requestAccountHistory: ");
+        websocketExecutor.send(requestInventor.getAccountHistory());
+        accountHistoryRequested.set(true);
+    }
+
+    public void requestAccountInfo() {
+        Log.w(TAG, "requestAccountInfo: ");
+        websocketExecutor.send(requestInventor.getAccountInformation());
+        accountInfoRequested.set(true);
+    }
+
+
+    public void transferCoins(String sendAmount, String destinationAccount) {
+        Log.w(TAG, "transferCoins: " + sendAmount + ", " + destinationAccount);
+        //todo: generate work
+//        websocketExecutor.send();
+        String accountNumber = requestInventor.getAccountNumber();
+
+        PendingSendCoinsCredentialsBag bag = pendingSendCoinsBag.get().clear()
+                .withPublicKey(requestInventor.getPublicKey())
+                .withAccountNumber(accountNumber)
+                .withAmount(sendAmount)
+                .withPrivateKey(requestInventor.getPrivateKey())
+                .withRepresentative(requestInventor.getRepresentative())
+                .withAccountBalance(requestInventor.getAccountBalance())
+                .withDestinationAccount(destinationAccount)
+                .withFrontier(requestInventor.getAccountFrontier());
+
+        pendingSendCoinsBag.set(bag);
+        pushState(WebSocketsState.TRANSFER_COINS_GENERATE_WORK);
+        recognize(null);
+    }
+
+
+    public static <T> T safeCast(JsonElement json, Class<T> klazz) {
+        try {
+            return S.GSON.fromJson(json, klazz);
+        } catch (JsonSyntaxException x) {
+            Log.e(TAG, "safeCast: ", x);
+            return null;
+        }
+    }
+
+    public static <T> T safeCast(String json, Class<T> klazz) {
         try {
             return S.GSON.fromJson(json, klazz);
         } catch (JsonSyntaxException x) {
@@ -285,21 +407,13 @@ public class WebsocketMachine {
         }
     }
 
-    static <T> T safeCast(String json, Class<T> klazz) {
-        try {
-            return S.GSON.fromJson(json, klazz);
-        } catch (JsonSyntaxException x) {
-            return null;
-        }
-    }
-
-    static String safeGet(JsonObject o, String key) {
+    public static String safeGet(JsonObject o, String key) {
         JsonElement e = o.get(key);
         if (e == null || e.isJsonNull()) return null;
         return e.getAsString();
     }
 
-    static String safeGetOr(JsonObject o, String key, String defaultValue) {
+    public static String safeGetOr(JsonObject o, String key, String defaultValue) {
         String value = safeGet(o, key);
         if (value != null) {
             return value;
@@ -307,7 +421,6 @@ public class WebsocketMachine {
             return defaultValue;
         }
     }
-
 
     public static class SocketResponse {
 
@@ -338,6 +451,109 @@ public class WebsocketMachine {
 
         public boolean isHistoryResponse() {
             return "get_account_history".equals(action);
+        }
+
+        public boolean isAccountInformationResponse() {
+            return "get_account_information".equals(action);
+        }
+
+        public boolean isProcessedBlock() {
+            return "publish_block".equals(action);
+        }
+    }
+
+    public static class PendingSendCoinsCredentialsBag {
+        public String accountNumber, publicKey, amount;
+        public String representative, privateKey, frontier;
+        public String accountBalance, destinationAccount, work;
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "accountNumber='" + accountNumber + '\'' +
+                    ", publicKey='" + publicKey + '\'' +
+                    ", amount='" + amount + '\'' +
+                    ", representative='" + representative + '\'' +
+                    ", privateKey='" + privateKey + '\'' +
+                    ", frontier='" + frontier + '\'' +
+                    ", accountBalance='" + accountBalance + '\'' +
+                    ", destinationAccount='" + destinationAccount + '\'' +
+                    ", work='" + work + '\'' +
+                    '}';
+        }
+
+        public PendingSendCoinsCredentialsBag() {
+
+        }
+
+        private PendingSendCoinsCredentialsBag(PendingSendCoinsCredentialsBag previousBag) {
+            accountNumber = previousBag.accountNumber;
+            publicKey = previousBag.publicKey;
+            amount = previousBag.amount;
+            representative = previousBag.representative;
+            privateKey = previousBag.privateKey;
+            frontier = previousBag.frontier;
+            destinationAccount = previousBag.destinationAccount;
+            accountBalance = previousBag.accountBalance;
+            work = previousBag.work;
+        }
+
+        public PendingSendCoinsCredentialsBag withAccountNumber(String val) {
+            accountNumber = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag withPublicKey(String val) {
+            publicKey = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag withAmount(String val) {
+            amount = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag withDestinationAccount(String val) {
+            destinationAccount = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag withRepresentative(String val) {
+            representative = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag withPrivateKey(String val) {
+            privateKey = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag withFrontier(String val) {
+            frontier = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag withAccountBalance(String val) {
+            accountBalance = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag withProofOfWork(String val) {
+            work = val;
+            return this;
+        }
+
+        public PendingSendCoinsCredentialsBag clear() {
+            accountNumber
+                    = publicKey
+                    = amount
+                    = representative
+                    = privateKey
+                    = frontier
+                    = accountBalance
+                    = work
+                    = destinationAccount = null;
+            return this;
         }
     }
 

@@ -48,7 +48,7 @@ import co.nos.noswallet.databinding.FragmentSendBinding;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NOSWallet;
+import co.nos.noswallet.model.NeuroWallet;
 import co.nos.noswallet.network.interactor.SendCoinsUseCase;
 import co.nos.noswallet.network.model.response.ErrorResponse;
 import co.nos.noswallet.network.model.response.ProcessResponse;
@@ -79,7 +79,7 @@ public class SendFragment extends BaseFragment {
     private String newSeed;
 
     @Inject
-    NOSWallet nosWallet;
+    NeuroWallet nosWallet;
 
     @Inject
     SendCoinsUseCase sendCoinsUseCase;

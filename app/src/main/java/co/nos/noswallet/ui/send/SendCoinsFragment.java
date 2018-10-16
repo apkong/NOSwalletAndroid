@@ -42,6 +42,7 @@ import co.nos.noswallet.R;
 import co.nos.noswallet.databinding.FragmentSendCoinsBinding;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.Credentials;
+import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
@@ -461,6 +462,19 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
             }
             textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_fingerprint_error, 0, 0, 0);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        WebsocketMachine machine = WebsocketMachine.obtain(getActivity());
+        presenter.observeWebsocketMachine(machine);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        presenter.cancelWebsocketObservation();
     }
 
     @Override

@@ -1,7 +1,8 @@
 package co.nos.noswallet.ui.send;
 
+import android.util.Log;
+
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import javax.inject.Inject;
 
@@ -10,35 +11,34 @@ import co.nos.noswallet.R;
 import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NOSWallet;
-import co.nos.noswallet.network.interactor.SendCoinsUseCase;
-import co.nos.noswallet.network.nosModel.ProcessResponse;
+import co.nos.noswallet.model.NeuroWallet;
+import co.nos.noswallet.network.websockets.WebsocketMachine;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.SerialDisposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
 public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
+
+    public static final String TAG = SendCoinsPresenter.class.getSimpleName();
 
     private String targetAddress;
 
     private String currentInput = "";
 
-    private final NOSWallet nosWallet = NOSApplication.getNosWallet();
+    private final NeuroWallet nosWallet = NOSApplication.getNosWallet();
 
     private final Realm realm;
-    private final SendCoinsUseCase sendCoinsUseCase;
 
 
     @Inject
-    public SendCoinsPresenter(Realm realm,
-                              SendCoinsUseCase sendCoinsUseCase) {
+    public SendCoinsPresenter(Realm realm) {
         this.realm = realm;
-        this.sendCoinsUseCase = sendCoinsUseCase;
     }
 
-
     public void attemptSendCoins(String coinsAmount) {
+        Log.w(TAG, "attemptSendCoins: " + coinsAmount);
         if (!targetAddressValid()) {
             String message = view.getString(R.string.please_specify_destination_address);
             view.showError(message);
@@ -50,27 +50,32 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         if (canTransferNeuros(coinsAmount)) {
             view.showLoading();
 
-            String sendAmount = nosWallet.getRawToTransfer(coinsAmount);
+            String sendAmount = (coinsAmount);
 
-            addDisposable(sendCoinsUseCase.transferCoins(sendAmount, targetAddress)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<ProcessResponse>() {
-                        @Override
-                        public void accept(ProcessResponse o) throws Exception {
-                            view.hideLoading();
-                            BigDecimal dec = new BigDecimal(sendAmount).divide(new BigDecimal("10").pow(30), RoundingMode.DOWN);
-                            view.showAmountSent(dec.toEngineeringString(), targetAddress);
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            view.hideLoading();
-                            System.err.println("error sending coins " + throwable);
-                            throwable.printStackTrace();
-                            view.showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
-                        }
-                    }));
+            if (websocketMachineRef != null) {
+                websocketMachineRef.transferCoins(sendAmount, targetAddress);
+                view.showLoading();
+            }
+
+//            addDisposable(sendCoinsUseCase.transferCoins(sendAmount, targetAddress)
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(new Consumer<ProcessResponse>() {
+//                        @Override
+//                        public void accept(ProcessResponse o) throws Exception {
+//                            view.hideLoading();
+//                            BigDecimal dec = new BigDecimal(sendAmount).divide(new BigDecimal("10").pow(30), RoundingMode.DOWN);
+//                            view.showAmountSent(dec.toEngineeringString(), targetAddress);
+//                        }
+//                    }, new Consumer<Throwable>() {
+//                        @Override
+//                        public void accept(Throwable throwable) throws Exception {
+//                            view.hideLoading();
+//                            System.err.println("error sending coins " + throwable);
+//                            throwable.printStackTrace();
+//                            view.showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
+//                        }
+//                    }));
         } else {
             view.showError(R.string.send_error_alert_title, R.string.cannot_transfer);
         }
@@ -115,8 +120,8 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         view.onCurrentInputReceived(currentInput);
     }
 
-    public void updateAmountFromCode(CharSequence totalValie) {
-        currentInput = totalValie.toString();
+    public void updateAmountFromCode(CharSequence totalValue) {
+        currentInput = totalValue.toString();
         view.onCurrentInputReceived(currentInput);
     }
 
@@ -138,9 +143,13 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public boolean canTransferNeuros(String currentTypedCoins) {
+
         if (currentTypedCoins == null || currentTypedCoins.isEmpty() || new BigDecimal(currentTypedCoins).equals(BigDecimal.ZERO))
             return false;
-        return nosWallet.canTransferNeuros(currentTypedCoins);
+        if (websocketMachineRef != null) {
+            return nosWallet.canTransferNeuros(currentTypedCoins, websocketMachineRef.recentAccountBalance);
+        }
+        return false;
     }
 
     private boolean targetAddressValid() {
@@ -149,6 +158,48 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public String getTotalNeurosAmount() {
-        return nosWallet.getTotalNeurosAmount();
+        String balance = null;
+        if (websocketMachineRef != null) {
+            balance = websocketMachineRef.recentAccountBalance;
+            NOSApplication.getNosWallet().setNeuros(balance);
+        }
+        Log.d(TAG, "getTotalNeurosAmount: " + balance);
+        return balance;
     }
+
+    private WebsocketMachine websocketMachineRef;
+
+    public void observeWebsocketMachine(WebsocketMachine machine) {
+        websocketMachineRef = machine;
+        serialDisposable.set(machine.observeUiTriggers()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<WebsocketMachine.SocketResponse>() {
+                    @Override
+                    public void accept(WebsocketMachine.SocketResponse response) throws Exception {
+                        if (response.isProcessedBlock()) {
+                            view.hideLoading();
+                            if (response.error != null) {
+                                view.showError(response.error);
+                            } else {
+                                view.showAmountSent(response.response.toString(), targetAddress);
+                            }
+                        }
+                    }
+                }, this::onErrorSendCoins)
+        );
+    }
+
+    private void onErrorSendCoins(Throwable throwable) {
+        Log.e(TAG, "onErrorSendCoins: ", throwable);
+        throwable.printStackTrace();
+    }
+
+    public void cancelWebsocketObservation() {
+        Disposable d = serialDisposable.get();
+        if (d != null && !d.isDisposed()) {
+            d.dispose();
+        }
+    }
+
+    private SerialDisposable serialDisposable = new SerialDisposable();
 }

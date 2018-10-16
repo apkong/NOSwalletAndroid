@@ -18,6 +18,11 @@ public class AccountHistory implements Serializable {
     @SerializedName("hash")
     public String hash;
 
+    public AccountHistory(String amount, String account) {
+        this.amount = amount;
+        this.account = account;
+    }
+
     public AccountHistory() {
     }
 

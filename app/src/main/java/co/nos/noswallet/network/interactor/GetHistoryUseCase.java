@@ -10,6 +10,7 @@ import io.reactivex.Observable;
 import io.reactivex.exceptions.OnErrorNotImplementedException;
 import io.realm.Realm;
 
+@Deprecated
 public class GetHistoryUseCase {
 
     private final NeuroClient neuroClient;
@@ -24,7 +25,7 @@ public class GetHistoryUseCase {
         this.accountNumber = provideAccountNumber(realm);
     }
 
-    String provideAccountNumber(Realm realm) {
+    private String provideAccountNumber(Realm realm) {
         Credentials credentials = realm.where(Credentials.class).findFirst();
         if (credentials != null) {
             return credentials.getAddressString();

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import javax.inject.Inject;
 
-public class NOSWallet {
+public class NeuroWallet {
 
     static final BigDecimal tenPowerTo30 = new BigDecimal(10).pow(30);
 
@@ -13,7 +13,7 @@ public class NOSWallet {
     private volatile String rawAmount = "0"; //for example 2 with 30 zeros
 
     @Inject
-    public NOSWallet() {
+    public NeuroWallet() {
     }
 
     public void setRawAmount(String rawAmount) {
@@ -55,8 +55,13 @@ public class NOSWallet {
     }
 
 
+    public boolean canTransferNeuros(String amount, String currentBalance) {
+        BigDecimal difference = new BigDecimal(currentBalance).subtract(new BigDecimal(amount));
+        return difference.compareTo(BigDecimal.ZERO) >= 0;
+    }
+
     public boolean canTransferNeuros(String neurosAmount) {
-        System.out.println("canTransferNeuros");
+        System.out.println("canTransferNeuros " + neurosAmount);
         System.out.println("neurosAmount: " + neurosAmount);
         System.out.println("neuros: " + neuros);
         BigDecimal difference = new BigDecimal(this.neuros).subtract(new BigDecimal(neurosAmount));
