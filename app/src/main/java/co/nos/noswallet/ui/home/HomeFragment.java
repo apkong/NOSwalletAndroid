@@ -4,7 +4,6 @@ import android.databinding.BindingMethod;
 import android.databinding.BindingMethods;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -186,10 +185,9 @@ public class HomeFragment extends BaseFragment implements HomeView {
         binding.homeRecyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.homeRecyclerview.setAdapter(historyAdapter = new HistoryAdapter());
         binding.homeSwiperefresh.setOnRefreshListener(() -> {
-            presenter.requestUpdateHistory();
-            presenter.requestAccountBalanceCheck();
+            presenter.requestUpdateHistory(getActivity());
+            presenter.requestAccountInfo(getActivity());
 
-            new Handler().postDelayed(() -> binding.homeSwiperefresh.setRefreshing(false), 5000);
         });
         if (wallet != null && wallet.getAccountHistory() != null) {
             controller.setData(wallet.getAccountHistory(), new ClickHandlers());
@@ -208,7 +206,10 @@ public class HomeFragment extends BaseFragment implements HomeView {
             showSeedReminderAlert(credentials.getNewlyGeneratedSeed());
         }
 
-        presenter.requestUpdateHistory();
+        WebsocketMachine machine = WebsocketMachine.obtain(getActivity());
+        if (machine != null) {
+            machine.doAfterInit(() -> presenter.doOnResume(getActivity()));
+        }
 
         return view;
     }
@@ -216,32 +217,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
     @Override
     public void onResume() {
         super.onResume();
-        presenter.requestAccountBalanceCheck();
-        WebsocketMachine machine = getWebSocketMachine();
-        if (machine != null) {
-            presenter.observeUiCallbacks(machine);
-
-            binding.homeReceiveButton.setOnLongClickListener(v -> {
-                machine.requestAccountInfo();
-                return false;
-            });
-            binding.homeSendButton.setOnLongClickListener(v -> {
-                machine.requestAccountHistory();
-                return false;
-            });
-
-        }
     }
-
-    @Nullable
-    WebsocketMachine getWebSocketMachine() {
-        if (getActivity() instanceof HasWebsocketMachine) {
-            HasWebsocketMachine machineOwner = (HasWebsocketMachine) getActivity();
-            return (machineOwner.getWebsocketMachine());
-        }
-        return null;
-    }
-
 
     @Subscribe
     public void receiveHistory(WalletHistoryUpdate walletHistoryUpdate) {
@@ -276,13 +252,17 @@ public class HomeFragment extends BaseFragment implements HomeView {
 
     @Override
     public void showHistory(ArrayList<AccountHistory> history) {
+        binding.homeSwiperefresh.setRefreshing(false);
         if (historyAdapter != null) {
             historyAdapter.refresh(history);
         }
+        if (history.isEmpty()){
+            showHistoryEmpty();
+        }
     }
 
-    @Override
-    public void showHistoryEmpty() {
+
+    private void showHistoryEmpty() {
         showError(getString(R.string.error_history_empty));
     }
 
@@ -387,11 +367,4 @@ public class HomeFragment extends BaseFragment implements HomeView {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (presenter != null) {
-            presenter.onStart();
-        }
-    }
 }

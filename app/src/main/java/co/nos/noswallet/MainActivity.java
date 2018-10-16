@@ -116,13 +116,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
         websocketMachine.start();
 
-        D = websocketMachine.observeUiTriggers()
-                .subscribe(response -> {
-                    if (response.isHistoryResponse()) {
-
-                    }
-                }, throwable -> System.err.println(throwable));
-
     }
 
     @Override

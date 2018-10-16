@@ -11,8 +11,6 @@ public interface HomeView extends BaseView {
 
     void showHistory(ArrayList<AccountHistory> history);
 
-    void showHistoryEmpty();
-
     void onBalanceFormattedReceived(String formatted);
 
     String getString(@StringRes int resId);

@@ -12,6 +12,7 @@ import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NeuroWallet;
+import co.nos.noswallet.network.nosModel.SocketResponse;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -173,9 +174,9 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         websocketMachineRef = machine;
         serialDisposable.set(machine.observeUiTriggers()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<WebsocketMachine.SocketResponse>() {
+                .subscribe(new Consumer<SocketResponse>() {
                     @Override
-                    public void accept(WebsocketMachine.SocketResponse response) throws Exception {
+                    public void accept(SocketResponse response) throws Exception {
                         if (response.isProcessedBlock()) {
                             view.hideLoading();
                             if (response.error != null) {

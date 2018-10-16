@@ -1,5 +1,7 @@
 package co.nos.noswallet.ui.home;
 
+import android.app.Activity;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.JsonElement;
@@ -12,16 +14,16 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.base.BasePresenter;
-import co.nos.noswallet.model.NeuroWallet;
 import co.nos.noswallet.network.nosModel.AccountHistory;
+import co.nos.noswallet.network.nosModel.SocketResponse;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.home.adapter.AccountHistoryModel;
+import co.nos.noswallet.util.S;
+import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 import static co.nos.noswallet.network.websockets.WebsocketMachine.safeCast;
 
@@ -30,71 +32,121 @@ public class HomePresenter extends BasePresenter<HomeView> {
     public static final String TAG = HomePresenter.class.getSimpleName();
 
     private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
-    private final NeuroWallet nosWallet = NOSApplication.getNosWallet();
+    private final SharedPreferencesUtil sharedPreferencesUtil;
+
+    public static final String ACCOUNT_HISTORY = "ACCOUNT_HISTORY";
+    public static final String ACCOUNT_INFO = "ACCOUNT_INFO";
 
     @Inject
-    public HomePresenter() {
-
+    public HomePresenter(SharedPreferencesUtil sharedPreferencesUtil) {
+        this.sharedPreferencesUtil = sharedPreferencesUtil;
     }
 
-    public void requestUpdateHistory() {
-
+    @Nullable
+    private SocketResponse getCachedHistoryResponse() {
+        return getCachedSocketResponse(ACCOUNT_HISTORY);
     }
 
-    public void requestAccountBalanceCheck() {
-
+    @Nullable
+    private SocketResponse getCachedAccountInfoResponse() {
+        return getCachedSocketResponse(ACCOUNT_INFO);
     }
 
-    public void onStart() {
-        this.requestUpdateHistory();
-        this.requestAccountBalanceCheck();
-    }
-
-
-    private Disposable getHistoryDisposable = null;
-
-    public void observeUiCallbacks(WebsocketMachine websocketMachine) {
-        if (getHistoryDisposable != null) {
-            getHistoryDisposable.dispose();
+    @Nullable
+    private SocketResponse getCachedSocketResponse(String key) {
+        String json = sharedPreferencesUtil.get(key, null);
+        if (json != null) {
+            return safeCast(json, SocketResponse.class);
         }
-        getHistoryDisposable = websocketMachine.observeUiTriggers()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<WebsocketMachine.SocketResponse>() {
-                    @Override
-                    public void accept(WebsocketMachine.SocketResponse response) throws Exception {
+        return null;
+    }
+
+    public void requestUpdateHistory(Activity activity) {
+        WebsocketMachine machine = WebsocketMachine.obtain(activity);
+        if (machine != null) {
+
+            SocketResponse historyResponse = getCachedHistoryResponse();
+            if (historyResponse != null) {
+                renderHistoryResponse(historyResponse);
+            }
+
+            machine.requestAccountHistory();
+        }
+    }
+
+    public void requestAccountInfo(Activity activity) {
+        WebsocketMachine machine = WebsocketMachine.obtain(activity);
+        if (machine != null) {
+            SocketResponse accountInfoResponse = getCachedAccountInfoResponse();
+            if (accountInfoResponse != null) {
+                renderHistoryResponse(accountInfoResponse);
+            }
+            machine.requestAccountInfo();
+        }
+    }
+
+    public void doOnResume(Activity activity) {
+        observeUiCallbacks(activity);
+        requestUpdateHistory(activity);
+        requestAccountInfo(activity);
+    }
+
+    private Disposable uiCallbacksDisposable = null;
+
+    public void observeUiCallbacks(Activity activity) {
+        if (uiCallbacksDisposable != null) {
+            uiCallbacksDisposable.dispose();
+        }
+        WebsocketMachine machine = WebsocketMachine.obtain(activity);
+        if (machine != null) {
+            uiCallbacksDisposable = machine.observeUiTriggers()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(response -> {
                         Log.w(TAG, "observeUiCallbacks: onNext: " + response);
                         if (response.isHistoryResponse()) {
-                            JsonElement element = response.response;
-                            if (element.isJsonObject()) {
-                                AccountHistoryModel model = safeCast(element, AccountHistoryModel.class);
-                                if (model != null) {
-                                    view.showHistory(new ArrayList<AccountHistory>() {{
-                                        add(new AccountHistory(model.balance, wellFormattedDate(model)));
-                                    }});
-                                }
-                            } else if (element.isJsonArray()) {
-
-                            }
+                            renderHistoryResponse(response);
                         } else if (response.isAccountInformationResponse()) {
-                            Log.w(TAG, "got account information response");
-                            JsonElement element = response.response;
-                            AccountInfoModel model = safeCast(element, AccountInfoModel.class);
-                            if (model != null) {
-                                String balance = model.balance;
-                                String currency = response.currency == null ? CryptoCurrency.NOLLAR.getCurrencyCode() : response.currency;
-                                if (balance != null) {
-                                    String formattedCurrency = CryptoCurrency.formatWith(currency, balance);
-                                    view.onBalanceFormattedReceived(formattedCurrency);
-                                }
-                            }
+                            renderAccountInfoResponse(response);
                         }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        Log.e(TAG, "accept: ", throwable);
-                    }
-                });
+                    }, this::handleUiErrors);
+        }
+    }
+
+    private void handleUiErrors(Throwable throwable) {
+        Log.e(TAG, "handleUiErrors: ", throwable);
+        throwable.printStackTrace();
+    }
+
+    private void renderAccountInfoResponse(SocketResponse response) {
+        Log.w(TAG, "got account information response");
+        sharedPreferencesUtil.set(ACCOUNT_INFO, S.GSON.toJson(response));
+
+        JsonElement element = response.response;
+        AccountInfoModel model = safeCast(element, AccountInfoModel.class);
+        if (model != null) {
+            String balance = model.balance;
+            String currency = response.currency == null ? CryptoCurrency.NOLLAR.getCurrencyCode() : response.currency;
+            if (balance != null) {
+                String formattedCurrency = CryptoCurrency.formatWith(currency, balance);
+                view.onBalanceFormattedReceived(formattedCurrency);
+            }
+        }
+    }
+
+    private void renderHistoryResponse(SocketResponse response) {
+        sharedPreferencesUtil.set(ACCOUNT_HISTORY, S.GSON.toJson(response));
+        JsonElement element = response.response;
+
+        if (element.isJsonObject()) {
+            AccountHistoryModel model = safeCast(element, AccountHistoryModel.class);
+            if (model != null) {
+                view.showHistory(new ArrayList<AccountHistory>() {{
+                    add(new AccountHistory(model.balance, wellFormattedDate(model)));
+                }});
+            }
+        } else if (element.isJsonArray()) {
+
+        }
     }
 
     private String wellFormattedDate(AccountHistoryModel model) {
@@ -116,5 +168,4 @@ public class HomePresenter extends BasePresenter<HomeView> {
             return -1L;
         }
     }
-
 }

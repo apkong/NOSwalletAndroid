@@ -10,7 +10,6 @@ import android.util.Log;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.annotations.SerializedName;
 
 import java.io.EOFException;
 import java.net.SocketTimeoutException;
@@ -24,6 +23,7 @@ import javax.net.ssl.SSLException;
 import co.nos.noswallet.BuildConfig;
 import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.nosModel.GetBlocksResponse;
+import co.nos.noswallet.network.nosModel.SocketResponse;
 import co.nos.noswallet.network.websockets.model.WebSocketsState;
 import co.nos.noswallet.ui.home.HasWebsocketMachine;
 import co.nos.noswallet.util.S;
@@ -47,11 +47,21 @@ public class WebsocketMachine {
         return null;
     }
 
+    private Runnable afterInitRunnable;
+
+    public void doAfterInit(Runnable action) {
+        afterInitRunnable = action;
+    }
+
+    public boolean isConnected() {
+        return isConnectedToTheApi && websocketExecutor != null;
+    }
+
     interface Mutator {
         PendingBlocksCredentialsBag mutate(PendingBlocksCredentialsBag ref);
     }
 
-    int retriesBecauseOfError = 0;
+    private volatile boolean isConnectedToTheApi = false;
 
     private BehaviorSubject<SocketResponse> uiResponses = BehaviorSubject.create();
 
@@ -63,6 +73,7 @@ public class WebsocketMachine {
 
     private RequestInventor requestInventor;
 
+    @Nullable
     private volatile WebsocketExecutor websocketExecutor;
 
     private Handler handler = new Handler(Looper.getMainLooper());
@@ -106,7 +117,13 @@ public class WebsocketMachine {
         websocketExecutor = new WebsocketExecutor(new OkHttpClient(),
                 url, new NosNodeWebSocketListener());
 
-        websocketExecutor.init(webSocket -> websocketExecutor.send(requestInventor.getAccountHistory(), webSocket));
+        websocketExecutor.init(webSocket -> {
+            websocketExecutor.send(requestInventor.getAccountHistory(), webSocket);
+            isConnectedToTheApi = true;
+            if (afterInitRunnable != null) {
+                handler.post(afterInitRunnable);
+            }
+        });
 
         Disposable disposable = websocketExecutor.observeMessages()
                 .subscribeOn(Schedulers.io())
@@ -117,19 +134,10 @@ public class WebsocketMachine {
     private void onError(Throwable err) {
         Log.e(TAG, "onError: ", err);
         err.printStackTrace();
-//        if (isNetworkError(err)) {
-//            //no internet here, retry after 3 seconds
-//            handler.removeCallbacksAndMessages(null);
-//            if (retriesBecauseOfError < 4) {
-//                ++retriesBecauseOfError;
-//                handler.removeCallbacks(reconnectToApi);
-//                handler.postDelayed(reconnectToApi, 3_000);
-//            } else {
-//                Log.w(TAG, "onError: reached timeouts limit ");
-//            }
-//        }
 
-        if (isNetworkError(err)||socketClosedError(err)) {
+        if (isNetworkError(err) || socketClosedError(err)) {
+            isConnectedToTheApi = false;
+
             handler.removeCallbacks(null);
             handler.postDelayed(reconnectToApi, 3_000);
         } else {
@@ -144,8 +152,7 @@ public class WebsocketMachine {
     private boolean isNetworkError(Throwable err) {
         return err instanceof SocketTimeoutException
                 || err instanceof UnknownHostException
-                || err instanceof SSLException
-                || err instanceof SocketTimeoutException;
+                || err instanceof SSLException;
     }
 
 
@@ -154,6 +161,7 @@ public class WebsocketMachine {
         Log.i(TAG, "onNext -> \n" + json);
         SocketResponse response = safeCast(json, SocketResponse.class);
         if (response != null) {
+            isConnectedToTheApi = true;
             switch (String.valueOf(response.action).toLowerCase()) {
                 case "get_account_history": {
                     processGetAccountHistory(response);
@@ -363,14 +371,22 @@ public class WebsocketMachine {
 
     public void requestAccountHistory() {
         Log.w(TAG, "requestAccountHistory: ");
-        websocketExecutor.send(requestInventor.getAccountHistory());
-        accountHistoryRequested.set(true);
+        if (websocketExecutor != null) {
+            websocketExecutor.send(requestInventor.getAccountHistory());
+            accountHistoryRequested.set(true);
+        }else {
+            Log.e(TAG, "requestAccountInfo: not connected yet!" );
+        }
     }
 
     public void requestAccountInfo() {
         Log.w(TAG, "requestAccountInfo: ");
-        websocketExecutor.send(requestInventor.getAccountInformation());
-        accountInfoRequested.set(true);
+        if (websocketExecutor != null) {
+            websocketExecutor.send(requestInventor.getAccountInformation());
+            accountInfoRequested.set(true);
+        }else {
+            Log.e(TAG, "requestAccountInfo: not connected yet!" );
+        }
     }
 
 
@@ -428,45 +444,6 @@ public class WebsocketMachine {
         }
     }
 
-    public static class SocketResponse {
-
-        @SerializedName("action")
-        public String action;
-
-        @SerializedName("currency")
-        public String currency;
-
-        @SerializedName("error")
-        public String error;
-
-        @SerializedName("response")
-        public JsonElement response;
-
-        public SocketResponse() {
-        }
-
-        @Override
-        public String toString() {
-            return "SocketResponse{" +
-                    "action='" + action + '\'' +
-                    ", currency='" + currency + '\'' +
-                    ", error='" + error + '\'' +
-                    ", response=" + String.valueOf(response) +
-                    '}';
-        }
-
-        public boolean isHistoryResponse() {
-            return "get_account_history".equals(action);
-        }
-
-        public boolean isAccountInformationResponse() {
-            return "get_account_information".equals(action);
-        }
-
-        public boolean isProcessedBlock() {
-            return "publish_block".equals(action);
-        }
-    }
 
     public static class PendingSendCoinsCredentialsBag {
         public String accountNumber, publicKey, amount;
