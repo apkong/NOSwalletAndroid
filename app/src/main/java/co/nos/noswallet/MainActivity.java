@@ -35,7 +35,6 @@ import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
 import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
-import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
 import co.nos.noswallet.network.interactor.GetBlocksInfoUseCase;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
@@ -65,8 +64,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     @Inject
     WebsocketMachine websocketMachine;
 
-    @Inject
-    CheckAccountBalanceUseCase checkAccountBalanceUseCase;
     @Inject
     Realm realm;
 

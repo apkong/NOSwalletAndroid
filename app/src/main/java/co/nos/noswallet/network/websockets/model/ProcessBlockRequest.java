@@ -31,6 +31,9 @@ public class ProcessBlockRequest {
     @SerializedName("pow")
     public String pow;
 
+    @SerializedName("representative")
+    public String representative;
+
     public ProcessBlockRequest(String account,
                                String previous,
                                String balance,
@@ -43,6 +46,11 @@ public class ProcessBlockRequest {
         this.link = link;
         this.signature = signature;
         this.pow = pow;
+    }
+
+    public ProcessBlockRequest withRepresentative(String representative) {
+        this.representative = representative;
+        return this;
     }
 
     @Override

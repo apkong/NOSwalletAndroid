@@ -49,7 +49,6 @@ import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NeuroWallet;
-import co.nos.noswallet.network.interactor.SendCoinsUseCase;
 import co.nos.noswallet.network.model.response.ErrorResponse;
 import co.nos.noswallet.network.model.response.ProcessResponse;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
@@ -58,10 +57,6 @@ import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.UIUtil;
 import co.nos.noswallet.ui.scan.ScanActivity;
 import co.nos.noswallet.util.SharedPreferencesUtil;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
 import static android.app.Activity.RESULT_OK;
@@ -80,9 +75,6 @@ public class SendFragment extends BaseFragment {
 
     @Inject
     NeuroWallet nosWallet;
-
-    @Inject
-    SendCoinsUseCase sendCoinsUseCase;
 
     @Inject
     SharedPreferencesUtil sharedPreferencesUtil;
@@ -353,7 +345,7 @@ public class SendFragment extends BaseFragment {
     }
 
     private void setCurrentTypedCoins(String value) {
-         binding.sendAmountNano.setText(value);
+        binding.sendAmountNano.setText(value);
     }
 
     private void enableSendIfPossible() {
@@ -476,23 +468,7 @@ public class SendFragment extends BaseFragment {
         if (destination.isValidAddress() && nosWallet.canTransferNeuros(coinsAmount)) {
             RxBus.get().post(new ShowOverlay());
             String sendAmount = nosWallet.getRawToTransfer(coinsAmount);
-
-            Disposable s = sendCoinsUseCase.transferCoins(sendAmount, destinationAccount)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<Object>() {
-                        @Override
-                        public void accept(Object o) throws Exception {
-                            RxBus.get().post(new HideOverlay());
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) throws Exception {
-                            showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
-                        }
-                    });
-
-
+            //todo:
             //analyticsService.track(AnalyticsEvents.SEND_BEGAN);
         } else {
             showError(R.string.send_error_alert_title, R.string.send_error_alert_message);

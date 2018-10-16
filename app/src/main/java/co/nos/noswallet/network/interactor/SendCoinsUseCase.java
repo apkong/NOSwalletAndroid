@@ -19,6 +19,7 @@ import io.reactivex.Observable;
 
 import static co.nos.noswallet.network.interactor.GetPendingBlocksUseCase.getRawAsHex;
 
+@Deprecated
 public class SendCoinsUseCase {
 
     public static final String TAG = SendCoinsUseCase.class.getSimpleName();

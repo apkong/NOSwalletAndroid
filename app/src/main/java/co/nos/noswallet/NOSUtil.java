@@ -324,8 +324,9 @@ public class NOSUtil {
         while (pk.length() < 64) {
             pk.insert(0, "0");
         }
-
-        return pk.toString();
+        String result = pk.toString();
+        Log.w(TAG, "addressToPublic: returned " + result);
+        return result;
     }
 
     public static String bytesToHex(byte[] bytes) {

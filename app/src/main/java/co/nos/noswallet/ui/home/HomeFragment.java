@@ -35,8 +35,6 @@ import co.nos.noswallet.bus.WalletSubscribeUpdate;
 import co.nos.noswallet.databinding.FragmentHomeBinding;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.interactor.CheckAccountBalanceUseCase;
-import co.nos.noswallet.network.interactor.SendCoinsUseCase;
 import co.nos.noswallet.network.model.response.AccountHistoryResponseItem;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
@@ -70,9 +68,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
     private boolean logoutClicked = false;
 
     @Inject
-    CheckAccountBalanceUseCase checkAccountBalanceUseCase;
-
-    @Inject
     HomePresenter presenter;
 
     @Inject
@@ -80,9 +75,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
 
     @Inject
     NanoWallet wallet;
-
-    @Inject
-    SendCoinsUseCase sendCoinsUseCase;
 
     @Inject
     AnalyticsService analyticsService;

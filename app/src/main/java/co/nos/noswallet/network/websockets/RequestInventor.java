@@ -141,15 +141,17 @@ public class RequestInventor {
     public String processSendCoinsBlock(WebsocketMachine.PendingSendCoinsCredentialsBag bag) {
         Log.d(TAG, "processSendCoinsBlock() called with: bag = [" + bag + "]");
 
-
+        String destinationAccount = bag.destinationAccount;
         String totalBalance = NOSUtil.substractBigIntegers(accountBalance, bag.amount);
         String accountNumber = bag.accountNumber;
         String previousBlock = bag.frontier;
         String work = bag.work;
-        String link = NOSUtil.addressToPublic(bag.destinationAccount);
+        String link = NOSUtil.addressToPublic(destinationAccount);
+        String representative = bag.representative;
+
         String dataToSign = NOSUtil.computeStateHash(
                 publicKey, previousBlock,
-                NOSUtil.addressToPublic(bag.representative),
+                NOSUtil.addressToPublic(representative),
                 getRawAsHex(totalBalance),
                 link
         );
@@ -159,35 +161,11 @@ public class RequestInventor {
         System.out.println("data: " + dataToSign);
         System.out.println("sign: " + signatureFromData);
 
-
         String json = new ProcessBlockRequest(accountNumber, previousBlock,
                 totalBalance, link, signatureFromData, work)
+                .withRepresentative(representative)
                 .toString();
         return json;
     }
-
-//    public String sendCoins(String amount, String destinationAccount) {
-//        return transferCoinsRequest(
-//                accountNumber,
-//                publicKey,
-//                destinationAccount,
-//                amount,
-//                representative,
-//                privateKey
-//        );
-//    }
-//
-//
-//    private Observable<ProcessResponse> transferCoins(String sendingAccount,
-//                                                      String publicKey,
-//                                                      String destinationAccount,
-//                                                      @Nonnull String amount,
-//                                                      String totalBalance,
-//                                                      String representative,
-//                                                      String private_key,
-//                                                      String frontier,
-//                                                      String work) {
-//
-//    }
 
 }

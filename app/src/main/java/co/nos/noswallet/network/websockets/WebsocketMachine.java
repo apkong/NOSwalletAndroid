@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
+import javax.net.ssl.SSLException;
 
 import co.nos.noswallet.BuildConfig;
 import co.nos.noswallet.db.RepresentativesProvider;
@@ -116,17 +117,19 @@ public class WebsocketMachine {
     private void onError(Throwable err) {
         Log.e(TAG, "onError: ", err);
         err.printStackTrace();
-        if (isNetworkError(err)) {
-            //no internet here, retry after 3 seconds
-            handler.removeCallbacksAndMessages(null);
-            if (retriesBecauseOfError < 4) {
-                ++retriesBecauseOfError;
-                handler.removeCallbacks(reconnectToApi);
-                handler.postDelayed(reconnectToApi, 3_000);
-            } else {
-                Log.w(TAG, "onError: reached timeouts limit ");
-            }
-        } else if (socketClosedError(err)) {
+//        if (isNetworkError(err)) {
+//            //no internet here, retry after 3 seconds
+//            handler.removeCallbacksAndMessages(null);
+//            if (retriesBecauseOfError < 4) {
+//                ++retriesBecauseOfError;
+//                handler.removeCallbacks(reconnectToApi);
+//                handler.postDelayed(reconnectToApi, 3_000);
+//            } else {
+//                Log.w(TAG, "onError: reached timeouts limit ");
+//            }
+//        }
+
+        if (isNetworkError(err)||socketClosedError(err)) {
             handler.removeCallbacks(null);
             handler.postDelayed(reconnectToApi, 3_000);
         } else {
@@ -139,7 +142,10 @@ public class WebsocketMachine {
     }
 
     private boolean isNetworkError(Throwable err) {
-        return err instanceof SocketTimeoutException || err instanceof UnknownHostException;
+        return err instanceof SocketTimeoutException
+                || err instanceof UnknownHostException
+                || err instanceof SSLException
+                || err instanceof SocketTimeoutException;
     }
 
 

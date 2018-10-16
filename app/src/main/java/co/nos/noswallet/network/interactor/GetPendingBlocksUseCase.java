@@ -27,6 +27,7 @@ import io.reactivex.disposables.SerialDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
+@Deprecated
 public class GetPendingBlocksUseCase {
 
     public static final String TAG = "GetPendingBlocksUseCase";
@@ -58,10 +59,9 @@ public class GetPendingBlocksUseCase {
         this.REPRESENTATIVE = representativesProvider.provideRepresentative();
     }
 
+    @Deprecated
     public void startObservePendingTransactions() {
 
-
-        if (true) return;
         System.out.println("startObservePendingTransactions()");
         if (pendingTransactionsDisposable == null) {
             pendingTransactionsDisposable = new SerialDisposable();
