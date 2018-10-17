@@ -210,13 +210,8 @@ public class HomeFragment extends BaseFragment implements HomeView {
         if (machine != null) {
             machine.doAfterInit(() -> presenter.doOnResume(getActivity()));
         }
-
+        presenter.requestCachedResponsesIfAny();
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Subscribe

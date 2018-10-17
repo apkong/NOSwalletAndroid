@@ -62,25 +62,30 @@ public class HomePresenter extends BasePresenter<HomeView> {
     }
 
     public void requestUpdateHistory(Activity activity) {
+        SocketResponse historyResponse = getCachedHistoryResponse();
+        if (historyResponse != null) {
+            renderHistoryResponse(historyResponse);
+        }
+
         WebsocketMachine machine = WebsocketMachine.obtain(activity);
         if (machine != null) {
-
-            SocketResponse historyResponse = getCachedHistoryResponse();
-            if (historyResponse != null) {
-                renderHistoryResponse(historyResponse);
-            }
-
             machine.requestAccountHistory();
         }
     }
 
+    public void requestCachedResponsesIfAny() {
+        requestAccountInfo(null);
+        requestUpdateHistory(null);
+    }
+
     public void requestAccountInfo(Activity activity) {
+        SocketResponse accountInfoResponse = getCachedAccountInfoResponse();
+        if (accountInfoResponse != null) {
+            renderHistoryResponse(accountInfoResponse);
+        }
+
         WebsocketMachine machine = WebsocketMachine.obtain(activity);
         if (machine != null) {
-            SocketResponse accountInfoResponse = getCachedAccountInfoResponse();
-            if (accountInfoResponse != null) {
-                renderHistoryResponse(accountInfoResponse);
-            }
             machine.requestAccountInfo();
         }
     }
