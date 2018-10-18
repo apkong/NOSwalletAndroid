@@ -1,5 +1,6 @@
 package co.nos.noswallet;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
@@ -108,6 +109,10 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
         initUi();
 
+        if (websocketMachine != null) {
+            websocketMachine.handleClickedNotification(getIntent());
+        }
+
     }
 
     @Override
@@ -127,7 +132,8 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     Disposable D;
 
     private void disableScreenCapture() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+        // getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
     }
 
     @Override
@@ -365,5 +371,13 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     @Override
     public WebsocketMachine getWebsocketMachine() {
         return websocketMachine;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (websocketMachine != null) {
+            websocketMachine.handleClickedNotification(intent);
+        }
     }
 }

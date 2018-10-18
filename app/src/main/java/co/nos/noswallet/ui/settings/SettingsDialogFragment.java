@@ -46,6 +46,9 @@ import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
+import static co.nos.noswallet.ui.home.HomePresenter.ACCOUNT_HISTORY;
+import static co.nos.noswallet.ui.home.HomePresenter.ACCOUNT_INFO;
+
 /**
  * Settings main screen
  */
@@ -283,6 +286,7 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                 builder.setTitle(R.string.settings_logout_alert_title)
                         .setMessage(R.string.settings_logout_alert_message)
                         .setPositiveButton(R.string.settings_logout_alert_confirm_cta, (dialog, which) -> {
+                            clearUserBalanceData();
                             RxBus.get().post(new Logout());
                             dismiss();
                         })
@@ -292,6 +296,11 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                         .show();
             }
         }
+    }
+
+    private void clearUserBalanceData() {
+        sharedPreferencesUtil.clear(ACCOUNT_INFO);
+        sharedPreferencesUtil.clear(ACCOUNT_HISTORY);
     }
 
     private void showCopySeedAlert() {

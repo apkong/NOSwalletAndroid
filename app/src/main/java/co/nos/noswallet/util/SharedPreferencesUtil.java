@@ -35,6 +35,10 @@ public class SharedPreferencesUtil {
         return preferences.getBoolean(key, defValue);
     }
 
+    public void clear(String key) {
+        set(key, null);
+    }
+
     public void set(String key, String value) {
         SharedPreferences.Editor editor = preferences.edit();
 

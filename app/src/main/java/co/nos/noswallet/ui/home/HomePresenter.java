@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -139,21 +141,40 @@ public class HomePresenter extends BasePresenter<HomeView> {
     }
 
     private void renderHistoryResponse(SocketResponse response) {
+        if (view.isNotAttached()) return;
+
         sharedPreferencesUtil.set(ACCOUNT_HISTORY, S.GSON.toJson(response));
         JsonElement element = response.response;
 
-        if (element.isJsonObject()) {
-            AccountHistoryModel model = safeCast(element, AccountHistoryModel.class);
-            if (model != null) {
-                view.showHistory(new ArrayList<AccountHistory>() {{
-                    add(new AccountHistory(model.balance, wellFormattedDate(model)));
-                }});
-            }
-        } else if (element.isJsonArray()) {
+        Log.d(TAG, "renderHistoryResponse() called with: response = [" + response + "]");
 
+        if (element.isJsonObject()) {
+            JsonObject o = element.getAsJsonObject();
+            if (o.has("history")) {
+                JsonElement historyElement = o.get("history");
+                if (historyElement.isJsonArray()) {
+                    JsonArray array = historyElement.getAsJsonArray();
+                    ArrayList<AccountHistory> entries = new ArrayList<>();
+                    for (JsonElement jsonElement : array) {
+                        AccountHistory accountHistory = safeCast(jsonElement, AccountHistory.class);
+                        if (accountHistory != null) {
+                            entries.add(accountHistory);
+                        }
+                    }
+                    view.showHistory(entries);
+
+                } else if (historyElement.isJsonObject()) {
+                    AccountHistory account = safeCast(historyElement.getAsJsonObject(), AccountHistory.class);
+                    view.showHistory(new ArrayList<AccountHistory>() {{
+                        add(account);
+                    }});
+
+                }
+            }
         }
     }
 
+    @Deprecated
     private String wellFormattedDate(AccountHistoryModel model) {
         String timestamp = model.modified_timestamp;
         long asLong = stringToLong(timestamp);
@@ -166,6 +187,7 @@ public class HomePresenter extends BasePresenter<HomeView> {
         }
     }
 
+    @Deprecated
     private long stringToLong(String timestamp) {
         try {
             return Long.parseLong(timestamp);

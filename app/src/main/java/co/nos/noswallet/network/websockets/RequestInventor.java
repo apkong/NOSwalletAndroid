@@ -1,6 +1,7 @@
 package co.nos.noswallet.network.websockets;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.math.BigDecimal;
@@ -81,16 +82,21 @@ public class RequestInventor {
         System.out.println("data: " + dataToSign);
         System.out.println("sign: " + signatureFromData);
 
-        String json = new ProcessBlockRequest(accountNumber, previousBlock, totalBalance,
-                blockHash, signatureFromData, work).toString();
+        String json = new ProcessBlockRequest(accountNumber, previousBlock,
+                totalBalance, blockHash, signatureFromData, work)
+                .withRepresentative(representative)
+                .toString();
         Log.w(TAG, "processing: " + json);
         return json;
     }
 
-    private String sumBigValues(String balance, String accountBalance) {
+    private String sumBigValues(String balance, @Nullable String accountBalance) {
         if (accountBalance == null || accountBalance.equals("0")) {
             return new BigDecimal(balance).toString();
         } else {
+            if (balance == null){
+                return sumBigValues(accountBalance, balance);
+            }
             Log.d(TAG, "sumBigValues() called with: balance = [" + balance + "], accountBalance = [" + accountBalance + "]");
             return new BigDecimal(balance).add(new BigDecimal(accountBalance)).toString();
         }

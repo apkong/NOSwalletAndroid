@@ -197,6 +197,7 @@
     <string name="sent_coins_amount_to_address">%s NOS successfully transferred to address %s</string>
     <string name="failed_to_receive_history">Failed to receive history, try again later</string>
     <string name="processing_transfer">Processing...</string>
+    <string name="incoming_transfer">You got money!</string>
 
 
 </resources>

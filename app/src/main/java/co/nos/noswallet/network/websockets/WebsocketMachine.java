@@ -2,6 +2,7 @@ package co.nos.noswallet.network.websockets;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
@@ -24,6 +25,7 @@ import co.nos.noswallet.BuildConfig;
 import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.nosModel.GetBlocksResponse;
 import co.nos.noswallet.network.nosModel.SocketResponse;
+import co.nos.noswallet.network.notifications.NosNotifier;
 import co.nos.noswallet.network.websockets.model.WebSocketsState;
 import co.nos.noswallet.ui.home.HasWebsocketMachine;
 import co.nos.noswallet.util.S;
@@ -227,6 +229,11 @@ public class WebsocketMachine {
         Log.w(TAG, "processPublishBlock: " + response.toString());
         schedulePendingBlocksAfter(TIMEOUT);
         uiResponses.onNext(response);
+        if (response.error == null) {
+            //success
+            NosNotifier.showNewIncomingTransfer();
+
+        }
     }
 
     private void processGenerateWorkResponse(SocketResponse response) {
@@ -374,8 +381,8 @@ public class WebsocketMachine {
         if (websocketExecutor != null) {
             websocketExecutor.send(requestInventor.getAccountHistory());
             accountHistoryRequested.set(true);
-        }else {
-            Log.e(TAG, "requestAccountInfo: not connected yet!" );
+        } else {
+            Log.e(TAG, "requestAccountInfo: not connected yet!");
         }
     }
 
@@ -384,11 +391,10 @@ public class WebsocketMachine {
         if (websocketExecutor != null) {
             websocketExecutor.send(requestInventor.getAccountInformation());
             accountInfoRequested.set(true);
-        }else {
-            Log.e(TAG, "requestAccountInfo: not connected yet!" );
+        } else {
+            Log.e(TAG, "requestAccountInfo: not connected yet!");
         }
     }
-
 
     public void transferCoins(String sendAmount, String destinationAccount) {
         Log.w(TAG, "transferCoins: " + sendAmount + ", " + destinationAccount);
@@ -411,6 +417,9 @@ public class WebsocketMachine {
         recognize(null);
     }
 
+    public void handleClickedNotification(Intent intent) {
+        if (intent == null) return;
+    }
 
     public static <T> T safeCast(JsonElement json, Class<T> klazz) {
         try {
@@ -538,6 +547,8 @@ public class WebsocketMachine {
                     = destinationAccount = null;
             return this;
         }
+
+
     }
 
     public static class PendingBlocksCredentialsBag {

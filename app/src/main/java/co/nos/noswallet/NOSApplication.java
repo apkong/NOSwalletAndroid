@@ -101,5 +101,9 @@ public class NOSApplication extends MultiDexApplication {
                 .build();
     }
 
+    public static NOSApplication get() {
+        return getApplication(context);
+    }
+
 
 }

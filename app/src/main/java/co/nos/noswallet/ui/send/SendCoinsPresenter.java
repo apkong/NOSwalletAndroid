@@ -31,6 +31,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     private final NeuroWallet nosWallet = NOSApplication.getNosWallet();
 
     private final Realm realm;
+    private String recentTypedCoins = "";
 
 
     @Inject
@@ -144,7 +145,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public boolean canTransferNeuros(String currentTypedCoins) {
-
+        this.recentTypedCoins = currentTypedCoins;
         if (currentTypedCoins == null || currentTypedCoins.isEmpty() || new BigDecimal(currentTypedCoins).equals(BigDecimal.ZERO))
             return false;
         if (websocketMachineRef != null) {
@@ -182,7 +183,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
                             if (response.error != null) {
                                 view.showError(response.error);
                             } else {
-                                view.showAmountSent(response.response.toString(), targetAddress);
+                                view.showAmountSent(recentTypedCoins, targetAddress);
                             }
                         }
                     }

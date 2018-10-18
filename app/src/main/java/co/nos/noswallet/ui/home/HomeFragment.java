@@ -274,6 +274,11 @@ public class HomeFragment extends BaseFragment implements HomeView {
         Toast.makeText(getContext(), string, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public boolean isNotAttached() {
+        return getActivity() == null;
+    }
+
     public class ClickHandlers {
         public void onClickReceive(View view) {
             if (getActivity() instanceof WindowControl) {
@@ -361,5 +366,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
             presenter.onDestroy();
         }
     }
+
 
 }

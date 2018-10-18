@@ -30,10 +30,7 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
     public void bind(AccountHistory accountHistory) {
         icon.setImageResource(accountHistory.isSend() ? R.drawable.ic_send : R.drawable.ic_receive);
         balance.setText(readableAmount(accountHistory.amount));
-        account.setText(
-                (accountHistory.account)
-//                createSpannable(accountHistory.account)
-        );
+        account.setText(createSpannable(accountHistory.account));
     }
 
     private String readableAmount(String amount) {

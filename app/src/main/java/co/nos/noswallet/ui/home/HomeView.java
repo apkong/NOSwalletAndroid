@@ -16,4 +16,6 @@ public interface HomeView extends BaseView {
     String getString(@StringRes int resId);
 
     void showError(String string);
+
+    boolean isNotAttached();
 }
