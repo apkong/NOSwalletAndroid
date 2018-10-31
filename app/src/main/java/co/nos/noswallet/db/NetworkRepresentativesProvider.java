@@ -2,6 +2,7 @@ package co.nos.noswallet.db;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 
 public class NetworkRepresentativesProvider implements RepresentativesProvider {
@@ -22,6 +23,11 @@ public class NetworkRepresentativesProvider implements RepresentativesProvider {
         }
         System.err.println("returning nullable representative : " + representative);
         return representative;
+    }
+
+    @Override
+    public String provideRepresentative(CryptoCurrency cryptoCurrency) {
+        return null;
     }
 
     @Override

@@ -33,6 +33,7 @@ public class Address implements Serializable {
         return "value: " + value + ", amount: " + amount;
     }
 
+    @Deprecated
     public Address(String value) {
         this(value, CryptoCurrency.NOLLAR);
     }
@@ -45,10 +46,6 @@ public class Address implements Serializable {
 
     public boolean haCryptoCurrencyAddressFormat() {
         return value.contains(cryptoCurrency.getPrefix());
-    }
-
-    public boolean hasNanoAddressFormat() {
-        return value.contains("nano_");
     }
 
     public String getShortString() {

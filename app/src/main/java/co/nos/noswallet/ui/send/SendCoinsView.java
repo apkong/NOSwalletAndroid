@@ -1,6 +1,7 @@
 package co.nos.noswallet.ui.send;
 
 import co.nos.noswallet.base.BaseView;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 
 public interface SendCoinsView extends BaseView {
 
@@ -12,5 +13,7 @@ public interface SendCoinsView extends BaseView {
 
     void showError(int title, int message);
 
-    void showAmountSent(String sendAmount, String targetAddress);
+    void showAmountSent(String sendAmount,CryptoCurrency cryptoCurrency, String targetAddress);
+
+    void onNewCurrencyReceived(CryptoCurrency currencyInUse);
 }

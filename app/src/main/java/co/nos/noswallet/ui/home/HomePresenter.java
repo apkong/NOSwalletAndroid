@@ -20,6 +20,7 @@ import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.network.nosModel.SocketResponse;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
+import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.home.adapter.AccountHistoryModel;
 import co.nos.noswallet.util.S;
@@ -27,7 +28,8 @@ import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
-import static co.nos.noswallet.network.websockets.WebsocketMachine.safeCast;
+import static co.nos.noswallet.network.websockets.SafeCast.safeCast;
+
 
 public class HomePresenter extends BasePresenter<HomeView> {
 
@@ -35,13 +37,16 @@ public class HomePresenter extends BasePresenter<HomeView> {
 
     private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
     private final SharedPreferencesUtil sharedPreferencesUtil;
+    private final CryptoCurrencyFormatter currencyFormatter;
 
     public static final String ACCOUNT_HISTORY = "ACCOUNT_HISTORY";
     public static final String ACCOUNT_INFO = "ACCOUNT_INFO";
 
     @Inject
-    public HomePresenter(SharedPreferencesUtil sharedPreferencesUtil) {
+    public HomePresenter(SharedPreferencesUtil sharedPreferencesUtil,
+                         CryptoCurrencyFormatter currencyFormatter) {
         this.sharedPreferencesUtil = sharedPreferencesUtil;
+        this.currencyFormatter = currencyFormatter;
     }
 
     @Nullable
@@ -65,37 +70,18 @@ public class HomePresenter extends BasePresenter<HomeView> {
 
     public void requestUpdateHistory(Activity activity) {
         SocketResponse historyResponse = getCachedHistoryResponse();
-        if (historyResponse != null) {
+        if (historyResponse != null && historyResponse.response != null) {
             renderHistoryResponse(historyResponse);
         }
 
         WebsocketMachine machine = WebsocketMachine.obtain(activity);
         if (machine != null) {
-            machine.requestAccountHistory();
-        }
-    }
-
-    public void requestCachedResponsesIfAny() {
-        requestAccountInfo(null);
-        requestUpdateHistory(null);
-    }
-
-    public void requestAccountInfo(Activity activity) {
-        SocketResponse accountInfoResponse = getCachedAccountInfoResponse();
-        if (accountInfoResponse != null) {
-            renderHistoryResponse(accountInfoResponse);
-        }
-
-        WebsocketMachine machine = WebsocketMachine.obtain(activity);
-        if (machine != null) {
-            machine.requestAccountInfo();
+            machine.requestAccountHistoryForAll();
         }
     }
 
     public void doOnResume(Activity activity) {
         observeUiCallbacks(activity);
-        requestUpdateHistory(activity);
-        requestAccountInfo(activity);
     }
 
     private Disposable uiCallbacksDisposable = null;
@@ -125,19 +111,7 @@ public class HomePresenter extends BasePresenter<HomeView> {
     }
 
     private void renderAccountInfoResponse(SocketResponse response) {
-        Log.w(TAG, "got account information response");
-        sharedPreferencesUtil.set(ACCOUNT_INFO, S.GSON.toJson(response));
 
-        JsonElement element = response.response;
-        AccountInfoModel model = safeCast(element, AccountInfoModel.class);
-        if (model != null) {
-            String balance = model.balance;
-            String currency = response.currency == null ? CryptoCurrency.NOLLAR.getCurrencyCode() : response.currency;
-            if (balance != null) {
-                String formattedCurrency = CryptoCurrency.formatWith(currency, balance);
-                view.onBalanceFormattedReceived(formattedCurrency);
-            }
-        }
     }
 
     private void renderHistoryResponse(SocketResponse response) {
@@ -148,51 +122,35 @@ public class HomePresenter extends BasePresenter<HomeView> {
 
         Log.d(TAG, "renderHistoryResponse() called with: response = [" + response + "]");
 
-        if (element.isJsonObject()) {
+        if (element != null && element.isJsonObject()) {
             JsonObject o = element.getAsJsonObject();
             if (o.has("history")) {
                 JsonElement historyElement = o.get("history");
-                if (historyElement.isJsonArray()) {
-                    JsonArray array = historyElement.getAsJsonArray();
-                    ArrayList<AccountHistory> entries = new ArrayList<>();
-                    for (JsonElement jsonElement : array) {
-                        AccountHistory accountHistory = safeCast(jsonElement, AccountHistory.class);
-                        if (accountHistory != null) {
-                            entries.add(accountHistory);
+                if (historyElement != null) {
+                    if (historyElement.isJsonArray()) {
+                        JsonArray array = historyElement.getAsJsonArray();
+                        ArrayList<AccountHistory> entries = new ArrayList<>();
+                        for (JsonElement jsonElement : array) {
+                            AccountHistory accountHistory = safeCast(jsonElement, AccountHistory.class);
+                            if (accountHistory != null) {
+                                entries.add(accountHistory);
+                            }
                         }
+                        view.showHistory(entries);
+
+                    } else if (historyElement.isJsonObject()) {
+                        AccountHistory account = safeCast(historyElement.getAsJsonObject(), AccountHistory.class);
+                        view.showHistory(new ArrayList<AccountHistory>() {{
+                            add(account);
+                        }});
                     }
-                    view.showHistory(entries);
-
-                } else if (historyElement.isJsonObject()) {
-                    AccountHistory account = safeCast(historyElement.getAsJsonObject(), AccountHistory.class);
-                    view.showHistory(new ArrayList<AccountHistory>() {{
-                        add(account);
-                    }});
-
                 }
             }
         }
     }
 
-    @Deprecated
-    private String wellFormattedDate(AccountHistoryModel model) {
-        String timestamp = model.modified_timestamp;
-        long asLong = stringToLong(timestamp);
-        if (asLong > -1) {
-            Date date = new Date(asLong * 1000);
-
-            return dateFormat.format(date);
-        } else {
-            return "";
-        }
-    }
-
-    @Deprecated
-    private long stringToLong(String timestamp) {
-        try {
-            return Long.parseLong(timestamp);
-        } catch (NumberFormatException x) {
-            return -1L;
-        }
+    public void resumePendingTransactions(Activity activity) {
+        WebsocketMachine machine = WebsocketMachine.obtain(activity);
+        if (machine != null) machine.resumePendingTransactions();
     }
 }

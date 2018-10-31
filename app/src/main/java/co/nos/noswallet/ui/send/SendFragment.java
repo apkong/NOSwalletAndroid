@@ -254,7 +254,7 @@ public class SendFragment extends BaseFragment {
     /**
      * Catch errors from the service
      *
-     * @param errorResponse Error Resposne event
+     * @param errorResponse SocketClosed Resposne event
      */
     @Subscribe
     public void receiveServiceError(ErrorResponse errorResponse) {

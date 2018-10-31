@@ -19,8 +19,6 @@ import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentWebviewAgreementBinding;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
-import co.nos.noswallet.bus.AcceptAgreement;
-import co.nos.noswallet.bus.RxBus;
 
 /**
  * Webview
@@ -40,16 +38,20 @@ public class WebViewAgreementDialogFragment extends BaseDialogFragment {
 
     private final WebChromeClient mWebChromeClient = new WebChromeClient() {
         public void onProgressChanged(WebView view, int progress) {
-            if (progress < 100 && binding.dialogAppBarProgress.getVisibility() == ProgressBar.GONE) {
-                binding.dialogAppBarProgress.setVisibility(ProgressBar.VISIBLE);
-                binding.dialogAppBarProgress.setIndeterminate(false);
-            }
+            /**
+             * if (progress < 100 && binding.dialogAppBarProgress.getVisibility() == ProgressBar.GONE) {
+             binding.dialogAppBarProgress.setVisibility(ProgressBar.VISIBLE);
+             binding.dialogAppBarProgress.setIndeterminate(false);
+             }
 
-            binding.dialogAppBarProgress.setProgress(progress);
-            if (progress == 100) {
-                binding.dialogAppBarProgress.setVisibility(ProgressBar.GONE);
-                binding.webviewAgreementSwiperefresh.setRefreshing(false);
-            }
+             binding.dialogAppBarProgress.setProgress(progress);
+             if (progress == 100) {
+             binding.dialogAppBarProgress.setVisibility(ProgressBar.GONE);
+             binding.webviewAgreementSwiperefresh.setRefreshing(false);
+             }
+             **/
+            binding.dialogAppBarProgress.setVisibility(ProgressBar.GONE);
+            binding.webviewAgreementSwiperefresh.setRefreshing(false);
         }
     };
 
@@ -106,7 +108,8 @@ public class WebViewAgreementDialogFragment extends BaseDialogFragment {
             binding.dialogAppBarProgress.setIndeterminate(true);
         }
 
-        binding.webviewAgreementWebview.setWebViewClient(new WebViewClient() {});
+        binding.webviewAgreementWebview.setWebViewClient(new WebViewClient() {
+        });
         binding.webviewAgreementWebview.setWebChromeClient(mWebChromeClient);
         binding.webviewAgreementWebview.setInitialScale(1);
         binding.webviewAgreementWebview.getSettings().setDomStorageEnabled(true);
@@ -117,13 +120,14 @@ public class WebViewAgreementDialogFragment extends BaseDialogFragment {
         binding.webviewAgreementWebview.loadUrl(mUrl);
 
         binding.webviewAgreementWebview.setOnScrollChangedCallback((l, t, oldl, oldt) -> {
-            int height = (int) Math.floor(binding.webviewAgreementWebview.getContentHeight() * binding.webviewAgreementWebview.getScale());
-            int webViewHeight = binding.webviewAgreementWebview.getMeasuredHeight();
-            if(binding.webviewAgreementWebview.getScrollY() + webViewHeight >= (height - 10)){
-                binding.webviewAgreementAcceptButton.setEnabled(true);
-            }
+//            int height = (int) Math.floor(binding.webviewAgreementWebview.getContentHeight() * binding.webviewAgreementWebview.getScale());
+//            int webViewHeight = binding.webviewAgreementWebview.getMeasuredHeight();
+//            if(binding.webviewAgreementWebview.getScrollY() + webViewHeight >= (height - 10)){
+//                binding.webviewAgreementAcceptButton.setEnabled(true);
+//            }
+            binding.webviewAgreementAcceptButton.setEnabled(true);
         });
-
+        binding.webviewAgreementAcceptButton.setEnabled(true);
         return view;
     }
 

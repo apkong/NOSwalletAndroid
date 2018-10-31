@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import co.nos.noswallet.NOSUtil;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.util.ExceptionHandler;
 import io.realm.RealmObject;
 
@@ -146,6 +147,15 @@ public class Credentials extends RealmObject {
         }
     }
 
+    public String getAddressString(CryptoCurrency cryptoCurrency) {
+        String publicKey = getPublicKey();
+        if (publicKey != null) {
+            return NOSUtil.publicToAddress(publicKey,cryptoCurrency.getCurrencyCode());
+        } else {
+            return null;
+        }
+    }
+
     public static boolean isValidSeed(String seed) {
         if (seed.length() != 64) {
             return false;
@@ -172,8 +182,10 @@ public class Credentials extends RealmObject {
             return false;
         if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) return false;
         if (pin != null ? !pin.equals(that.pin) : that.pin != null) return false;
-        if (hasCompletedLegalAgreements != null ? !hasCompletedLegalAgreements.equals(that.hasCompletedLegalAgreements) : that.hasCompletedLegalAgreements != null) return false;
-        if (seedIsSecure != null ? !seedIsSecure.equals(that.seedIsSecure) : that.seedIsSecure != null) return false;
+        if (hasCompletedLegalAgreements != null ? !hasCompletedLegalAgreements.equals(that.hasCompletedLegalAgreements) : that.hasCompletedLegalAgreements != null)
+            return false;
+        if (seedIsSecure != null ? !seedIsSecure.equals(that.seedIsSecure) : that.seedIsSecure != null)
+            return false;
         return true;
     }
 

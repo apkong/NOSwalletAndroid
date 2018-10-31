@@ -56,15 +56,16 @@ public class WebsocketExecutor {
     }
 
     public <T> void send(T request) {
+        if (request == null) return;
         send(request, webSocket);
     }
 
     public <T> void send(T request, WebSocket webSocket) {
-        if (request == null) {
-            throw new RuntimeException(new NullPointerException("websocket request cannot be null"));
+
+        String dataToSend = String.valueOf(request);
+        if (dataToSend != null) {
+            System.out.println("sending [" + dataToSend + "]");
+            webSocket.send(dataToSend);
         }
-        String dataToSend = request.toString();
-        System.out.println("sending [" + dataToSend + "]");
-        webSocket.send(dataToSend);
     }
 }

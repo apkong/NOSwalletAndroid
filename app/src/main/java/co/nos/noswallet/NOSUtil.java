@@ -15,6 +15,7 @@ import java.security.SecureRandom;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import co.nos.noswallet.util.SecureRandomUtil;
 
@@ -54,7 +55,7 @@ public class NOSUtil {
      */
     public static String seedToPrivate(String seed) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "seedToPrivate() called with: seed = [" + seed + "]");
+            //Log.d(TAG, "seedToPrivate() called with: seed = [" + seed + "]");
         }
         Sodium sodium = NaCl.sodium();
         byte[] state = new byte[Sodium.crypto_generichash_statebytes()];
@@ -183,12 +184,12 @@ public class NOSUtil {
                                           String representative,
                                           String balance,
                                           String link) {
-        Log.d(TAG, "computeStateHash() called with:" +
-                " account = [" + account + "], " +
-                "previous = [" + previous + "], " +
-                "representative = [" + representative + "]," +
-                " balance = [" + balance + "], " +
-                "link = [" + link + "]");
+//        Log.d(TAG, "computeStateHash() called with:" +
+//                " account = [" + account + "], " +
+//                "previous = [" + previous + "], " +
+//                "representative = [" + representative + "]," +
+//                " balance = [" + balance + "], " +
+//                "link = [" + link + "]");
         Sodium sodium = NaCl.sodium();
 
         byte[] temp = hexToBytes("6");
@@ -205,6 +206,12 @@ public class NOSUtil {
         System.arraycopy(previous_temp, 0, previous_b, 32 - previous_temp.length, previous_temp.length);
         byte[] representative_b = hexToBytes(representative);
         byte[] balance_b = hexToBytes(balance);
+
+        if (balance_b == null) {
+            //Log.e(TAG, "computeStateHash: balance_b is null returning gracefully ");
+            return null;
+        }
+
         byte[] link_b = hexToBytes(link);
         byte[] output = new byte[32];
 
@@ -218,7 +225,7 @@ public class NOSUtil {
         Sodium.crypto_generichash_blake2b_final(state, output, output.length);
 
         String response = bytesToHex(output);
-        Log.d(TAG, "computeStateHash() returned : " + response);
+        //Log.d(TAG, "computeStateHash() returned : " + response);
         return response;
     }
 
@@ -254,7 +261,7 @@ public class NOSUtil {
      * @return Signed message
      */
     public static String sign(String private_key, String data) {
-        Log.d(TAG, "sign() called with: private_key = [" + private_key + "], data = [" + data + "]");
+        //Log.d(TAG, "sign() called with: private_key = [" + private_key + "], data = [" + data + "]");
         Sodium sodium = NaCl.sodium();
         byte[] data_b = hexToBytes(data);
         byte[] private_key_b = hexToBytes(private_key);
@@ -264,7 +271,7 @@ public class NOSUtil {
 
         Sodium.crypto_sign_ed25519_detached(signature, signature_len, data_b, data_b.length, private_key_b);
         String ret = bytesToHex(signature);
-        Log.d(TAG, "sign() returned with: " + ret);
+        //Log.d(TAG, "sign() returned with: " + ret);
         return ret;
     }
 
@@ -274,6 +281,29 @@ public class NOSUtil {
      * @param public_key Public Key
      * @return prefix_ address
      */
+    public static String publicToAddress(String public_key, String prefix) {
+        Sodium sodium = NaCl.sodium();
+        byte[] bytePublic = NOSUtil.hexStringToByteArray(public_key);
+        String encodedAddress = encode(public_key);
+
+        byte[] state = new byte[Sodium.crypto_generichash_statebytes()];
+        byte[] key = new byte[Sodium.crypto_generichash_keybytes()];
+        byte[] check_b = new byte[5];
+
+        Sodium.crypto_generichash_blake2b_init(state, key, 0, 5);
+        Sodium.crypto_generichash_blake2b_update(state, bytePublic, bytePublic.length);
+        Sodium.crypto_generichash_blake2b_final(state, check_b, check_b.length);
+
+        reverse(check_b);
+
+        StringBuilder resultAddress = new StringBuilder();
+        resultAddress.insert(0, prefix + "_");
+        resultAddress.append(encodedAddress);
+        resultAddress.append(encode(NOSUtil.bytesToHex(check_b)));
+
+        return resultAddress.toString();
+    }
+
     public static String publicToAddress(String public_key) {
         Sodium sodium = NaCl.sodium();
         byte[] bytePublic = NOSUtil.hexStringToByteArray(public_key);
@@ -304,7 +334,7 @@ public class NOSUtil {
      * @return Public Key
      */
     public static String addressToPublic(String encoded_address) {
-        Log.w(TAG, "addressToPublic: " + encoded_address);
+        //Log.w(TAG, "addressToPublic: " + encoded_address);
         NaCl.sodium();
         String data = encoded_address.split("_")[1].substring(0, 52);
         byte[] data_b = NOSUtil.hexStringToByteArray(decodeAddressCharacters(data));
@@ -325,11 +355,13 @@ public class NOSUtil {
             pk.insert(0, "0");
         }
         String result = pk.toString();
-        Log.w(TAG, "addressToPublic: returned " + result);
+        //Log.w(TAG, "addressToPublic: returned " + result);
         return result;
     }
 
+    @Nullable
     public static String bytesToHex(byte[] bytes) {
+        if (bytes == null) return null;
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
@@ -340,7 +372,8 @@ public class NOSUtil {
     }
 
     public static byte[] hexToBytes(String hex) throws NumberFormatException {
-        System.out.println("hexToBytes called : " + hex);
+        //System.out.println("hexToBytes called : " + hex);
+        if (hex == null) return null;
         hex = hex.length() % 2 != 0 ? "0" + hex : hex;
 
         byte[] b = new byte[hex.length() / 2];
@@ -352,7 +385,7 @@ public class NOSUtil {
                 b[i] = (byte) v;
             } catch (NumberFormatException exc) {
                 exc.printStackTrace();
-                System.err.println("trying parse " + hex + " to integer");
+                //System.err.println("trying parse " + hex + " to integer");
             }
 
         }

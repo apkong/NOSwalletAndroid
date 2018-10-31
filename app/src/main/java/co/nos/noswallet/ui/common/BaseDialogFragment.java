@@ -16,6 +16,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.Serializable;
+
 import co.nos.noswallet.R;
 import co.nos.noswallet.broadcastreceiver.ClipboardAlarmReceiver;
 import co.nos.noswallet.ui.pin.CreatePinDialogFragment;
@@ -144,4 +146,13 @@ public class BaseDialogFragment extends DialogFragment {
         v.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    protected <T extends Serializable> T getSerializableArgument(String key) {
+        return getSerializableArgument(key, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends Serializable> T getSerializableArgument(String key, T defaultValue) {
+        if (getArguments() == null) return defaultValue;
+        return (T) getArguments().getSerializable(key);
+    }
 }

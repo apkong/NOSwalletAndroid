@@ -3,7 +3,6 @@ package co.nos.noswallet.network.websockets;
 import android.util.Log;
 
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
@@ -18,13 +17,7 @@ import okio.ByteString;
 
 public class NosNodeWebSocketListener extends WebSocketListener implements WebSocketMessageReceiver {
 
-    private Doable veryFirstMessage;
     private AtomicBoolean firstTime = new AtomicBoolean(false);
-
-
-    public void doOnVeryFirstMessage(Doable openable) {
-        veryFirstMessage = openable;
-    }
 
     public interface Doable {
         void onOpen(WebSocket websocket);
@@ -70,12 +63,7 @@ public class NosNodeWebSocketListener extends WebSocketListener implements WebSo
     @Override
     public void onMessage(WebSocket webSocket, String text) {
         super.onMessage(webSocket, text);
-        if (veryFirstMessage != null) {
-            if (!firstTime.get()) {
-                firstTime.set(true);
-                veryFirstMessage.onOpen(webSocket);
-            }
-        }
+        Log.d(TAG, "onMessage: " + text);
         stringMessagesSubject.onNext(text);
     }
 

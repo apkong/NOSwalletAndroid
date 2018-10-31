@@ -1,11 +1,15 @@
 package co.nos.noswallet.network.nosModel;
 
+import android.support.annotation.Nullable;
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-import co.nos.noswallet.util.S;
+import static co.nos.noswallet.network.websockets.WebsocketMachine.safeCast;
 
 public class GetBlocksResponse implements Serializable {
 
@@ -13,6 +17,15 @@ public class GetBlocksResponse implements Serializable {
     public List<BlocksValue> blocks;
 
     private ProcessBlock processBlock;
+
+    public GetBlocksResponse(List<BlocksValue> blocks) {
+        this.blocks = blocks;
+    }
+
+    public GetBlocksResponse(BlocksValue block) {
+        this.blocks = new ArrayList<>();
+        this.blocks.add(block);
+    }
 
     public static class BlocksValue {
         @SerializedName("block_account")
@@ -30,7 +43,7 @@ public class GetBlocksResponse implements Serializable {
 
         @Override
         public String toString() {
-            return "ABlocks{" +
+            return "BlocksValue{" +
                     "block_account='" + block_account + '\'' +
                     ", amount='" + amount + '\'' +
                     ", contents='" + contents + '\'' +
@@ -38,20 +51,26 @@ public class GetBlocksResponse implements Serializable {
         }
     }
 
+    @Nullable
     public ProcessBlock getProcessBlock() {
+
         if (processBlock == null) {
             BlocksValue first = getBlock();
-            processBlock = S.GSON.fromJson(first.contents, ProcessBlock.class);
+            if (first == null || first.block_account == null) return null;
+            processBlock = safeCast(first.contents, ProcessBlock.class);
         }
         return processBlock;
     }
 
     public String getBalance() {
+        if (getProcessBlock() == null) return "0";
         return getProcessBlock().balance;
     }
 
     public String getAmount() {
         BlocksValue first = getBlock();
+        if (first == null)
+            return "0";
         return first.amount;
     }
 
@@ -59,7 +78,14 @@ public class GetBlocksResponse implements Serializable {
         return blocks != null && blocks.size() > 0;
     }
 
+    @Nullable
     public BlocksValue getBlock() {
-        return blocks.get(0);
+        if (blocks == null) return null;
+        return blocks.isEmpty() ? null : blocks.get(0);
+    }
+
+    public boolean blocksValueInvalid() {
+        ProcessBlock block = getProcessBlock();
+        return block == null;
     }
 }

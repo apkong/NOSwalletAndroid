@@ -12,15 +12,17 @@ import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NeuroWallet;
-import co.nos.noswallet.network.nosModel.SocketResponse;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
+import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.SerialDisposable;
-import io.reactivex.functions.Consumer;
 import io.realm.Realm;
 
 public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
+
+    public CryptoCurrency currencyInUse = CryptoCurrency.NOLLAR;
 
     public static final String TAG = SendCoinsPresenter.class.getSimpleName();
 
@@ -29,18 +31,22 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     private String currentInput = "";
 
     private final NeuroWallet nosWallet = NOSApplication.getNosWallet();
-
     private final Realm realm;
-    private String recentTypedCoins = "";
+    private CryptoCurrencyFormatter currencyFormatter = new CryptoCurrencyFormatter().useCurrency(currencyInUse);
 
+    private String recentTypedCoins = "";
 
     @Inject
     public SendCoinsPresenter(Realm realm) {
         this.realm = realm;
     }
 
-    public void attemptSendCoins(String coinsAmount) {
-        Log.w(TAG, "attemptSendCoins: " + coinsAmount);
+    public void attemptSendCoins(String _coinsAmount) {
+        Log.w(TAG, "attemptSendCoins: " + _coinsAmount);
+
+        String rawAmount = currencyFormatter.uiToRaw(_coinsAmount);
+        Log.w(TAG, "raw amount is : " + rawAmount);
+
         if (!targetAddressValid()) {
             String message = view.getString(R.string.please_specify_destination_address);
             view.showError(message);
@@ -49,35 +55,15 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
         System.out.println("execute send()");
 
-        if (canTransferNeuros(coinsAmount)) {
+        if (canTransferRawAmount(rawAmount)) {
             view.showLoading();
 
-            String sendAmount = (coinsAmount);
+            String sendAmount = (rawAmount);
 
             if (websocketMachineRef != null) {
-                websocketMachineRef.transferCoins(sendAmount, targetAddress);
+                websocketMachineRef.transferCoins(sendAmount, targetAddress, currencyInUse);
                 view.showLoading();
             }
-
-//            addDisposable(sendCoinsUseCase.transferCoins(sendAmount, targetAddress)
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(new Consumer<ProcessResponse>() {
-//                        @Override
-//                        public void accept(ProcessResponse o) throws Exception {
-//                            view.hideLoading();
-//                            BigDecimal dec = new BigDecimal(sendAmount).divide(new BigDecimal("10").pow(30), RoundingMode.DOWN);
-//                            view.showAmountSent(dec.toEngineeringString(), targetAddress);
-//                        }
-//                    }, new Consumer<Throwable>() {
-//                        @Override
-//                        public void accept(Throwable throwable) throws Exception {
-//                            view.hideLoading();
-//                            System.err.println("error sending coins " + throwable);
-//                            throwable.printStackTrace();
-//                            view.showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
-//                        }
-//                    }));
         } else {
             view.showError(R.string.send_error_alert_title, R.string.cannot_transfer);
         }
@@ -123,7 +109,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public void updateAmountFromCode(CharSequence totalValue) {
-        currentInput = totalValue.toString();
+        currentInput = currencyFormatter.rawtoUi(totalValue.toString());
         view.onCurrentInputReceived(currentInput);
     }
 
@@ -144,25 +130,31 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         return realm.where(Credentials.class).findFirst();
     }
 
-    public boolean canTransferNeuros(String currentTypedCoins) {
+    public boolean canTransferRawAmount(String raw) {
+        String currentTypedCoins = raw;
         this.recentTypedCoins = currentTypedCoins;
         if (currentTypedCoins == null || currentTypedCoins.isEmpty() || new BigDecimal(currentTypedCoins).equals(BigDecimal.ZERO))
             return false;
         if (websocketMachineRef != null) {
-            return nosWallet.canTransferNeuros(currentTypedCoins, websocketMachineRef.recentAccountBalance);
+            return nosWallet.canTransferNeuros(currentTypedCoins, websocketMachineRef.getRecentAccountBalanceOf(currencyInUse));
         }
         return false;
     }
 
+    public boolean canTransferNeuros(String currentTypedCoinsUi) {
+        String raw = currencyFormatter.uiToRaw(currentTypedCoinsUi);
+        return canTransferRawAmount(raw);
+    }
+
     private boolean targetAddressValid() {
-        Address destination = new Address(targetAddress);
+        Address destination = new Address(targetAddress, currencyInUse);
         return destination.isValidAddress();
     }
 
     public String getTotalNeurosAmount() {
         String balance = null;
         if (websocketMachineRef != null) {
-            balance = websocketMachineRef.recentAccountBalance;
+            balance = websocketMachineRef.getRecentAccountBalanceOf(currencyInUse);
             NOSApplication.getNosWallet().setNeuros(balance);
         }
         Log.d(TAG, "getTotalNeurosAmount: " + balance);
@@ -173,19 +165,18 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
     public void observeWebsocketMachine(WebsocketMachine machine) {
         websocketMachineRef = machine;
-        serialDisposable.set(machine.observeUiTriggers()
+        serialDisposable.set(machine.observeUiTriggers(currencyInUse)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<SocketResponse>() {
-                    @Override
-                    public void accept(SocketResponse response) throws Exception {
-                        if (response.isProcessedBlock()) {
-                            view.hideLoading();
-                            if (response.error != null) {
-                                view.showError(response.error);
-                            } else {
-                                view.showAmountSent(recentTypedCoins, targetAddress);
-                            }
+                .subscribe(response -> {
+                    if (response.isProcessedBlock()) {
+                        view.hideLoading();
+                        if (response.error != null) {
+                            view.showError(response.error);
+                        } else {
+                            view.showAmountSent(currencyFormatter.rawtoUi(recentTypedCoins), currencyInUse, targetAddress);
                         }
+                    } else if (response.socketClosed()) {
+                        view.hideLoading();
                     }
                 }, this::onErrorSendCoins)
         );
@@ -193,7 +184,10 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
     private void onErrorSendCoins(Throwable throwable) {
         Log.e(TAG, "onErrorSendCoins: ", throwable);
+        view.hideLoading();
         throwable.printStackTrace();
+        String errorMessage = view.getString(R.string.failed_to_send_coins);
+        view.showError(errorMessage);
     }
 
     public void cancelWebsocketObservation() {
@@ -204,4 +198,21 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     private SerialDisposable serialDisposable = new SerialDisposable();
+
+    public void changeCurrency(String text) {
+        currencyInUse = determineNewCurrency(text);
+        recentTypedCoins = "";
+        currencyFormatter = currencyFormatter.useCurrency(currencyInUse);
+        view.onCurrentInputReceived("");
+        view.onNewCurrencyReceived(currencyInUse);
+    }
+
+    private CryptoCurrency determineNewCurrency(String text) {
+        CryptoCurrency cryptoCurrency = CryptoCurrency.recognize(text);
+        if (cryptoCurrency == CryptoCurrency.NOLLAR) {
+            return CryptoCurrency.NOS;
+        } else {
+            return CryptoCurrency.NOLLAR;
+        }
+    }
 }

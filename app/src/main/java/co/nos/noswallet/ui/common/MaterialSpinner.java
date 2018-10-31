@@ -66,7 +66,7 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
     private int endSpinnerPadding;
     private int minContentHeight;
 
-    //Properties about Error Label
+    //Properties about SocketClosed Label
     private int lastPosition;
     private ObjectAnimator errorLabelAnimator;
     private int errorLabelPosX;
@@ -411,7 +411,7 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
             int startYErrorLabel = startYLine + errorLabelSpacing + lineHeight;
             paint.setColor(errorColor);
             textPaint.setColor(errorColor);
-            //Error Label Drawing
+            //SocketClosed Label Drawing
             if (multiline) {
                 canvas.save();
                 canvas.translate(startX + startSpinnerPadding, startYErrorLabel - errorLabelSpacing);

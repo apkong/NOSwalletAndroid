@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.InputType;
@@ -20,6 +21,9 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.Serializable;
 
 import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.R;
@@ -40,13 +44,18 @@ import io.realm.Realm;
  * Helper methods used by all fragments
  */
 
-public class BaseFragment extends Fragment {
+public class BaseFragment<T extends FragmentActivity> extends Fragment {
     private static final int ZXING_CAMERA_PERMISSION = 1;
     protected static final int SCAN_RESULT = 2;
 
     private String scanActivityTitle;
     private boolean isSeedScanner;
     protected View view;
+
+    @SuppressWarnings("unchecked")
+    protected T getParent() {
+        return (T) getActivity();
+    }
 
     /**
      * Set status bar color to dark blue
@@ -406,4 +415,19 @@ public class BaseFragment extends Fragment {
                 })
                 .show();
     }
+
+    protected <T extends Serializable> T getSerializableArgument(String key) {
+        return getSerializableArgument(key, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends Serializable> T getSerializableArgument(String key, T defaultValue) {
+        if (getArguments() == null) return defaultValue;
+        return (T) getArguments().getSerializable(key);
+    }
+
+    public void showError(String string) {
+        Toast.makeText(getContext(), string, Toast.LENGTH_SHORT).show();
+    }
+
 }

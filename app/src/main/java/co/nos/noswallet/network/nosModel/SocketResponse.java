@@ -5,6 +5,10 @@ import com.google.gson.annotations.SerializedName;
 
 public class SocketResponse {
 
+    public static final SocketResponse SocketClosed = new SocketResponse() {{
+        this.error = "socket closed";
+    }};
+
     @SerializedName("action")
     public String action;
 
@@ -40,5 +44,9 @@ public class SocketResponse {
 
     public boolean isProcessedBlock() {
         return "publish_block".equals(action);
+    }
+
+    public boolean socketClosed() {
+        return this == SocketClosed;
     }
 }

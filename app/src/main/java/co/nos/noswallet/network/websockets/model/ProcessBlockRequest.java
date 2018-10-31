@@ -8,7 +8,7 @@ import co.nos.noswallet.util.S;
 public class ProcessBlockRequest {
 
     @SerializedName("currency")
-    public String currency = CryptoCurrency.NOLLAR.getCurrencyCode();
+    public String currency;
 
     @SerializedName("action")
     public String action = "publish_block";
@@ -46,6 +46,23 @@ public class ProcessBlockRequest {
         this.link = link;
         this.signature = signature;
         this.pow = pow;
+        this.currency = CryptoCurrency.NOLLAR.getCurrencyCode();
+    }
+
+    public ProcessBlockRequest(String account,
+                               String previous,
+                               String balance,
+                               String link,
+                               String signature,
+                               String pow,
+                               CryptoCurrency cryptoCurrency) {
+        this.account = account;
+        this.previous = previous;
+        this.balance = balance;
+        this.link = link;
+        this.signature = signature;
+        this.pow = pow;
+        this.currency = cryptoCurrency.getCurrencyCode();
     }
 
     public ProcessBlockRequest withRepresentative(String representative) {

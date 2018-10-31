@@ -1,18 +1,16 @@
 package co.nos.noswallet.persistance;
 
-import com.google.gson.Gson;
-
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 
+@Deprecated
 public class DefaultUserSession implements UserSession {
 
     public static final String USER_CURRENCY = "USER_CURRENCY";
 
     private final SharedPreferencesUtil sharedPreferences;
 
-    public DefaultUserSession(SharedPreferencesUtil sharedPreferences,
-                              Gson gson) {
+    public DefaultUserSession(SharedPreferencesUtil sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 
@@ -29,11 +27,11 @@ public class DefaultUserSession implements UserSession {
                 return cryptoCurrency;
             }
         }
-        return CryptoCurrency.UNKNOWN;
+        return CryptoCurrency.NOLLAR;
     }
 
     @Override
     public void setPreferredCurrencyPrefix(CryptoCurrency currency) {
-        sharedPreferences.set(USER_CURRENCY, "");
+        sharedPreferences.set(USER_CURRENCY, currency.getCurrencyCode());
     }
 }

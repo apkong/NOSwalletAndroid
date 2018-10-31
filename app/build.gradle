@@ -7,8 +7,8 @@ apply plugin: 'realm-android'
 //apply plugin: 'io.fabric'
 
 
-def currentVersionCode = 4
-def currentVersionName = "0.0.6"
+def currentVersionCode = 8
+def currentVersionName = "0.0.10"
 
 android {
     compileSdkVersion 27
@@ -36,14 +36,21 @@ android {
 
         buildConfigField "String", "CONNECTION_URL", (project.findProperty("CONNECTION_URL") ?: empty)
         buildConfigField "String", "WEBSOCKET_URL", (project.findProperty("WEBSOCKET_URL") ?: empty)
+
+        //nollar representative
         buildConfigField "String", "REPRESENTATIVE", (project.findProperty("REPRESENTATIVE") ?: empty)
+
+        buildConfigField "String", "NOS_REPRESENTATIVE_0", (project.findProperty("NOS_REPRESENTATIVE_0") ?: empty)
+        buildConfigField "String", "NOS_REPRESENTATIVE_1", (project.findProperty("NOS_REPRESENTATIVE_1") ?: empty)
+        buildConfigField "String", "NOS_REPRESENTATIVE_2", (project.findProperty("NOS_REPRESENTATIVE_2") ?: empty)
+
         buildConfigField "boolean", "DISABLE_SCREENSHOTS", (project.findProperty("DISABLE_SCREENSHOTS") ?: true)
 
 //        buildConfigField "String", "CONNECTION_URL", "\"http://wb.cryptware.de:51234\""
     }
     buildTypes {
         debug {
-
+            debuggable true
         }
         release {
             minifyEnabled false

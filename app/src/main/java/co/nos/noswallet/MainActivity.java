@@ -42,7 +42,7 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.home.HasWebsocketMachine;
-import co.nos.noswallet.ui.home.HomeFragment;
+import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
@@ -118,15 +118,12 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     @Override
     protected void onResume() {
         super.onResume();
-
         websocketMachine.start();
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        websocketMachine.pause();
     }
 
     Disposable D;
@@ -207,7 +204,9 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
             mFragmentUtility.clearStack();
             if (sharedPreferencesUtil.getConfirmedSeedBackedUp()) {
                 // go to home screen
-                mFragmentUtility.replace(HomeFragment.newInstance());
+
+//                mFragmentUtility.replace(HomeFragment.newInstance());
+                mFragmentUtility.replace(HistoryFragment.newInstance());
             } else {
                 // go to intro new wallet
                 mFragmentUtility.replace(IntroNewWalletFragment.newInstance());

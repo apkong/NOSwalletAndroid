@@ -29,8 +29,8 @@
     <string name="intro_legal_deny">Disagree</string>
     <string name="intro_legal_checkbox_eula_label">End User License Agreement</string>
     <string name="intro_legal_checkbox_pp_label">Privacy Policy</string>
-    <string name="intro_legal_checkbox_eula_link">https://nanowalletcompany.com/android-eula</string>
-    <string name="intro_legal_checkbox_pp_link">https://nanowalletcompany.com/mobile-privacy-policy</string>
+    <string name="intro_legal_checkbox_eula_link">https://nos.cash/android-eula.html</string>
+    <string name="intro_legal_checkbox_pp_link">https://nos.cash/mobile-privacy-policy</string>
     <string name="intro_legal_alert_title">Log Out Warning</string>
     <string name="intro_legal_alert_message">Not agreeing will result in logging out of the app.</string>
     <string name="intro_legal_alert_confirm_cta">Log Me Out</string>
@@ -77,6 +77,9 @@
     <!-- Receive Screen -->
     <string name="receive_title">Receive</string>
     <string name="receive_instructions">Scan the QR code\nbelow to receive NOS</string>
+    <string name="receive_instructions_placeholder">Scan the QR code\nbelow to receive %s</string>
+    <string name="currency_address_placeholder">%s address</string>
+
     <string name="receive_copy_cta">Copy Address</string>
     <string name="receive_address_label">NOS Address</string>
     <string name="receive_copy_message"><![CDATA[<font color=\"#ffffff\">Your NOS Address has been copied.<br>Share it with a friend to receive NOS!</font>]]></string>
@@ -107,7 +110,7 @@
     <string name="send_nano_hint">0</string>
     <string name="send_localcurrency_hint">0.00</string>
     <string name="send_amount_too_large_alert_title">Amount Too Large</string>
-    <string name="send_amount_too_large_alert_message">The amount you entered was larger than your NOS balance.\n\nWe\'ve filled the form with your full balance for sending.</string>
+    <string name="send_amount_too_large_alert_message">The amount you entered was larger than your wallet balance.\n\nWe\'ve filled the form with your full balance for sending.</string>
     <string name="send_amount_too_large_alert_cta">Okay</string>
     <string name="send_error_alert_title">Something Went Wrong</string>
     <string name="send_error_alert_message">We have detected an issue, and are working to resolve it. Please try again in a few minutes.</string>
@@ -195,9 +198,14 @@
     <string name="cannot_transfer">Coins amount invalid, please enter valid value</string>
     <string name="transfer_succeess">Transfer success</string>
     <string name="sent_coins_amount_to_address">%s NOS successfully transferred to address %s</string>
+
+    <string name="sent_coins_amount_to_address_currency_placeholder">%s %s successfully transferred to address %s</string>
     <string name="failed_to_receive_history">Failed to receive history, try again later</string>
     <string name="processing_transfer">Processing...</string>
     <string name="incoming_transfer">You got money!</string>
+    <string name="connection_interrupted">Connection interrupted, try again later</string>
+    <string name="failed_to_send_coins">Failed to send funds, try again later</string>
+    <string name="error_qr_recognizing">Please scan valid %s address</string>
 
 
 </resources>

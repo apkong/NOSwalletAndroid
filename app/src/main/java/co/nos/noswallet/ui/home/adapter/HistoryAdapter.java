@@ -9,20 +9,26 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import co.nos.noswallet.R;
 import co.nos.noswallet.network.nosModel.AccountHistory;
+import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
 
     public List<AccountHistory> history = new ArrayList<>();
+
+    private final CryptoCurrencyFormatter currencyFormatter;
 
     public void refresh(List<AccountHistory> history) {
         this.history = history;
         notifyDataSetChanged();
     }
 
-    public HistoryAdapter() {
-
+    @Inject
+    public HistoryAdapter(CryptoCurrencyFormatter currencyFormatter) {
+        this.currencyFormatter = currencyFormatter;
     }
 
     @NonNull
@@ -35,7 +41,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
-        holder.bind(history.get(position));
+        holder.bind(history.get(position), currencyFormatter);
     }
 
     @Override

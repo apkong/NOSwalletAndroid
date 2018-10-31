@@ -30,6 +30,7 @@ import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.home.HomeFragment;
+import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.util.ExceptionHandler;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
@@ -118,7 +119,10 @@ public class IntroNewWalletFragment extends BaseFragment {
         // go to home screen
         if (getActivity() instanceof WindowControl) {
             ((WindowControl) getActivity()).getFragmentUtility().replace(
-                    HomeFragment.newInstance(),
+                    HistoryFragment.newInstance(),
+
+//                    HomeFragment.newInstance(),
+
                     FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
                     FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
                     HomeFragment.TAG

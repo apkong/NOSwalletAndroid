@@ -1,8 +1,10 @@
 package co.nos.noswallet.db;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import co.nos.noswallet.model.Credentials;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import io.realm.Realm;
 
 public class RealmCredentialsProvider implements CredentialsProvider {
@@ -24,6 +26,17 @@ public class RealmCredentialsProvider implements CredentialsProvider {
         Credentials credentials = provideCredentials(realm);
         if (credentials != null) {
             return credentials.getPublicKey();
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    @Override
+    public String provideAccountNumber(CryptoCurrency cryptoCurrency) {
+        Credentials credentials = provideCredentials(realm);
+        if (credentials != null) {
+            return credentials.getAddressString(cryptoCurrency);
         } else {
             return null;
         }

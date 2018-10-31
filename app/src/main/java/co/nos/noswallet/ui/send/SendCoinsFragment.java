@@ -43,6 +43,7 @@ import co.nos.noswallet.databinding.FragmentSendCoinsBinding;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
@@ -61,6 +62,10 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     private AlertDialog fingerprintDialog;
     private static final String ARG_NEW_SEED = "argNewSeed";
     private String newSeed;
+
+    private Button chooseCurrencyButton;
+
+    ClickHandlers ClickHandlers;
 
     @Inject
     SendCoinsPresenter presenter;
@@ -141,9 +146,6 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
             ((ActivityWithComponent) getActivity()).getActivityComponent().inject(this);
         }
 
-        //analyticsService.track(AnalyticsEvents.SEND_VIEWED);
-
-
         // change keyboard mode
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         KeyboardUtil.hideKeyboard(getActivity());
@@ -152,8 +154,12 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         binding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_send_coins, container, false);
         view = binding.getRoot();
-        binding.setHandlers(new ClickHandlers());
 
+        chooseCurrencyButton = view.findViewById(R.id.choose_currency_button);
+
+        binding.setHandlers(ClickHandlers = new ClickHandlers());
+
+        chooseCurrencyButton.setOnClickListener(ClickHandlers::onClickChangeCurrency);
 
         setStatusBarBlue();
         setBackEnabled(true);
@@ -204,7 +210,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                 Bundle res = data.getExtras();
                 if (res != null) {
                     // parse address
-                    Address address = new Address(res.getString(ScanActivity.QR_CODE_RESULT));
+                    Address address = new Address(res.getString(ScanActivity.QR_CODE_RESULT), presenter.currencyInUse);
 
                     // set to scanned value
                     if (address.getAddress() != null) {
@@ -222,9 +228,13 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         showError(R.string.send_error_alert_title, message);
     }
 
+    public void showError(String message, boolean exit) {
+        showError(R.string.send_error_alert_title, message, exit);
+    }
+
     private boolean validateAddress() {
         // check for valid address
-        Address destination = new Address(binding.sendAddress.getText().toString());
+        Address destination = new Address(binding.sendAddress.getText().toString(), presenter.currencyInUse);
         if (!destination.isValidAddress()) {
             showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
             return false;
@@ -247,6 +257,10 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     }
 
     public void showError(int title, String message) {
+        showError(title, message, true);
+    }
+
+    public void showError(int title, String message, boolean exit) {
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
@@ -256,6 +270,9 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         builder.setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.send_amount_too_large_alert_cta, (dialog, which) -> {
+                    if (exit) {
+                        exitThisScreen();
+                    }
                 })
                 .show();
     }
@@ -266,7 +283,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     }
 
     @Override
-    public void showAmountSent(String sendAmount, String targetAddress) {
+    public void showAmountSent(String sendAmount, String targetAddress, CryptoCurrency cryptoCurrency) {
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
@@ -274,10 +291,22 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
             builder = new AlertDialog.Builder(getContext());
         }
         builder.setTitle(R.string.transfer_succeess)
-                .setMessage(getString(R.string.sent_coins_amount_to_address, sendAmount, targetAddress))
+                .setMessage(getString(R.string.sent_coins_amount_to_address_currency_placeholder, sendAmount, cryptoCurrency.name(), targetAddress))
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    exitThisScreen();
                 })
                 .show();
+    }
+
+    @Override
+    public void onNewCurrencyReceived(CryptoCurrency currencyInUse) {
+        chooseCurrencyButton.setText(currencyInUse.name());
+    }
+
+    private void exitThisScreen() {
+        if (getActivity() != null) {
+            getActivity().onBackPressed();
+        }
     }
 
     /**
@@ -313,17 +342,17 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
     private void setShortAddress() {
         // set short address if appropriate
-        Address address = new Address(binding.sendAddress.getText().toString());
+        Address address = new Address(binding.sendAddress.getText().toString(), presenter.currencyInUse);
         if (address.isValidAddress()) {
             binding.sendAddressDisplay.setText(address.getColorizedShortSpannable());
             binding.sendAddressDisplay.setBackgroundResource(binding.sendAddressDisplay.length() > 0 ? R.drawable.bg_seed_input_active : R.drawable.bg_seed_input);
         } else {
             binding.sendAddressDisplay.setText("");
             binding.sendAddressDisplay.setBackgroundResource(binding.sendAddressDisplay.length() > 0 ? R.drawable.bg_seed_input_active : R.drawable.bg_seed_input);
+            showError(getString(R.string.error_qr_recognizing, presenter.currencyInUse.name()), false);
         }
         enableSendIfPossible();
     }
-
 
     @Override
     public void onCurrentInputReceived(String currentInput) {
@@ -408,6 +437,15 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
             enableSendIfPossible();
         }
 
+        public void onClickChangeCurrency(View view) {
+            Log.e(TAG, "onClickChangeCurrency: " + view);
+            if (view instanceof Button) {
+                String text = ((Button) view).getText().toString();
+                presenter.changeCurrency(text);
+
+            }
+        }
+
         public void onClickNumKeyboard(View view) {
             updateAmount(((Button) view).getText());
         }
@@ -468,6 +506,9 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     public void onResume() {
         super.onResume();
         WebsocketMachine machine = WebsocketMachine.obtain(getActivity());
+        if (machine != null) {
+            machine.pausePendingTransactions();
+        }
         presenter.observeWebsocketMachine(machine);
     }
 

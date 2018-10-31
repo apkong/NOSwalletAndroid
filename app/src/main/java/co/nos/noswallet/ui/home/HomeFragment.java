@@ -81,6 +81,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
     @Inject
     Realm realm;
 
+    @Inject
     HistoryAdapter historyAdapter;
 
     ClickHandlers ClickHandlers;
@@ -183,10 +184,8 @@ public class HomeFragment extends BaseFragment implements HomeView {
         // initialize recyclerview (list of wallet transactions)
         controller = new WalletController();
         binding.homeRecyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.homeRecyclerview.setAdapter(historyAdapter = new HistoryAdapter());
+        binding.homeRecyclerview.setAdapter(historyAdapter);
         binding.homeSwiperefresh.setOnRefreshListener(() -> {
-            presenter.requestUpdateHistory(getActivity());
-            presenter.requestAccountInfo(getActivity());
 
         });
         if (wallet != null && wallet.getAccountHistory() != null) {
@@ -210,7 +209,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
         if (machine != null) {
             machine.doAfterInit(() -> presenter.doOnResume(getActivity()));
         }
-        presenter.requestCachedResponsesIfAny();
+
         return view;
     }
 
@@ -251,7 +250,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
         if (historyAdapter != null) {
             historyAdapter.refresh(history);
         }
-        if (history.isEmpty()){
+        if (history.isEmpty()) {
             showHistoryEmpty();
         }
     }
@@ -263,10 +262,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
 
     @Override
     public void onBalanceFormattedReceived(String formatted) {
-        TextView view = binding.getRoot().findViewById(R.id.home_top_balance);
-        if (view != null) {
-            view.setText(formatted);
-        }
+
     }
 
     @Override
@@ -335,6 +331,12 @@ public class HomeFragment extends BaseFragment implements HomeView {
                 dialog.getDialog().setOnDismissListener(dialogInterface -> setStatusBarBlue());
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        presenter.resumePendingTransactions(getActivity());
     }
 
     @Override
