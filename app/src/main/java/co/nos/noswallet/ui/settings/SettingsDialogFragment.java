@@ -39,6 +39,7 @@ import co.nos.noswallet.databinding.FragmentSettingsBinding;
 import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.StringWithTag;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
@@ -46,8 +47,9 @@ import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
-import static co.nos.noswallet.ui.home.HomePresenter.ACCOUNT_HISTORY;
-import static co.nos.noswallet.ui.home.HomePresenter.ACCOUNT_INFO;
+import static co.nos.noswallet.ui.home.v2.CurrencyPresenter.ACCOUNT_HISTORY;
+import static co.nos.noswallet.ui.home.v2.CurrencyPresenter.ACCOUNT_INFO;
+
 
 /**
  * Settings main screen
@@ -299,8 +301,10 @@ public class SettingsDialogFragment extends BaseDialogFragment {
     }
 
     private void clearUserBalanceData() {
-        sharedPreferencesUtil.clear(ACCOUNT_INFO);
-        sharedPreferencesUtil.clear(ACCOUNT_HISTORY);
+        for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
+            sharedPreferencesUtil.clear(ACCOUNT_INFO + cryptoCurrency.name());
+            sharedPreferencesUtil.clear(ACCOUNT_HISTORY + cryptoCurrency.name());
+        }
     }
 
     private void showCopySeedAlert() {

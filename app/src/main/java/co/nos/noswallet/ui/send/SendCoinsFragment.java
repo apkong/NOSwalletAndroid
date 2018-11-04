@@ -283,7 +283,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     }
 
     @Override
-    public void showAmountSent(String sendAmount, String targetAddress, CryptoCurrency cryptoCurrency) {
+    public void showAmountSent(String sendAmount, CryptoCurrency cryptoCurrency, String targetAddress) {
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
