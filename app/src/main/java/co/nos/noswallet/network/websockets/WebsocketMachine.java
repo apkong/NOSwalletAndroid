@@ -31,9 +31,6 @@ import okhttp3.OkHttpClient;
 
 public class WebsocketMachine {
 
-    @Deprecated
-    public String recentAccountBalance = "0";
-
     public String getRecentAccountBalanceOf(CryptoCurrency currencyInUse) {
         CurrencyHandler currencyHandler = getMatchingHandler(currencyInUse);
         if (currencyHandler != null) {
@@ -121,13 +118,13 @@ public class WebsocketMachine {
         String url = BuildConfig.WEBSOCKET_URL;
 
         websocketExecutor = new WebsocketExecutor(new OkHttpClient(), url, new NosNodeWebSocketListener());
-
         websocketExecutor.init(webSocket -> {
 
             for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
                 if (websocketExecutor != null) {
                     websocketExecutor.send(requestInventor.getAccountHistory(cryptoCurrency), webSocket);
                 }
+                performForAll(CurrencyHandler::registerPushNotificationsWhenAvailable);
             }
             isConnectedToTheApi = true;
             if (afterInitRunnable != null) {
@@ -168,7 +165,6 @@ public class WebsocketMachine {
                 || err instanceof SSLException;
     }
 
-
     @SuppressLint("LogNotTimber")
     private void recognize(String json) {
         Log.i(TAG, "onNext -> \n" + json);
@@ -180,7 +176,6 @@ public class WebsocketMachine {
             }
         }
     }
-
 
     public Observable<SocketResponse> observeUiTriggers() {
         return observeUiTriggers(CryptoCurrency.NOLLAR);

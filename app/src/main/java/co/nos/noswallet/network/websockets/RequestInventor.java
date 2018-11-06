@@ -21,6 +21,7 @@ import co.nos.noswallet.network.websockets.model.PendingBlocksCredentialsBag;
 import co.nos.noswallet.network.websockets.model.PendingSendCoinsCredentialsBag;
 import co.nos.noswallet.network.websockets.model.ProcessBlockRequest;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import io.reactivex.annotations.Experimental;
 
 public class RequestInventor {
     public static final String TAG = RequestInventor.class.getSimpleName();
@@ -61,8 +62,14 @@ public class RequestInventor {
         return representatives.get(currency);
     }
 
+
     public String generateWork(String frontier, CryptoCurrency cryptoCurrency) {
         return new GetProofOfWorkRequest(frontier, cryptoCurrency).toString();
+    }
+
+    @Experimental
+    public String generateWork(CryptoCurrency cryptoCurrency) {
+        return new GetProofOfWorkRequest(accountFrontierMap.get(cryptoCurrency), cryptoCurrency).toString();
     }
 
     public String providePublicKey() {
@@ -108,12 +115,15 @@ public class RequestInventor {
     }
 
     private String sumBigValues(@Nullable String balance, @Nullable String accountBalance) {
+        Log.w(TAG, "sumBigValues: " + balance + " + " + accountBalance);
         if (accountBalance == null || accountBalance.equals("0")) {
             return new BigDecimal(balance).toString();
         } else {
             if (balance == null) {
                 return sumBigValues(accountBalance, balance);
             }
+
+
             Log.d(TAG, "sumBigValues() called with: balance = [" + balance + "], accountBalance = [" + accountBalance + "]");
             return new BigDecimal(balance).add(new BigDecimal(accountBalance)).toString();
         }

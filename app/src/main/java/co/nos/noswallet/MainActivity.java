@@ -38,6 +38,7 @@ import co.nos.noswallet.model.NanoWallet;
 import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
 import co.nos.noswallet.network.interactor.GetBlocksInfoUseCase;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
+import co.nos.noswallet.push.FCMInstanceIdService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
@@ -112,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         if (websocketMachine != null) {
             websocketMachine.handleClickedNotification(getIntent());
         }
+
+        FCMInstanceIdService.start(this);
 
     }
 

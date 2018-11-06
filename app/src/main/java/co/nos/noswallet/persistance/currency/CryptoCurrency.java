@@ -19,25 +19,13 @@ public enum CryptoCurrency implements Serializable {
     private final String prefix;
     private final String currencyCode;
     private final BigDecimal divider;
-    private final DecimalFormat decimalFormat;
 
-
-    CryptoCurrency(String prefix, String currencyCode,
-                   int dividerLength,
-                   String format) {
-        this.prefix = prefix;
-        this.currencyCode = currencyCode;
-        this.divider = new BigDecimal(10).pow(dividerLength);
-        this.decimalFormat = new DecimalFormat(format);
-
-        BigDecimal shift = new BigDecimal("10").pow(10);
-        BigDecimal value = new BigDecimal("0.000000012");
-        BigDecimal result = value.multiply(shift);
-    }
 
     CryptoCurrency(String prefix, String currencyCode,
                    int dividerLength) {
-        this(prefix, currencyCode, dividerLength, "#0.##");
+        this.prefix = prefix;
+        this.currencyCode = currencyCode;
+        this.divider = new BigDecimal(10).pow(dividerLength);
     }
 
     public static String formatWith(String currency, String balance) {

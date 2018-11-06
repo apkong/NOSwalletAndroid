@@ -16,6 +16,7 @@ import co.nos.noswallet.di.application.ApplicationModule;
 import co.nos.noswallet.di.application.DaggerApplicationComponent;
 import co.nos.noswallet.model.NeuroWallet;
 import co.nos.noswallet.util.Vault;
+import io.reactivex.subjects.BehaviorSubject;
 import io.realm.Realm;
 import timber.log.Timber;
 
@@ -33,6 +34,7 @@ public class NOSApplication extends MultiDexApplication {
         return getApplication(context).nosWallet;
     }
 
+    public BehaviorSubject<String> fcmTokenSubject = BehaviorSubject.createDefault("");
 
     private ApplicationComponent mApplicationComponent;
 

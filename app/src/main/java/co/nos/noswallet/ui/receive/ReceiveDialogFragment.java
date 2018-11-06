@@ -226,7 +226,7 @@ public class ReceiveDialogFragment extends BaseDialogFragment {
                 clipboard.setPrimaryClip(clip);
             }
 
-            Snackbar snackbar = Snackbar.make(view, Html.fromHtml(getString(R.string.receive_copy_message)), Snackbar.LENGTH_INDEFINITE);
+            Snackbar snackbar = Snackbar.make(view, Html.fromHtml(getString(R.string.receive_copy_message_placeholder, currency.name(), currency.name())), Snackbar.LENGTH_INDEFINITE);
             snackbar.setAction(R.string.receive_copy_done, view1 -> {
             });
             snackbar.show();

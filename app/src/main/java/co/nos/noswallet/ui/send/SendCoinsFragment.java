@@ -279,13 +279,19 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     }
 
     public void showError(int title, String message, boolean exit) {
+        if (currentDialog != null) {
+            if (currentDialog.isShowing()) {
+                currentDialog.dismiss();
+            }
+        }
+
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
         } else {
             builder = new AlertDialog.Builder(getContext());
         }
-        builder.setTitle(title)
+        currentDialog = builder.setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.send_amount_too_large_alert_cta, (dialog, which) -> {
                     if (exit) {
@@ -294,6 +300,8 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                 })
                 .show();
     }
+
+    AlertDialog currentDialog;
 
     @Override
     public void showError(int title, int message) {
@@ -442,7 +450,8 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                             }
                         });
             } else if (credentials != null && credentials.getPin() != null) {
-                showPinScreen(getString(R.string.send_pin_description, getCurrentTypedCoins()), () -> presenter.attemptSendCoins(getCurrentTypedCoins()));
+                showPinScreen(getString(R.string.send_pin_description_placeholder, getCurrentTypedCoins(), presenter.currencyInUse.name()),
+                        () -> presenter.attemptSendCoins(getCurrentTypedCoins()));
             } else if (credentials != null && credentials.getPin() == null) {
                 showCreatePinScreen();
             }

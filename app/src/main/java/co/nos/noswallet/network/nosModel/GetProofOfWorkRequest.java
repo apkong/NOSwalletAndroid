@@ -18,10 +18,6 @@ public class GetProofOfWorkRequest implements Serializable {
     @SerializedName("currency")
     public String currency;
 
-    public GetProofOfWorkRequest(String frontier) {
-        this.frontier = frontier;
-    }
-
     public GetProofOfWorkRequest(String frontier, CryptoCurrency cryptoCurrency) {
         this.frontier = frontier;
         this.currency = cryptoCurrency.getCurrencyCode();

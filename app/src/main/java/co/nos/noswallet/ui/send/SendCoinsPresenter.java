@@ -187,6 +187,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
                         }
                     } else if (response.socketClosed()) {
                         view.hideLoading();
+                        onConnectionInterrupted();
                     }
                 }, this::onErrorSendCoins)
         );
@@ -198,6 +199,12 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         throwable.printStackTrace();
         String errorMessage = view.getString(R.string.failed_to_send_coins);
         view.showError(errorMessage);
+    }
+
+    private void onConnectionInterrupted() {
+        view.hideLoading();
+        String errorMessage = view.getString(R.string.connection_interrupted);
+        view.showError(errorMessage, false);
     }
 
     public void cancelWebsocketObservation() {

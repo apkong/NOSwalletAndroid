@@ -31,7 +31,7 @@ public class CurrencyPresenter {
 
     private SerialDisposable serialDisposable = new SerialDisposable();
 
-    private  CryptoCurrencyFormatter currencyFormatter;
+    private CryptoCurrencyFormatter currencyFormatter;
     private final SharedPreferencesUtil sharedPreferencesUtil;
 
     public CurrencyPresenter(SharedPreferencesUtil sharedPreferencesUtil) {
@@ -67,7 +67,7 @@ public class CurrencyPresenter {
     }
 
     private void renderAccountInfoResponse(SocketResponse response, CryptoCurrency cryptoCurrency) {
-        Log.w(TAG, "got account information response");
+        Log.w(TAG, "got account information response: " + response);
         sharedPreferencesUtil.set(ACCOUNT_INFO + cryptoCurrency.name(), S.GSON.toJson(response));
 
         JsonElement element = response.response;
