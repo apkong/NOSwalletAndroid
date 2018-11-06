@@ -22,6 +22,7 @@ import co.nos.noswallet.network.websockets.model.PendingBlocksCredentialsBag;
 import co.nos.noswallet.network.websockets.model.PendingSendCoinsCredentialsBag;
 import co.nos.noswallet.network.websockets.model.WebSocketsState;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 

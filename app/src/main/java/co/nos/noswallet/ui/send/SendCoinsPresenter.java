@@ -11,7 +11,6 @@ import co.nos.noswallet.R;
 import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NeuroWallet;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
@@ -22,7 +21,7 @@ import io.realm.Realm;
 
 public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
-    public CryptoCurrency currencyInUse = CryptoCurrency.NOLLAR;
+    CryptoCurrency currencyInUse = CryptoCurrency.NOLLAR;
 
     public static final String TAG = SendCoinsPresenter.class.getSimpleName();
 
@@ -30,9 +29,9 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
     private String currentInput = "";
 
-    private final NeuroWallet nosWallet = NOSApplication.getNosWallet();
     private final Realm realm;
     private CryptoCurrencyFormatter currencyFormatter = new CryptoCurrencyFormatter().useCurrency(currencyInUse);
+    private SerialDisposable serialDisposable = new SerialDisposable();
 
     private String recentTypedCoins = "";
 
@@ -41,10 +40,10 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         this.realm = realm;
     }
 
-    public void attemptSendCoins(String _coinsAmount) {
-        Log.w(TAG, "attemptSendCoins: " + _coinsAmount);
+    public void attemptSendCoins(String uiCoinsAmount) {
+        Log.w(TAG, "attemptSendCoins: " + uiCoinsAmount);
 
-        String rawAmount = currencyFormatter.uiToRaw(_coinsAmount);
+        String rawAmount = currencyFormatter.uiToRaw(uiCoinsAmount);
         Log.w(TAG, "raw amount is : " + rawAmount);
 
         if (!targetAddressValid()) {
@@ -58,7 +57,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         if (canTransferRawAmount(rawAmount)) {
             view.showLoading();
 
-            String sendAmount = (rawAmount);
+            String sendAmount = rawAmount;
 
             if (websocketMachineRef != null) {
                 websocketMachineRef.transferCoins(sendAmount, targetAddress, currencyInUse);
@@ -131,14 +130,25 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public boolean canTransferRawAmount(String raw) {
-        String currentTypedCoins = raw;
-        this.recentTypedCoins = currentTypedCoins;
-        if (currentTypedCoins == null || currentTypedCoins.isEmpty() || new BigDecimal(currentTypedCoins).equals(BigDecimal.ZERO))
+        String rawTypedCoins = raw;
+        Log.w(TAG, "canTransferRawAmount: " + rawTypedCoins);
+        this.recentTypedCoins = rawTypedCoins;
+        if (rawTypedCoins == null || rawTypedCoins.isEmpty() || new BigDecimal(rawTypedCoins).equals(BigDecimal.ZERO))
             return false;
         if (websocketMachineRef != null) {
-            return nosWallet.canTransferNeuros(currentTypedCoins, websocketMachineRef.getRecentAccountBalanceOf(currencyInUse));
+            return transferPossible(rawTypedCoins, websocketMachineRef.getRecentAccountBalanceOf(currencyInUse));
         }
         return false;
+    }
+
+    public boolean transferPossible(String raw_amount, String currentBalance) {
+        Log.w(TAG, "transferPossible: " + raw_amount + ", " + currentBalance);
+        if (raw_amount == null || raw_amount.isEmpty()) return false;
+        if (currentBalance == null) return false;
+
+        BigDecimal difference = new BigDecimal(currentBalance).subtract(new BigDecimal(raw_amount));
+        if (difference == null) return false;
+        return difference.compareTo(BigDecimal.ZERO) >= 0;
     }
 
     public boolean canTransferNeuros(String currentTypedCoinsUi) {
@@ -197,13 +207,20 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         }
     }
 
-    private SerialDisposable serialDisposable = new SerialDisposable();
+    public void changeCurrencyTo(String text) {
+        currencyInUse = CryptoCurrency.recognize(text);
+        updateOtherCurrencyParameters();
+    }
 
-    public void changeCurrency(String text) {
+    public void switchCurrency(String text) {
         currencyInUse = determineNewCurrency(text);
+        updateOtherCurrencyParameters();
+    }
+
+    private void updateOtherCurrencyParameters() {
+        currencyFormatter.useCurrency(currencyInUse);
         recentTypedCoins = "";
-        currencyFormatter = currencyFormatter.useCurrency(currencyInUse);
-        view.onCurrentInputReceived("");
+        view.onCurrentInputReceived(recentTypedCoins);
         view.onNewCurrencyReceived(currencyInUse);
     }
 

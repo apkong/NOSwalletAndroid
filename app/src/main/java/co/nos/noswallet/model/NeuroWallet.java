@@ -55,13 +55,13 @@ public class NeuroWallet {
     }
 
 
-    public boolean canTransferNeuros(String amount, String currentBalance) {
-        BigDecimal difference = new BigDecimal(currentBalance).subtract(new BigDecimal(amount));
+    public boolean transferPossible(String raw_amount, String currentBalance) {
+        BigDecimal difference = new BigDecimal(currentBalance).subtract(new BigDecimal(raw_amount));
         return difference.compareTo(BigDecimal.ZERO) >= 0;
     }
 
-    public boolean canTransferNeuros(String neurosAmount) {
-        System.out.println("canTransferNeuros " + neurosAmount);
+    public boolean transferPossible(String neurosAmount) {
+        System.out.println("transferPossible " + neurosAmount);
         System.out.println("neurosAmount: " + neurosAmount);
         System.out.println("neuros: " + neuros);
         BigDecimal difference = new BigDecimal(this.neuros).subtract(new BigDecimal(neurosAmount));

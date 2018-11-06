@@ -7,8 +7,8 @@ apply plugin: 'realm-android'
 //apply plugin: 'io.fabric'
 
 
-def currentVersionCode = 9
-def currentVersionName = "0.0.11"
+def currentVersionCode = 13
+def currentVersionName = "0.0.13"
 
 android {
     compileSdkVersion 27

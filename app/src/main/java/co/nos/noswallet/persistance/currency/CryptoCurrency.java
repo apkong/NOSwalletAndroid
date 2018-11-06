@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 
 public enum CryptoCurrency implements Serializable {
@@ -12,6 +13,8 @@ public enum CryptoCurrency implements Serializable {
     NOLLAR("usd_", "usd", 2),
 
     NOS("nos_", "nos", 10);
+
+    private static final String TAG = CryptoCurrency.class.getSimpleName();
 
     private final String prefix;
     private final String currencyCode;
@@ -26,6 +29,10 @@ public enum CryptoCurrency implements Serializable {
         this.currencyCode = currencyCode;
         this.divider = new BigDecimal(10).pow(dividerLength);
         this.decimalFormat = new DecimalFormat(format);
+
+        BigDecimal shift = new BigDecimal("10").pow(10);
+        BigDecimal value = new BigDecimal("0.000000012");
+        BigDecimal result = value.multiply(shift);
     }
 
     CryptoCurrency(String prefix, String currencyCode,
@@ -58,17 +65,31 @@ public enum CryptoCurrency implements Serializable {
         return prefix.replace("_", "");
     }
 
-    public String uiToRaw(String uiValue) {
+    public String uiToRaw(final String uiValue) {
         if (uiValue.isEmpty()) {
             return "0";
         }
-        return new BigDecimal(uiValue).multiply(divider).toString();
+        BigInteger integer = null;
+
+        try {
+            integer = new BigDecimal(uiValue).multiply(divider).toBigIntegerExact();
+            Log.e(TAG, "uiToRaw: ui: " + uiValue + " => raw: ");
+        } catch (ArithmeticException x) {
+            Log.e(TAG, "uiToRaw: ui: " + uiValue + " => raw: " + x);
+        }
+        if (integer != null) {
+            return integer.toString();
+        }
+        return "0";
     }
 
-    public String rawToUi(String raw) {
-        if (this == NOLLAR) return rawNollarToUi(raw);
-        if (this == NOS) return rawNosToUi(raw);
-        return raw;
+    public String rawToUi(final String raw) {
+        String ui = raw;
+        if (this == NOLLAR) ui = rawNollarToUi(raw);
+        if (this == NOS) ui = rawNosToUi(raw);
+        Log.e(TAG, "rawToUi: raw: " + raw + " => ui: " + ui);
+
+        return ui;
     }
 
     private String rawNollarToUi(String raw) {
@@ -91,7 +112,7 @@ public enum CryptoCurrency implements Serializable {
     }
 
     private String rawNosToUi(String raw) {
-        Log.w(name(), "rawNosToUi: " + raw);
+        Log.w(TAG, "rawNosToUi: " + raw);
         if (raw == null || raw.equals("0")) {
             return "0.00";
         } else if (raw.contains(".")) {
@@ -102,20 +123,6 @@ public enum CryptoCurrency implements Serializable {
             if (length <= 10) {
                 return "0." + zeros(10 - length) + raw;
             }
-
-//            if (length == 7) {
-//                return "~0.000" + raw;
-//            }
-//            if (length == 8) {
-//                return "~0.00" + raw;
-//            }
-//            if (length == 9) {
-//                return "0.0" + raw;
-//            }
-//            if (length == 10) {
-//                return "0." + raw;
-//
-//            }
             return new StringBuilder(raw).insert(length - 10, ".").toString();
         }
     }

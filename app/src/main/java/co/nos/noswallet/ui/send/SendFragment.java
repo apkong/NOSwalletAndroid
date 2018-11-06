@@ -351,7 +351,7 @@ public class SendFragment extends BaseFragment {
     private void enableSendIfPossible() {
         Address destination = new Address(binding.sendAddress.getText().toString());
 
-        boolean enableSend = destination.isValidAddress() && nosWallet.canTransferNeuros(getCurrentTypedCoins());
+        boolean enableSend = destination.isValidAddress() && nosWallet.transferPossible(getCurrentTypedCoins());
 
         binding.sendSendButton.setEnabled(enableSend);
     }
@@ -465,7 +465,7 @@ public class SendFragment extends BaseFragment {
 
         Address destination = new Address(destinationAccount);
 
-        if (destination.isValidAddress() && nosWallet.canTransferNeuros(coinsAmount)) {
+        if (destination.isValidAddress() && nosWallet.transferPossible(coinsAmount)) {
             RxBus.get().post(new ShowOverlay());
             String sendAmount = nosWallet.getRawToTransfer(coinsAmount);
             //todo:

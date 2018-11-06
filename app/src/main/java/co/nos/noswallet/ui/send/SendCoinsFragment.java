@@ -210,17 +210,35 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                 Bundle res = data.getExtras();
                 if (res != null) {
                     // parse address
-                    Address address = new Address(res.getString(ScanActivity.QR_CODE_RESULT), presenter.currencyInUse);
-
-                    // set to scanned value
-                    if (address.getAddress() != null) {
-                        presenter.setTargetAddress(address.getAddress());
-                        binding.sendAddress.setText(address.getAddress());
-                    }
-                    setShortAddress();
+                    String qrCodeResult = res.getString(ScanActivity.QR_CODE_RESULT);
+                    handleQrCodeResult(qrCodeResult);
                 }
             }
         }
+    }
+
+    private void handleQrCodeResult(String qrCodeResult) {
+
+        Log.w(TAG, "handleQrCodeResult: " + qrCodeResult);
+
+        if (qrCodeResult != null && !qrCodeResult.isEmpty()) {
+            if (qrCodeResult.startsWith("usd")) {
+                presenter.changeCurrencyTo("usd");
+            }
+            if (qrCodeResult.startsWith("nos")) {
+                presenter.changeCurrencyTo("nos");
+            }
+        }
+
+        Address address = new Address(qrCodeResult, presenter.currencyInUse);
+
+
+        // set to scanned value
+        if (address.getAddress() != null) {
+            presenter.setTargetAddress(address.getAddress());
+            binding.sendAddress.setText(address.getAddress());
+        }
+        setShortAddress();
     }
 
     @Override
@@ -441,7 +459,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
             Log.e(TAG, "onClickChangeCurrency: " + view);
             if (view instanceof Button) {
                 String text = ((Button) view).getText().toString();
-                presenter.changeCurrency(text);
+                presenter.switchCurrency(text);
 
             }
         }

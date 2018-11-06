@@ -11,7 +11,6 @@ import com.google.gson.JsonObject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -21,8 +20,6 @@ import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.network.nosModel.SocketResponse;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
-import co.nos.noswallet.persistance.currency.CryptoCurrency;
-import co.nos.noswallet.ui.home.adapter.AccountHistoryModel;
 import co.nos.noswallet.util.S;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -151,6 +148,8 @@ public class HomePresenter extends BasePresenter<HomeView> {
 
     public void resumePendingTransactions(Activity activity) {
         WebsocketMachine machine = WebsocketMachine.obtain(activity);
-        if (machine != null) machine.resumePendingTransactions();
+        if (machine != null) {
+            machine.resumePendingTransactions();
+        }
     }
 }
