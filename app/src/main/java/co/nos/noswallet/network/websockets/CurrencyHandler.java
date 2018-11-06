@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
@@ -189,9 +190,11 @@ public class CurrencyHandler {
                         Log.e(TAG, "this should never happen: " + throwable);
                     }
                 }));
+
     }
 
     private void registerFcm(String token) {
+        Log.w(TAG, "registerFcm with " + token);
         if (websocketExecutor != null) {
             String accountNumber = requestInventor.getAccountNumber(currency);
             websocketExecutor.send(new RegisterNotificationsRequest(accountNumber, token, currency));

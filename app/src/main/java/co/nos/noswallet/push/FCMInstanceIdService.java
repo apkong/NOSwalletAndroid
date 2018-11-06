@@ -1,17 +1,17 @@
 package co.nos.noswallet.push;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import android.support.annotation.Nullable;
 
-import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 
 import co.nos.noswallet.NOSApplication;
 
-public class FCMInstanceIdService extends FirebaseMessagingService {
+public class FCMInstanceIdService extends FirebaseInstanceIdService {
 
     public static final String FCM_TOKEN = "FCM_TOKEN";
 
@@ -19,16 +19,37 @@ public class FCMInstanceIdService extends FirebaseMessagingService {
         ctx.startService(new Intent(ctx, FCMInstanceIdService.class));
     }
 
-    @SuppressLint("ApplySharedPref")
-    @Override
-    public void onNewToken(String newToken) {
-        super.onNewToken(newToken);
-        Log.w(FCM_TOKEN, "onNewToken: " + newToken);
-        getSharedPreferences().edit().putString(FCM_TOKEN, newToken).commit();
-        NOSApplication.getApplication(this).fcmTokenSubject.onNext(newToken);
-    }
-
+    //    @SuppressLint("ApplySharedPref")
+//    @Override
+//    public void onNewToken(String newToken) {
+//        super.onNewToken(newToken);
+//        Log.w(FCM_TOKEN, "onNewToken: " + newToken);
+//    }
+//
     private SharedPreferences getSharedPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(this);
+    }
+
+    @Override
+    public void onTokenRefresh() {
+        super.onTokenRefresh();
+
+        String newToken = obtainToken();
+        if (newToken != null) {
+            NOSApplication.getApplication(this).fcmTokenSubject.onNext(newToken);
+        } else {
+            NOSApplication.getApplication(this).fcmTokenSubject.onNext("");
+        }
+    }
+
+    @Nullable
+    private String obtainToken() {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null) {
+            getSharedPreferences().edit().putString(FCM_TOKEN, token).commit();
+        } else {
+            token = getSharedPreferences().getString(FCM_TOKEN, null);
+        }
+        return token;
     }
 }
