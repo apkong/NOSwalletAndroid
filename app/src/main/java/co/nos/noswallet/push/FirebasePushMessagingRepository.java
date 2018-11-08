@@ -8,8 +8,6 @@ import io.reactivex.Single;
 
 public class FirebasePushMessagingRepository implements PushMessagingRepository {
 
-
-
     public FirebasePushMessagingRepository() {
     }
 

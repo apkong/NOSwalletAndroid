@@ -63,6 +63,7 @@ public class WebsocketExecutor {
     public <T> void send(T request, WebSocket webSocket) {
 
         String dataToSend = String.valueOf(request);
+
         if (dataToSend != null) {
             System.out.println("sending [" + dataToSend + "]");
             webSocket.send(dataToSend);

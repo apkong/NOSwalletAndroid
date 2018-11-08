@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
@@ -15,7 +14,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 
-import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.nosModel.GetBlocksResponse;
 import co.nos.noswallet.network.nosModel.RegisterNotificationsRequest;
@@ -25,6 +23,7 @@ import co.nos.noswallet.network.websockets.model.PendingBlocksCredentialsBag;
 import co.nos.noswallet.network.websockets.model.PendingSendCoinsCredentialsBag;
 import co.nos.noswallet.network.websockets.model.WebSocketsState;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.push.FirebasePushMessagingRepository;
 import io.reactivex.Observable;
 import io.reactivex.disposables.SerialDisposable;
 import io.reactivex.functions.Consumer;
@@ -183,11 +182,12 @@ public class CurrencyHandler {
     };
 
     public void registerPushNotificationsWhenAvailable() {
-        fcmDisposable.set(NOSApplication.get().fcmTokenSubject.filter(p -> !p.isEmpty())
+        Log.w(TAG, "registerPushNotificationsWhenAvailable: ");
+        fcmDisposable.set(new FirebasePushMessagingRepository().getToken()
                 .subscribe(this::registerFcm, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        Log.e(TAG, "this should never happen: " + throwable);
+                        Log.e(TAG, "error fetching token; " + throwable);
                     }
                 }));
 
@@ -197,7 +197,9 @@ public class CurrencyHandler {
         Log.w(TAG, "registerFcm with " + token);
         if (websocketExecutor != null) {
             String accountNumber = requestInventor.getAccountNumber(currency);
-            websocketExecutor.send(new RegisterNotificationsRequest(accountNumber, token, currency));
+            websocketExecutor.send(new RegisterNotificationsRequest(accountNumber, token, currency).toString());
+        } else {
+            Log.e(TAG, "registerFcm: webSocketExecutor couldn't send thus it not yet ready");
         }
     }
 

@@ -5,12 +5,14 @@ import android.content.Context;
 import java.nio.charset.Charset;
 
 import co.nos.noswallet.BuildConfig;
-import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
-import co.nos.noswallet.network.compression_stuff.MsgPackCompressor;
 import co.nos.noswallet.network.NeuroApi;
 import co.nos.noswallet.network.NeuroClient;
+import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
+import co.nos.noswallet.network.compression_stuff.MsgPackCompressor;
 import co.nos.noswallet.network.compression_stuff.ZlibCompressor;
 import co.nos.noswallet.network.exception.ErrorDispatcher;
+import co.nos.noswallet.push.FirebasePushMessagingRepository;
+import co.nos.noswallet.push.PushMessagingRepository;
 import dagger.Module;
 import dagger.Provides;
 
@@ -40,6 +42,11 @@ public class ApplicationModule {
         ZlibCompressor zlipCompressor = new ZlibCompressor(charset);
 
         return new ApiResponseMapper(msgCompressor, zlipCompressor);
+    }
+
+    @Provides
+    PushMessagingRepository providesPushMessagingRepository() {
+        return new FirebasePushMessagingRepository();
     }
 
 }

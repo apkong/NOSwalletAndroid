@@ -1,5 +1,7 @@
 package co.nos.noswallet.push;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -12,6 +14,10 @@ import co.nos.noswallet.network.notifications.NosNotifier;
 public class HandlePushMessagesService extends FirebaseMessagingService {
 
     public static final String TAG = HandlePushMessagesService.class.getSimpleName();
+
+    public static void start(Context x) {
+        x.startService(new Intent(x, HandlePushMessagesService.class));
+    }
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
