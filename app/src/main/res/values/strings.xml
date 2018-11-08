@@ -203,11 +203,14 @@
 
     <string name="sent_coins_amount_to_address_currency_placeholder">%s %s successfully transferred to address %s</string>
     <string name="failed_to_receive_history">Failed to receive history, try again later</string>
-    <string name="processing_transfer">Processing...</string>
+    <string name="processing_transfer">Processing…</string>
     <string name="incoming_transfer">You got money!</string>
     <string name="connection_interrupted">Connection interrupted, try again later</string>
     <string name="failed_to_send_coins">Failed to send funds, try again later</string>
     <string name="error_qr_recognizing">Please scan valid %s address</string>
+
+    <string name="default_notification_channel_id" translatable="false">nos_channel_id</string>
+    <string name="default_notification_channel_name" translatable="false">NOS.cash</string>
 
 
 </resources>

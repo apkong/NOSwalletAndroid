@@ -1,12 +1,16 @@
 package co.nos.noswallet;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,7 +18,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.hwangjr.rxbus.annotation.Subscribe;
 
 import java.util.UUID;
@@ -38,7 +47,6 @@ import co.nos.noswallet.model.NanoWallet;
 import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
 import co.nos.noswallet.network.interactor.GetBlocksInfoUseCase;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
-import co.nos.noswallet.push.FCMInstanceIdService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
@@ -114,7 +122,25 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
             websocketMachine.handleClickedNotification(getIntent());
         }
 
-        FCMInstanceIdService.start(this);
+
+        setupNotificationsChannel();
+
+
+    }
+
+    private void setupNotificationsChannel() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            String channelId = getString(R.string.default_notification_channel_id);
+            String channelName = getString(R.string.default_notification_channel_name);
+            NotificationManager notificationManager =
+                    getSystemService(NotificationManager.class);
+            if (notificationManager != null)
+                notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+                        channelName, NotificationManager.IMPORTANCE_LOW));
+        }
+
 
     }
 
@@ -122,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     protected void onResume() {
         super.onResume();
         websocketMachine.start();
+
+
     }
 
     @Override
