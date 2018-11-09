@@ -34,12 +34,12 @@ public class RegisterNotificationsRequest implements Serializable {
     }
 
     public RegisterNotificationsRequest register() {
-        this.resign = true;
+        this.resign = false;
         return this;
     }
 
     public RegisterNotificationsRequest unregister() {
-        this.resign = false;
+        this.resign = true;
         return this;
     }
 

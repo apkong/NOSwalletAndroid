@@ -45,6 +45,7 @@ android {
         buildConfigField "String", "NOS_REPRESENTATIVE_2", (project.findProperty("NOS_REPRESENTATIVE_2") ?: empty)
 
         buildConfigField "boolean", "DISABLE_SCREENSHOTS", (project.findProperty("DISABLE_SCREENSHOTS") ?: true)
+        buildConfigField "boolean", "DEVICE_POLLING_ENABLED", (project.findProperty("DEVICE_POLLING_ENABLED") ?: true)
 
 //        buildConfigField "String", "CONNECTION_URL", "\"http://wb.cryptware.de:51234\""
     }

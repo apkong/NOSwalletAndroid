@@ -2,6 +2,7 @@ package co.nos.noswallet.network.websockets;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.gson.JsonElement;
@@ -14,6 +15,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 
+import co.nos.noswallet.BuildConfig;
+import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.nosModel.GetBlocksResponse;
 import co.nos.noswallet.network.nosModel.RegisterNotificationsRequest;
@@ -25,6 +28,7 @@ import co.nos.noswallet.network.websockets.model.WebSocketsState;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.push.FirebasePushMessagingRepository;
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.SerialDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
@@ -155,6 +159,9 @@ public class CurrencyHandler {
     }
 
     private void processRegisterNotificationsResponse(SocketResponse response) {
+        if (response.error == null) {
+            setFcmRegistered(true);
+        }
         Log.w(TAG, "processRegisterNotificationsResponse: " + response);
     }
 
@@ -183,14 +190,22 @@ public class CurrencyHandler {
 
     public void registerPushNotificationsWhenAvailable() {
         Log.w(TAG, "registerPushNotificationsWhenAvailable: ");
-        fcmDisposable.set(new FirebasePushMessagingRepository().getToken()
-                .subscribe(this::registerFcm, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        Log.e(TAG, "error fetching token; " + throwable);
-                    }
-                }));
+        if (!alreadyRegisteredFcm())
+            fcmDisposable.set(new FirebasePushMessagingRepository().getToken()
+                    .subscribe(this::registerFcm, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            Log.e(TAG, "error fetching token; " + throwable);
+                        }
+                    }));
+    }
 
+    private boolean alreadyRegisteredFcm() {
+        return PreferenceManager.getDefaultSharedPreferences(NOSApplication.get()).getBoolean("FCM_REGISTERED_" + currency.name(), false);
+    }
+
+    private boolean setFcmRegistered(boolean registered) {
+        return PreferenceManager.getDefaultSharedPreferences(NOSApplication.get()).edit().putBoolean("FCM_REGISTERED_" + currency.name(), registered).commit();
     }
 
     private void registerFcm(String token) {
@@ -203,7 +218,15 @@ public class CurrencyHandler {
         }
     }
 
+    public void unregisterNotifications() {
+        Disposable disposable = new FirebasePushMessagingRepository().getToken().subscribe(this::unregisterNotifications, throwable -> {
+            Log.e(TAG, "failed");
+            setFcmRegistered(false);
+        });
+    }
+
     public void unregisterNotifications(String token) {
+        setFcmRegistered(false);
         if (websocketExecutor != null) {
             String accountNumber = requestInventor.getAccountNumber(currency);
             websocketExecutor.send(new RegisterNotificationsRequest(accountNumber, token, currency).unregister());
@@ -337,7 +360,7 @@ public class CurrencyHandler {
         uiResponses.onNext(response);
         if (response.error == null) {
             //success
-            NosNotifier.showNewIncomingTransfer();
+           // NosNotifier.showNewIncomingTransfer();
         }
     }
 
@@ -378,8 +401,10 @@ public class CurrencyHandler {
     }
 
     private void schedulePendingBlocksAfter(long timeout) {
-        handler.removeCallbacks(triggerGetAccountHistory);
-        handler.postDelayed(triggerGetAccountHistory, timeout);
+        if(BuildConfig.DEVICE_POLLING_ENABLED){
+            handler.removeCallbacks(triggerGetAccountHistory);
+            handler.postDelayed(triggerGetAccountHistory, timeout);
+        }
     }
 
     private void pushBagState(WebsocketMachine.Mutator mutator) {

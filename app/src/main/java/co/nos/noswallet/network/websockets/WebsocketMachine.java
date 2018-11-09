@@ -39,6 +39,10 @@ public class WebsocketMachine {
         return "0";
     }
 
+    public void logout() {
+        performForAll(CurrencyHandler::unregisterNotifications);
+    }
+
     public interface DoSth {
         void doSomething(CurrencyHandler handler);
     }

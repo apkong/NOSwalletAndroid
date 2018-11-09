@@ -77,20 +77,15 @@
             <!--</intent-filter>-->
         </activity>
 
-        <service
-            android:name=".push.FCMInstanceIdService"
-            android:enabled="true"
-            android:exported="true">
+        <service android:name=".push.FCMInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".push.HandlePushMessagesService"
-            android:enabled="true"
-            android:exported="true">
+        <service android:name=".push.HandlePushMessagesService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGE_EVENT" />
             </intent-filter>
         </service>
 

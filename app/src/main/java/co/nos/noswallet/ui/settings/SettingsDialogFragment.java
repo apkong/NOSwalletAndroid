@@ -39,6 +39,7 @@ import co.nos.noswallet.databinding.FragmentSettingsBinding;
 import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.StringWithTag;
+import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
@@ -289,6 +290,10 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                         .setMessage(R.string.settings_logout_alert_message)
                         .setPositiveButton(R.string.settings_logout_alert_confirm_cta, (dialog, which) -> {
                             clearUserBalanceData();
+                            WebsocketMachine websocketMachine = WebsocketMachine.obtain(getActivity());
+                            if (websocketMachine!=null){
+                                websocketMachine.logout();
+                            }
                             RxBus.get().post(new Logout());
                             dismiss();
                         })
