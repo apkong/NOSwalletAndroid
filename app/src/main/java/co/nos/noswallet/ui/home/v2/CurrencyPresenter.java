@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.network.nosModel.SocketResponse;
+import co.nos.noswallet.network.websockets.SafeCast;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
@@ -47,6 +48,9 @@ public class CurrencyPresenter {
     }
 
     public void resume(WebsocketMachine machine, CryptoCurrency cryptoCurrency) {
+        requestCachedAccountInfoIfAny(cryptoCurrency);
+        requestCachedHistoryIfAny(cryptoCurrency);
+
         machine.requestAccountHistory(cryptoCurrency);
         machine.requestAccountInfo(cryptoCurrency);
         serialDisposable.set(machine.observeUiTriggers(cryptoCurrency)
@@ -64,6 +68,22 @@ public class CurrencyPresenter {
                     throwable.printStackTrace();
                 })
         );
+    }
+
+    private void requestCachedAccountInfoIfAny(CryptoCurrency cryptoCurrency) {
+        String accountJson = sharedPreferencesUtil.get(ACCOUNT_INFO + cryptoCurrency.name(), null);
+        SocketResponse response = SafeCast.safeCast(accountJson, SocketResponse.class);
+        if (response != null) {
+            renderAccountInfoResponse(response, cryptoCurrency);
+        }
+    }
+
+    private void requestCachedHistoryIfAny(CryptoCurrency cryptoCurrency) {
+        String historyJson = sharedPreferencesUtil.get(ACCOUNT_HISTORY + cryptoCurrency.name(), null);
+        SocketResponse response = SafeCast.safeCast(historyJson, SocketResponse.class);
+        if (response != null) {
+            renderHistoryResponse(response, cryptoCurrency);
+        }
     }
 
     private void renderAccountInfoResponse(SocketResponse response, CryptoCurrency cryptoCurrency) {

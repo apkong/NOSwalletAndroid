@@ -209,7 +209,7 @@
     <string name="failed_to_send_coins">Failed to send funds, try again later</string>
     <string name="error_qr_recognizing">Please scan valid %s address</string>
 
-    <string name="default_notification_channel_id" translatable="false">nos_channel_id</string>
+    <string name="default_notification_channel_id" translatable="false">NOS.cash</string>
     <string name="default_notification_channel_name" translatable="false">NOS.cash</string>
 
 

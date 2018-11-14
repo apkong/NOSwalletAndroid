@@ -1,7 +1,5 @@
 package co.nos.noswallet.network.websockets;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -21,7 +19,6 @@ import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.nosModel.GetBlocksResponse;
 import co.nos.noswallet.network.nosModel.RegisterNotificationsRequest;
 import co.nos.noswallet.network.nosModel.SocketResponse;
-import co.nos.noswallet.network.notifications.NosNotifier;
 import co.nos.noswallet.network.websockets.model.PendingBlocksCredentialsBag;
 import co.nos.noswallet.network.websockets.model.PendingSendCoinsCredentialsBag;
 import co.nos.noswallet.network.websockets.model.WebSocketsState;
@@ -42,13 +39,14 @@ import static co.nos.noswallet.network.websockets.model.WebSocketsState.TRANSFER
 public class CurrencyHandler {
 
     public static final String TAG = CurrencyHandler.class.getSimpleName();
-    private final long TIMEOUT = 15_000;
+    //private final long TIMEOUT = 15_000;
 
     private CryptoCurrency currency;
     private RequestInventor requestInventor;
     private RepresentativesProvider representativesProvider;
 
-    private final Handler handler = new Handler(Looper.getMainLooper());
+   // @Deprecated
+    //private final Handler handler = new Handler(Looper.getMainLooper());
 
     private final BehaviorSubject<SocketResponse> uiResponses = BehaviorSubject.create();
 
@@ -130,8 +128,9 @@ public class CurrencyHandler {
                 pushState(WebSocketsState.IDLE);
                 break;
             case GET_PENDING_BLOCKS:
-                websocketExecutor.send(requestInventor.getPendingBlocks(currency));
-                pushState(WebSocketsState.IDLE);
+                requestGetPendingBlocks();
+                //pushState already done in the moethod above
+                //pushState(WebSocketsState.IDLE);
                 break;
             case GET_ACCOUNT_INFO:
                 websocketExecutor.send(requestInventor.getAccountInformation(currency));
@@ -156,6 +155,13 @@ public class CurrencyHandler {
                 pushState(WebSocketsState.GET_ACCOUNT_HISTORY);
                 break;
         }
+    }
+
+    public void requestGetPendingBlocks() {
+        if (websocketExecutor != null) {
+            websocketExecutor.send(requestInventor.getPendingBlocks(currency));
+        }
+        pushState(WebSocketsState.IDLE);
     }
 
     private void processRegisterNotificationsResponse(SocketResponse response) {
@@ -353,15 +359,14 @@ public class CurrencyHandler {
         }
     }
 
-
     private void processPublishBlock(SocketResponse response) {
         Log.w(TAG, "processPublishBlock: " + response.toString());
-        schedulePendingBlocksAfter(TIMEOUT);
-        uiResponses.onNext(response);
+        //schedulePendingBlocksAfter(TIMEOUT);
         if (response.error == null) {
             //success
-           // NosNotifier.showNewIncomingTransfer();
+            //NosNotifier.showNewIncomingTransfer();
         }
+        uiResponses.onNext(response);
     }
 
     private void processGenerateWorkResponse(SocketResponse response) {
@@ -392,7 +397,7 @@ public class CurrencyHandler {
     private void noMoreBlockToProcess() {
         accountInfoRequested.set(true);
         pushState(GET_ACCOUNT_INFO);
-        schedulePendingBlocksAfter(TIMEOUT);
+        //schedulePendingBlocksAfter(TIMEOUT);
     }
 
     private void pushState(WebSocketsState state) {
@@ -401,9 +406,9 @@ public class CurrencyHandler {
     }
 
     private void schedulePendingBlocksAfter(long timeout) {
-        if(BuildConfig.DEVICE_POLLING_ENABLED){
-            handler.removeCallbacks(triggerGetAccountHistory);
-            handler.postDelayed(triggerGetAccountHistory, timeout);
+        if (BuildConfig.DEVICE_POLLING_ENABLED) {
+//            handler.removeCallbacks(triggerGetAccountHistory);
+//            handler.postDelayed(triggerGetAccountHistory, timeout);
         }
     }
 

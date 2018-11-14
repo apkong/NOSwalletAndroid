@@ -31,6 +31,7 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
 
     public static String TAG = CurrencyFragment.class.getSimpleName();
     public static final String CRYPTO_CURRENCY = "CRYPTO_CURRENCY";
+    public Runnable afterResumeAction;
 
     TextView home_cryptocurrency_balance;
     TextView history_empty_label;
@@ -94,7 +95,13 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
         if (machine != null) {
             currencyPresenter.resume(machine, cryptoCurrency);
         }
+
+        home_swiperefresh.postDelayed(additionalRunnable = () -> {
+            callRefreshFromNotification();
+        }, 2500);
     }
+
+    private Runnable additionalRunnable = this::callRefreshFromNotification;
 
     @Override
     public void onStop() {
@@ -103,20 +110,29 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
 
     @Override
     public void onDestroy() {
+        home_swiperefresh.removeCallbacks(additionalRunnable);
         home_swiperefresh.setOnRefreshListener(null);
         super.onDestroy();
-
     }
 
     private void configureAdapter() {
         home_recyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
         home_recyclerview.setAdapter(transactionsAdapter);
 
-        home_swiperefresh.setOnRefreshListener(() -> {
-            history_empty_label.setVisibility(View.GONE);
-            getParent().getWebsocketMachine().requestAccountHistory(cryptoCurrency);
-            getParent().getWebsocketMachine().requestAccountInfo(cryptoCurrency);
-        });
+        home_swiperefresh.setOnRefreshListener(this::onSwipeToRefreshCalled);
+    }
+
+    public void callRefreshFromNotification() {
+        home_swiperefresh.setRefreshing(true);
+        history_empty_label.setVisibility(View.GONE);
+        getParent().getWebsocketMachine().requestAccountHistory(cryptoCurrency);
+        getParent().getWebsocketMachine().requestAccountInfo(cryptoCurrency);
+    }
+
+    private void onSwipeToRefreshCalled() {
+        history_empty_label.setVisibility(View.GONE);
+        getParent().getWebsocketMachine().requestAccountHistory(cryptoCurrency);
+        getParent().getWebsocketMachine().requestAccountInfo(cryptoCurrency);
     }
 
     @Override

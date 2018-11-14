@@ -6,11 +6,10 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,14 +17,10 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.hwangjr.rxbus.annotation.Subscribe;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -52,6 +47,7 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.home.HasWebsocketMachine;
+import co.nos.noswallet.ui.home.v2.CurrencyFragment;
 import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
@@ -123,14 +119,10 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
             websocketMachine.handleClickedNotification(getIntent());
         }
 
-
         setupNotificationsChannel();
-
-
     }
 
     private void setupNotificationsChannel() {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Create channel to show notifications.
             String channelId = getString(R.string.default_notification_channel_id);
@@ -141,8 +133,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
                 notificationManager.createNotificationChannel(new NotificationChannel(channelId,
                         channelName, NotificationManager.IMPORTANCE_LOW));
         }
-
-
     }
 
     @Override
@@ -410,5 +400,36 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         if (websocketMachine != null) {
             websocketMachine.handleClickedNotification(intent);
         }
+        searchDeepForFragmentAndPerform(CurrencyFragment.class, new ActionConcreteInstanceOf<CurrencyFragment>() {
+            @Override
+            public void perform(CurrencyFragment instance) {
+                instance.afterResumeAction = ()-> instance.callRefreshFromNotification();
+            }
+        });
+    }
+
+    private <T extends Fragment> void searchDeepForFragmentAndPerform(Class<T> fragmentKlazz, ActionConcreteInstanceOf<T> action) {
+        for (android.support.v4.app.Fragment fragment : getSupportFragmentManager().getFragments()) {
+            operateOverFragmentChildren(fragment, action, fragmentKlazz);
+        }
+    }
+
+    private <T extends Fragment> void operateOverFragmentChildren(Fragment fragment, ActionConcreteInstanceOf<T> action, Class<T> concreteClazz) {
+        if (fragment != null) {
+            if (fragment.getClass().getSimpleName().equalsIgnoreCase(concreteClazz.getSimpleName())) {
+                action.perform(concreteClazz.cast(fragment));
+            }
+
+            List<android.support.v4.app.Fragment> childFrags = fragment.getChildFragmentManager().getFragments();
+            if (childFrags != null && childFrags.size() > 0) {
+                for (Fragment child : childFrags) {
+                    operateOverFragmentChildren(child, action, concreteClazz);
+                }
+            }
+        }
+    }
+
+    interface ActionConcreteInstanceOf<T> {
+        void perform(T instance);
     }
 }

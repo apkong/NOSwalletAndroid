@@ -29,6 +29,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 
+import static co.nos.noswallet.network.notifications.NosNotifier.ACTION_GOT_SAUCE;
+
 public class WebsocketMachine {
 
     public String getRecentAccountBalanceOf(CryptoCurrency currencyInUse) {
@@ -241,7 +243,9 @@ public class WebsocketMachine {
     }
 
     public void handleClickedNotification(Intent intent) {
-        //todo:
+        if (ACTION_GOT_SAUCE.equalsIgnoreCase(intent.getAction())){
+            performForAll(CurrencyHandler::requestGetPendingBlocks);
+        }
     }
 
     public static <T> T safeCast(String json, Class<T> klazz) {
