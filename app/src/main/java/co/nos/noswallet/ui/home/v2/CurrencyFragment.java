@@ -90,7 +90,9 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
     @Override
     public void onResume() {
         super.onResume();
-
+        if (getParent() == null) {
+            return;
+        }
         WebsocketMachine machine = getParent().getWebsocketMachine();
         if (machine != null) {
             currencyPresenter.resume(machine, cryptoCurrency);
@@ -123,6 +125,9 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
     }
 
     public void callRefreshFromNotification() {
+        if (getParent() == null) {
+            return;
+        }
         home_swiperefresh.setRefreshing(true);
         history_empty_label.setVisibility(View.GONE);
         getParent().getWebsocketMachine().requestAccountHistory(cryptoCurrency);
@@ -130,6 +135,9 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
     }
 
     private void onSwipeToRefreshCalled() {
+        if (getParent() == null) {
+            return;
+        }
         history_empty_label.setVisibility(View.GONE);
         getParent().getWebsocketMachine().requestAccountHistory(cryptoCurrency);
         getParent().getWebsocketMachine().requestAccountInfo(cryptoCurrency);

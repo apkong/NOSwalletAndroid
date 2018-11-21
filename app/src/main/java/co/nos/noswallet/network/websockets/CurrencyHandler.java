@@ -45,7 +45,7 @@ public class CurrencyHandler {
     private RequestInventor requestInventor;
     private RepresentativesProvider representativesProvider;
 
-   // @Deprecated
+    // @Deprecated
     //private final Handler handler = new Handler(Looper.getMainLooper());
 
     private final BehaviorSubject<SocketResponse> uiResponses = BehaviorSubject.create();
@@ -207,7 +207,9 @@ public class CurrencyHandler {
     }
 
     private boolean alreadyRegisteredFcm() {
-        return PreferenceManager.getDefaultSharedPreferences(NOSApplication.get()).getBoolean("FCM_REGISTERED_" + currency.name(), false);
+        //
+        return false;
+        //return PreferenceManager.getDefaultSharedPreferences(NOSApplication.get()).getBoolean("FCM_REGISTERED_" + currency.name(), false);
     }
 
     private boolean setFcmRegistered(boolean registered) {

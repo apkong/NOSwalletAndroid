@@ -23,6 +23,7 @@
         android:supportsRtl="true"
         android:testOnly="false"
         android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:allowBackup">
 
         <!-- [START fcm_default_icon] -->

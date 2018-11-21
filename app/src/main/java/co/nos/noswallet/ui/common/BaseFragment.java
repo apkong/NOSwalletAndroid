@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -53,6 +54,7 @@ public class BaseFragment<T extends FragmentActivity> extends Fragment {
     protected View view;
 
     @SuppressWarnings("unchecked")
+    @Nullable
     protected T getParent() {
         return (T) getActivity();
     }
