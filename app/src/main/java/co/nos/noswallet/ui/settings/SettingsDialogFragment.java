@@ -6,6 +6,8 @@ import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
@@ -291,11 +293,16 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                         .setPositiveButton(R.string.settings_logout_alert_confirm_cta, (dialog, which) -> {
                             clearUserBalanceData();
                             WebsocketMachine websocketMachine = WebsocketMachine.obtain(getActivity());
-                            if (websocketMachine!=null){
+                            if (websocketMachine != null) {
                                 websocketMachine.logout();
                             }
-                            RxBus.get().post(new Logout());
-                            dismiss();
+                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    RxBus.get().post(new Logout());
+                                    dismiss();
+                                }
+                            }, 2000);
                         })
                         .setNegativeButton(R.string.settings_logout_alert_cancel_cta, (dialog, which) -> {
                             // do nothing which dismisses the dialog

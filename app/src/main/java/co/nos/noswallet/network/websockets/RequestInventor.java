@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.db.CredentialsProvider;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
@@ -33,13 +34,20 @@ public class RequestInventor {
     private final Map<CryptoCurrency, String> accountBalanceMap = new HashMap<>();
     private final Map<CryptoCurrency, String> accountFrontierMap = new HashMap<>();
 
+    private final CredentialsProvider credentialsProvider;
+
     @Inject
     public RequestInventor(CredentialsProvider credentialsProvider) {
+        this.credentialsProvider = credentialsProvider;
+        fillOutTheAccountNumbers();
+        privateKey = credentialsProvider.providePrivateKey();
+        publicKey = credentialsProvider.providePublicKey();
+    }
+
+    private void fillOutTheAccountNumbers() {
         for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
             accountNumbers.put(cryptoCurrency, credentialsProvider.provideAccountNumber(cryptoCurrency));
         }
-        privateKey = credentialsProvider.providePrivateKey();
-        publicKey = credentialsProvider.providePublicKey();
     }
 
     public void setRepresentative(String representative, CryptoCurrency cryptoCurrency) {
@@ -55,7 +63,18 @@ public class RequestInventor {
     }
 
     public String getAccountHistory(CryptoCurrency cryptoCurrency) {
-        return new GetAccountHistoryRequest(accountNumbers.get(cryptoCurrency), "100", cryptoCurrency).toString();
+
+        String account = accountNumbers.get(cryptoCurrency);
+
+//        if (account == null) {
+//            //first launch,
+//            fillOutTheAccountNumbers();
+//        }
+//        if (account == null) {
+//            NOSApplication.get().restarts.onNext(true);
+//        }
+
+        return new GetAccountHistoryRequest(account, "100", cryptoCurrency).toString();
     }
 
     public String getRepresentative(CryptoCurrency currency) {
@@ -115,6 +134,7 @@ public class RequestInventor {
     }
 
     private String sumBigValues(@Nullable String balance, @Nullable String accountBalance) {
+
         Log.w(TAG, "sumBigValues: " + balance + " + " + accountBalance);
         if (accountBalance == null || accountBalance.equals("0")) {
             return new BigDecimal(balance).toString();
@@ -122,7 +142,6 @@ public class RequestInventor {
             if (balance == null) {
                 return sumBigValues(accountBalance, balance);
             }
-
 
             Log.d(TAG, "sumBigValues() called with: balance = [" + balance + "], accountBalance = [" + accountBalance + "]");
             return new BigDecimal(balance).add(new BigDecimal(accountBalance)).toString();

@@ -61,7 +61,10 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
     private AlertDialog fingerprintDialog;
     private static final String ARG_NEW_SEED = "argNewSeed";
+    private static final String CURRENCY = "CURRENCY";
     private String newSeed;
+
+    private CryptoCurrency cryptoCurrency = CryptoCurrency.NOLLAR;
 
     private Button chooseCurrencyButton;
 
@@ -94,6 +97,14 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
      *
      * @return New instance of SendFragment
      */
+    public static SendCoinsFragment newInstance(CryptoCurrency cryptoCurrency) {
+        Bundle args = new Bundle();
+        args.putSerializable(CURRENCY, cryptoCurrency);
+        SendCoinsFragment fragment = new SendCoinsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public static SendCoinsFragment newInstance(String newSeed) {
         Bundle args = new Bundle();
         args.putString(ARG_NEW_SEED, newSeed);
@@ -109,6 +120,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
         if (getArguments() != null) {
             newSeed = getArguments().getString(ARG_NEW_SEED);
+            cryptoCurrency = (CryptoCurrency) getSerializableArgument(CURRENCY);
         }
     }
 
@@ -159,7 +171,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
         binding.setHandlers(ClickHandlers = new ClickHandlers());
 
-        chooseCurrencyButton.setOnClickListener(ClickHandlers::onClickChangeCurrency);
+        //chooseCurrencyButton.setOnClickListener(ClickHandlers::onClickChangeCurrency);
 
         setStatusBarBlue();
         setBackEnabled(true);
@@ -191,6 +203,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         }
 
         presenter.attachView(this);
+        presenter.changeCurrencyTo(cryptoCurrency);
 
         return view;
     }
@@ -218,20 +231,19 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     }
 
     private void handleQrCodeResult(String qrCodeResult) {
-
         Log.w(TAG, "handleQrCodeResult: " + qrCodeResult);
 
         if (qrCodeResult != null && !qrCodeResult.isEmpty()) {
-            if (qrCodeResult.startsWith("usd")) {
-                presenter.changeCurrencyTo("usd");
-            }
-            if (qrCodeResult.startsWith("nos")) {
-                presenter.changeCurrencyTo("nos");
+
+            for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
+                if (qrCodeResult.startsWith(cryptoCurrency.getCurrencyCode())) {
+                    presenter.changeCurrencyTo(cryptoCurrency);
+                    break;
+                }
             }
         }
 
         Address address = new Address(qrCodeResult, presenter.currencyInUse);
-
 
         // set to scanned value
         if (address.getAddress() != null) {

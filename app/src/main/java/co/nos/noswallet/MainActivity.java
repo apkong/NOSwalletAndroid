@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -58,6 +59,9 @@ import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+import static co.nos.noswallet.network.notifications.NosNotifier.ACTION_GOT_SAUCE;
+import static co.nos.noswallet.network.notifications.NosNotifier.EXTRA_POSITION;
+
 public class MainActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent, HasWebsocketMachine {
 
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -89,6 +93,9 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     @Inject
     ApiResponseMapper apiResponseMapper;
 
+
+    public int viewPagerPosition;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         if (websocketMachine != null) {
             websocketMachine.handleClickedNotification(getIntent());
         }
+
+        setupNewIntentIfAny(getIntent());
 
         setupNotificationsChannel();
     }
@@ -398,14 +407,22 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (websocketMachine != null) {
+            setupNewIntentIfAny(intent);
             websocketMachine.handleClickedNotification(intent);
         }
         searchDeepForFragmentAndPerform(CurrencyFragment.class, new ActionConcreteInstanceOf<CurrencyFragment>() {
             @Override
             public void perform(CurrencyFragment instance) {
-                instance.afterResumeAction = ()-> instance.callRefreshFromNotification();
+                instance.afterResumeAction = () -> instance.callRefreshFromNotification();
             }
         });
+    }
+
+    private void setupNewIntentIfAny(Intent intent) {
+        if (intent != null && ACTION_GOT_SAUCE.equalsIgnoreCase(intent.getAction())) {
+            viewPagerPosition = intent.getIntExtra(EXTRA_POSITION, 0);
+            Log.e(TAG, "setupNewIntentIfAny: " + viewPagerPosition);
+        }
     }
 
     private <T extends Fragment> void searchDeepForFragmentAndPerform(Class<T> fragmentKlazz, ActionConcreteInstanceOf<T> action) {

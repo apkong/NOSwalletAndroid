@@ -211,6 +211,9 @@
 
     <string name="default_notification_channel_id" translatable="false">NOS.cash</string>
     <string name="default_notification_channel_name" translatable="false">NOS.cash</string>
+    <string name="currency_received">%s received</string>
+    <string name="you_received_template">You received %1$s %2$s</string>
+    <string name="click_to_open_your_wallet">Click to open your wallet</string>
 
 
 </resources>

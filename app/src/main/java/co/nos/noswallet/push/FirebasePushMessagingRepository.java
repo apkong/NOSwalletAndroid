@@ -24,6 +24,7 @@ public class FirebasePushMessagingRepository implements PushMessagingRepository 
                         emitter.onError(task.getException());
                     }
                     // Get new Instance ID token
+
                     InstanceIdResult result = task.getResult();
                     if (result == null) {
                         emitter.onError(new NullPointerException("InstanceIdResult is null!"));

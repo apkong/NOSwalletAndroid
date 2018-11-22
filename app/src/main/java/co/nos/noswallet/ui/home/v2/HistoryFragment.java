@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.MainActivity;
 import co.nos.noswallet.R;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
@@ -39,7 +40,7 @@ public class HistoryFragment extends BaseFragment {
 
     public static String TAG = HistoryFragment.class.getSimpleName();
 
-    public ViewPager viewPager;
+    private ViewPager viewPager;
     private PagerTabStrip pagerStrip;
 
     private CurrenciesPagerAdapter currenciesPagerAdapter;
@@ -139,9 +140,7 @@ public class HistoryFragment extends BaseFragment {
         view.findViewById(R.id.home_receive_button).setOnClickListener(v -> {
             if (getActivity() instanceof WindowControl) {
                 // show receive dialog
-                ReceiveDialogFragment dialog = ReceiveDialogFragment.newInstance(
-                        viewPager == null ? CryptoCurrency.NOLLAR : currencyForPosition(viewPager.getCurrentItem())
-                );
+                ReceiveDialogFragment dialog = ReceiveDialogFragment.newInstance(getMatchingCurrencyViewed());
                 dialog.show(((WindowControl) getActivity()).getFragmentUtility().getFragmentManager(),
                         ReceiveDialogFragment.TAG);
             }
@@ -152,7 +151,7 @@ public class HistoryFragment extends BaseFragment {
                 // navigate to send screen
 
                 ((WindowControl) getActivity()).getFragmentUtility().add(
-                        SendCoinsFragment.newInstance(),
+                        SendCoinsFragment.newInstance(getMatchingCurrencyViewed()),
                         FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
                         FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
                         SendFragment.TAG
@@ -186,12 +185,44 @@ public class HistoryFragment extends BaseFragment {
         return view;
     }
 
+    private CryptoCurrency getMatchingCurrencyViewed() {
+        if (viewPager == null) {
+            return CryptoCurrency.NOLLAR;
+        } else {
+            return currencyForPosition(viewPager.getCurrentItem());
+        }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         currenciesPagerAdapter = new CurrenciesPagerAdapter(getChildFragmentManager());
         viewPager.setAdapter(currenciesPagerAdapter);
         viewPager.addOnPageChangeListener(onPageChangeCallback);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (viewPager != null && getActivity() instanceof MainActivity) {
+            MainActivity activity = ((MainActivity) getActivity());
+            if (activity != null) {
+                viewPager.setCurrentItem(activity.viewPagerPosition);
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (viewPager != null && getActivity() instanceof MainActivity) {
+            MainActivity activity = ((MainActivity) getActivity());
+            if (activity != null) {
+                activity.viewPagerPosition = viewPager.getCurrentItem();
+            }
+        }
     }
 
     public void showError(String string) {
@@ -227,10 +258,9 @@ public class HistoryFragment extends BaseFragment {
     }
 
     public static CryptoCurrency currencyForPosition(int position) {
-        if (position == 0) {
-            return CryptoCurrency.NOLLAR;
-        } else {
-            return CryptoCurrency.NOS;
+        for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
+            if (position == cryptoCurrency.getPosition()) return cryptoCurrency;
         }
+        return CryptoCurrency.NOLLAR;
     }
 }

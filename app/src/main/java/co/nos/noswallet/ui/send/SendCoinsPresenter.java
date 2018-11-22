@@ -29,11 +29,15 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
     private String currentInput = "";
 
+    private boolean loadingIsVisible = false;
+
     private final Realm realm;
     private CryptoCurrencyFormatter currencyFormatter = new CryptoCurrencyFormatter().useCurrency(currencyInUse);
     private SerialDisposable serialDisposable = new SerialDisposable();
 
     private String recentTypedCoins = "";
+
+    private WebsocketMachine websocketMachineRef;
 
     @Inject
     public SendCoinsPresenter(Realm realm) {
@@ -55,17 +59,29 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         System.out.println("execute send()");
 
         if (canTransferRawAmount(rawAmount)) {
-            view.showLoading();
+
+            showLoading();
 
             String sendAmount = rawAmount;
 
             if (websocketMachineRef != null) {
                 websocketMachineRef.transferCoins(sendAmount, targetAddress, currencyInUse);
-                view.showLoading();
+                showLoading();
             }
         } else {
             view.showError(R.string.send_error_alert_title, R.string.cannot_transfer);
+            hideLoading();
         }
+    }
+
+    private void hideLoading() {
+        view.hideLoading();
+        loadingIsVisible = false;
+    }
+
+    private void showLoading() {
+        view.showLoading();
+        loadingIsVisible = true;
     }
 
     public void setTargetAddress(String address) {
@@ -171,23 +187,22 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         return balance;
     }
 
-    private WebsocketMachine websocketMachineRef;
-
     public void observeWebsocketMachine(WebsocketMachine machine) {
         websocketMachineRef = machine;
         serialDisposable.set(machine.observeUiTriggers(currencyInUse)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(response -> {
-                    if (response.isProcessedBlock()) {
-                        view.hideLoading();
-                        if (response.error != null) {
-                            view.showError(response.error);
-                        } else {
-                            view.showAmountSent(currencyFormatter.rawtoUi(recentTypedCoins), currencyInUse, targetAddress);
+                    if (loadingIsVisible) {
+                        hideLoading();
+                        if (response.isProcessedBlock()) {
+                            if (response.error != null) {
+                                view.showError(response.error);
+                            } else {
+                                view.showAmountSent(currencyFormatter.rawtoUi(recentTypedCoins), currencyInUse, targetAddress);
+                            }
+                        } else if (response.socketClosed()) {
+                            onConnectionInterrupted();
                         }
-                    } else if (response.socketClosed()) {
-                        view.hideLoading();
-                        onConnectionInterrupted();
                     }
                 }, this::onErrorSendCoins)
         );
@@ -195,14 +210,14 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
     private void onErrorSendCoins(Throwable throwable) {
         Log.e(TAG, "onErrorSendCoins: ", throwable);
-        view.hideLoading();
+        hideLoading();
         throwable.printStackTrace();
         String errorMessage = view.getString(R.string.failed_to_send_coins);
         view.showError(errorMessage);
     }
 
     private void onConnectionInterrupted() {
-        view.hideLoading();
+        hideLoading();
         String errorMessage = view.getString(R.string.connection_interrupted);
         view.showError(errorMessage, false);
     }
@@ -214,8 +229,8 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         }
     }
 
-    public void changeCurrencyTo(String text) {
-        currencyInUse = CryptoCurrency.recognize(text);
+    public void changeCurrencyTo(CryptoCurrency currency) {
+        currencyInUse = currency;
         updateOtherCurrencyParameters();
     }
 
@@ -233,10 +248,6 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
     private CryptoCurrency determineNewCurrency(String text) {
         CryptoCurrency cryptoCurrency = CryptoCurrency.recognize(text);
-        if (cryptoCurrency == CryptoCurrency.NOLLAR) {
-            return CryptoCurrency.NOS;
-        } else {
-            return CryptoCurrency.NOLLAR;
-        }
+        return cryptoCurrency.serveNeighbour();
     }
 }

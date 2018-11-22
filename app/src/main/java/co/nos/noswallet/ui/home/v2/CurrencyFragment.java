@@ -98,9 +98,7 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
             currencyPresenter.resume(machine, cryptoCurrency);
         }
 
-        home_swiperefresh.postDelayed(additionalRunnable = () -> {
-            callRefreshFromNotification();
-        }, 2500);
+        home_swiperefresh.postDelayed(additionalRunnable = this::callRefreshFromNotification, 2500);
     }
 
     private Runnable additionalRunnable = this::callRefreshFromNotification;

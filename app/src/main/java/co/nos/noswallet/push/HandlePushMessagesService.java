@@ -10,8 +10,10 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Locale;
 import java.util.Map;
 
+import co.nos.noswallet.R;
 import co.nos.noswallet.network.notifications.NosNotifier;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
@@ -71,6 +73,8 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
         String hash = data.get("hash");
         String block = data.get("hash");
 
+        if (amount == null || amount.isEmpty()) return;
+
         Bundle bundle = new Bundle();
 
         bundle.putString(ACCOUNT, accountNumber);
@@ -78,16 +82,50 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
         bundle.putString(HASH, hash);
         bundle.putString(BLOCK, block);
 
-
         String currency = accountNumber.substring(0, 3);
-        CryptoCurrency cryptoCurrency = CryptoCurrency.recognize(currency);
-        formatter.useCurrency(cryptoCurrency);
-        String uiValue = formatter.rawtoUi(amount);
-        String text = "You got " + uiValue + " " + cryptoCurrency.name();
-        Log.w(TAG, "processMessage: " + text);
 
-//        NosNotifier.showNotification(NOSApplication.get(), text, bundle);
-        NosNotifier.showNotification("NOS.cash", text, "");
+        CryptoCurrency cryptoCurrency = CryptoCurrency.recognize(currency);
+        if (accountNumber.charAt(4) == '_') {
+            //dealing with nano?
+            currency = accountNumber.substring(0, 4);
+            cryptoCurrency = CryptoCurrency.recognize(currency);
+        }
+        formatter.useCurrency(cryptoCurrency);
+        String X = formatter.rawtoUi(amount);
+
+        X = formatWell(X);
+
+
+        String CURRENCY = cryptoCurrency.name();
+
+        String currency_received = getString(R.string.currency_received, CURRENCY);
+        Log.w(TAG, "processMessage: " + currency_received);
+
+        String youReceivedText = getString(R.string.you_received_template, X, CURRENCY);
+
+        NosNotifier.showNotification(currency_received,
+                youReceivedText,
+                getString(R.string.click_to_open_your_wallet),
+                cryptoCurrency.getPosition());
+    }
+
+    public static String formatWell(String numberWithExtraZeros) {
+
+        try {
+            double d = Double.parseDouble(numberWithExtraZeros);
+
+            if (d == (long) d) {
+                return String.format(Locale.US, "%d", (long) d);
+            } else {
+                while (true) {
+                    if (numberWithExtraZeros.charAt(numberWithExtraZeros.length() - 1) == '0') {
+                        numberWithExtraZeros = numberWithExtraZeros.substring(0, numberWithExtraZeros.length() - 1);
+                    } else return numberWithExtraZeros;
+                }
+            }
+        } catch (Exception x) {
+            return numberWithExtraZeros;
+        }
     }
 
     public static final String ACCOUNT = "account";

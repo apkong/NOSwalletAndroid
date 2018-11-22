@@ -3,10 +3,11 @@ package co.nos.noswallet.network.websockets.currencyFormatter;
 import javax.inject.Inject;
 
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.push.HandlePushMessagesService;
 
 public class CryptoCurrencyFormatter {
 
-    private  CryptoCurrency cryptoCurrency;
+    private CryptoCurrency cryptoCurrency;
 
 
     @Inject
@@ -33,6 +34,10 @@ public class CryptoCurrencyFormatter {
     }
 
     public String rawtoUi(String raw) {
-        return cryptoCurrency.rawToUi(raw);
+        return cutOutTrailingZeros(cryptoCurrency.rawToUi(raw));
+    }
+
+    public String cutOutTrailingZeros(String expression) {
+        return HandlePushMessagesService.formatWell(expression);
     }
 }

@@ -71,6 +71,7 @@ public class ReceiveDialogFragment extends BaseDialogFragment {
      *
      * @return ReceiveDialogFragment instance
      */
+    @Deprecated
     public static ReceiveDialogFragment newInstance() {
         return newInstance(CryptoCurrency.NOLLAR);
     }

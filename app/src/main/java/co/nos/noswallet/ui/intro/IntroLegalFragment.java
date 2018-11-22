@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
@@ -35,7 +36,6 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.home.HomeFragment;
 import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.ui.webview.WebViewAgreementDialogFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
@@ -277,6 +277,7 @@ public class IntroLegalFragment extends BaseFragment {
                         );
                     }
                 } else {
+
                     if (getActivity() instanceof WindowControl) {
                         ((WindowControl) getActivity()).getFragmentUtility().replace(
 
@@ -285,7 +286,7 @@ public class IntroLegalFragment extends BaseFragment {
 
                                 FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
                                 FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
-                                HomeFragment.TAG
+                                HistoryFragment.TAG
                         );
                     }
                 }

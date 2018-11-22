@@ -41,11 +41,11 @@
             android:gravity="center"
             android:onClick="@{handlers::onClickLocalCurrency}"
             android:text="@string/settings_local_currency"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/settings_local_currency_spinner"
             app:layout_constraintTop_toBottomOf="@+id/dialog_appbar" />
 
         <Spinner
-            android:visibility="gone"
             android:id="@+id/settings_local_currency_spinner"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -56,29 +56,30 @@
             android:prompt="@string/settings_local_currency"
             android:spinnerMode="dropdown"
             android:theme="@style/TextStyle15"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@+id/settings_local_currency" />
 
         <android.support.v7.widget.AppCompatImageView
-            android:visibility="gone"
             android:id="@+id/settings_local_currency_spinner_check"
             android:layout_width="13dp"
             android:layout_height="18dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
             android:layout_marginTop="14dp"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="@+id/settings_local_currency_spinner"
             app:layout_constraintTop_toTopOf="@+id/settings_local_currency_spinner"
             app:srcCompat="@drawable/ic_check" />
 
         <android.support.v7.widget.AppCompatImageView
-            android:visibility="gone"
-
             android:id="@+id/settings_local_currency_spinner_arrow"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="@+id/settings_local_currency_spinner"
             app:layout_constraintTop_toTopOf="@+id/settings_local_currency_spinner"
             app:srcCompat="@drawable/ic_arrow_drop_down" />

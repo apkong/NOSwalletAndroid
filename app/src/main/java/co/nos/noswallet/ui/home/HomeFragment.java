@@ -13,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hwangjr.rxbus.annotation.Subscribe;
@@ -60,6 +59,8 @@ import io.realm.Realm;
                 attribute = "srcCompat",
                 method = "setImageDrawable")
 })
+
+@Deprecated
 public class HomeFragment extends BaseFragment implements HomeView {
     private FragmentHomeBinding binding;
     private WalletController controller;
@@ -255,7 +256,6 @@ public class HomeFragment extends BaseFragment implements HomeView {
         }
     }
 
-
     private void showHistoryEmpty() {
         showError(getString(R.string.error_history_empty));
     }
@@ -368,6 +368,4 @@ public class HomeFragment extends BaseFragment implements HomeView {
             presenter.onDestroy();
         }
     }
-
-
 }

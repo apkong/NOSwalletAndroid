@@ -243,8 +243,10 @@ public class WebsocketMachine {
     }
 
     public void handleClickedNotification(Intent intent) {
-        if (ACTION_GOT_SAUCE.equalsIgnoreCase(intent.getAction())){
-            performForAll(CurrencyHandler::requestGetPendingBlocks);
+        if (intent != null) {
+            if (ACTION_GOT_SAUCE.equalsIgnoreCase(intent.getAction())) {
+                performForAll(CurrencyHandler::requestGetPendingBlocks);
+            }
         }
     }
 
