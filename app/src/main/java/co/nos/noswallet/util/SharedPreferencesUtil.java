@@ -7,6 +7,8 @@ import android.preference.PreferenceManager;
 import java.util.UUID;
 
 import co.nos.noswallet.model.AvailableCurrency;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.ui.home.v2.CurrencyPresenter;
 
 /**
  * Shared Preferences utility module
@@ -37,6 +39,11 @@ public class SharedPreferencesUtil {
 
     public void clear(String key) {
         set(key, null);
+    }
+
+
+    public SharedPreferences.Editor getEditor() {
+        return preferences.edit();
     }
 
     public void set(String key, String value) {
@@ -126,6 +133,14 @@ public class SharedPreferencesUtil {
     public void clearAll() {
         clearLocalCurrency();
         clearConfirmedSeedBackedUp();
+
+        SharedPreferences.Editor editor = getEditor();
+        for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
+            editor.putString(CurrencyPresenter.ACCOUNT_INFO + cryptoCurrency.name(), null);
+            editor.putString(CurrencyPresenter.ACCOUNT_HISTORY + cryptoCurrency.name(), null);
+        }
+        editor.commit();
     }
+
 
 }

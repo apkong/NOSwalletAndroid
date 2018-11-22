@@ -175,6 +175,9 @@ public class CurrencyHandler {
         System.out.println();
         if (response.error != null) {
             System.out.println(response.error);
+
+            requestInventor.fillOutTheAccountNumbers();
+            requestAccountHistory();
         } else {
             System.out.println(response.response);
             uiResponses.onNext(response);

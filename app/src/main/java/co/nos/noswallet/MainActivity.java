@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.ColorRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -249,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     }
 
     @Subscribe
-    public void logOut(Logout logout) {
+    public void logOut(Logout unused) {
         analyticsService.track(AnalyticsEvents.LOG_OUT);
 
         // delete user seed data before logging out
@@ -264,10 +266,18 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
         sharedPreferencesUtil.setConfirmedSeedBackedUp(false);
         sharedPreferencesUtil.setFromNewWallet(false);
+        sharedPreferencesUtil.clearAll();
 
         // go to the welcome fragment
         getFragmentUtility().clearStack();
         getFragmentUtility().replace(new IntroWelcomeFragment(), FragmentUtility.Animation.CROSSFADE);
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                NOSApplication.get().restarts.onNext(true);
+
+            }
+        }, 1500);
     }
 
     @Subscribe

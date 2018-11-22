@@ -1,5 +1,7 @@
 package co.nos.noswallet.db;
 
+import android.util.Log;
+
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -35,11 +37,12 @@ public class RealmCredentialsProvider implements CredentialsProvider {
     @Override
     public String provideAccountNumber(CryptoCurrency cryptoCurrency) {
         Credentials credentials = provideCredentials(realm);
+        String addressString = null;
         if (credentials != null) {
-            return credentials.getAddressString(cryptoCurrency);
-        } else {
-            return null;
+            addressString = credentials.getAddressString(cryptoCurrency);
         }
+        Log.i("REALM_XD", "provideAccountNumber: " + cryptoCurrency.name() + " : " + addressString);
+        return addressString;
     }
 
     @Override

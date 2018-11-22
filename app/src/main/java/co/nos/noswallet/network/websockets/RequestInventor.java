@@ -11,7 +11,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.db.CredentialsProvider;
 import co.nos.noswallet.network.nosModel.AccountInfoRequest;
@@ -44,7 +43,8 @@ public class RequestInventor {
         publicKey = credentialsProvider.providePublicKey();
     }
 
-    private void fillOutTheAccountNumbers() {
+    public void fillOutTheAccountNumbers() {
+        Log.w(TAG, "fillOutTheAccountNumbers: called");
         for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
             accountNumbers.put(cryptoCurrency, credentialsProvider.provideAccountNumber(cryptoCurrency));
         }

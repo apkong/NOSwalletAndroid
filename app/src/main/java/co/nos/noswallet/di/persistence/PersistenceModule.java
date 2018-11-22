@@ -67,6 +67,23 @@ public class PersistenceModule {
         }
     }
 
+    public static void clearRealm() {
+        Vault.getVault()
+                .edit()
+                .putString(Vault.ENCRYPTION_KEY_NAME,
+                        Base64.encodeToString(Vault.generateKey(), Base64.DEFAULT))
+                .apply();
+
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
+                .name(DB_NAME)
+                .encryptionKey(Base64.decode(Vault.getVault().getString(Vault.ENCRYPTION_KEY_NAME, null), Base64.DEFAULT))
+                .schemaVersion(SCHEMA_VERSION)
+                .migration(new Migration())
+                .build();
+
+        Realm.deleteRealm(realmConfiguration);
+    }
+
     @Provides
     @Named("cachedir")
     @ApplicationScope
@@ -96,7 +113,7 @@ public class PersistenceModule {
         return new RealmCredentialsProvider(realm);
     }
 
-        @Provides
+    @Provides
     RepresentativesProvider providesRepresentativeProvider() {
         return new RandomFetchedRepresentativesProvider();
     }

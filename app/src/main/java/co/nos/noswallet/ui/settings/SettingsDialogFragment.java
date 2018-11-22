@@ -2,12 +2,11 @@ package co.nos.noswallet.ui.settings;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
@@ -30,11 +29,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import co.nos.noswallet.BuildConfig;
+import co.nos.noswallet.MainActivity;
+import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.Logout;
 import co.nos.noswallet.bus.PinComplete;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentSettingsBinding;
@@ -42,16 +42,12 @@ import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.StringWithTag;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
-import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
-
-import static co.nos.noswallet.ui.home.v2.CurrencyPresenter.ACCOUNT_HISTORY;
-import static co.nos.noswallet.ui.home.v2.CurrencyPresenter.ACCOUNT_INFO;
 
 
 /**
@@ -291,18 +287,14 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                 builder.setTitle(R.string.settings_logout_alert_title)
                         .setMessage(R.string.settings_logout_alert_message)
                         .setPositiveButton(R.string.settings_logout_alert_confirm_cta, (dialog, which) -> {
-                            clearUserBalanceData();
                             WebsocketMachine websocketMachine = WebsocketMachine.obtain(getActivity());
                             if (websocketMachine != null) {
                                 websocketMachine.logout();
                             }
-                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    RxBus.get().post(new Logout());
-                                    dismiss();
-                                }
-                            }, 2000);
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).logOut(null);
+                            }
+                            dismiss();
                         })
                         .setNegativeButton(R.string.settings_logout_alert_cancel_cta, (dialog, which) -> {
                             // do nothing which dismisses the dialog
@@ -313,10 +305,8 @@ public class SettingsDialogFragment extends BaseDialogFragment {
     }
 
     private void clearUserBalanceData() {
-        for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
-            sharedPreferencesUtil.clear(ACCOUNT_INFO + cryptoCurrency.name());
-            sharedPreferencesUtil.clear(ACCOUNT_HISTORY + cryptoCurrency.name());
-        }
+        SharedPreferences.Editor editor = sharedPreferencesUtil.getEditor();
+        editor.clear().commit();
     }
 
     private void showCopySeedAlert() {
