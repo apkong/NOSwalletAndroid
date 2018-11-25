@@ -11,5 +11,5 @@ public interface CurrencyView {
 
     void onBalanceFormattedReceived(String formatted);
 
-
+    void showNewAccount();
 }

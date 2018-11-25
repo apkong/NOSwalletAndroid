@@ -14,6 +14,7 @@ import co.nos.noswallet.kyc.phoneNumber.PhoneNumberFragment;
 import co.nos.noswallet.kyc.pinKeyboard.PinKeyboardFragment;
 import co.nos.noswallet.kyc.smsCode.SmsCodeFragment;
 import co.nos.noswallet.model.NanoWallet;
+import co.nos.noswallet.FirstLaunchActivity;
 import co.nos.noswallet.ui.home.HomeFragment;
 import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
@@ -86,4 +87,6 @@ public interface ActivityComponent {
     void inject(SendCoinsFragment sendCoinsFragment);
 
     void inject(HistoryFragment historyFragment);
+
+    void inject(FirstLaunchActivity firstLaunchActivity);
 }

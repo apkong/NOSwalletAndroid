@@ -8,6 +8,9 @@ public class SocketResponse {
     public static final SocketResponse SocketClosed = new SocketResponse() {{
         this.error = "socket closed";
     }};
+    public static final SocketResponse NewAccount = new SocketResponse() {{
+        this.error = "New Account";
+    }};
 
     @SerializedName("action")
     public String action;
@@ -39,7 +42,7 @@ public class SocketResponse {
     }
 
     public boolean isAccountInformationResponse() {
-        return "get_account_information".equals(action);
+        return "get_account_information".equals(action) || isNewAccount();
     }
 
     public boolean isProcessedBlock() {
@@ -48,5 +51,9 @@ public class SocketResponse {
 
     public boolean socketClosed() {
         return this == SocketClosed;
+    }
+
+    public boolean isNewAccount() {
+        return this == NewAccount;
     }
 }

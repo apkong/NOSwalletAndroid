@@ -471,8 +471,9 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
         public void onClickMax(View view) {
             //analyticsService.track(AnalyticsEvents.SEND_MAX_AMOUNT_USED);
-            String maxNeuros = presenter.getTotalNeurosAmount();
-            presenter.updateAmountFromCode(maxNeuros);
+            String maxRawAmount = presenter.getTotalCoinsAmount();
+
+            presenter.updateAmountFromCode(maxRawAmount);
             enableSendIfPossible();
         }
 

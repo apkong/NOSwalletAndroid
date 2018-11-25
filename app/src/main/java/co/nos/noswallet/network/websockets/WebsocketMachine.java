@@ -45,6 +45,13 @@ public class WebsocketMachine {
         performForAll(CurrencyHandler::unregisterNotifications);
     }
 
+    public void setRecentAccountBalance(String balance, CryptoCurrency currency) {
+        CurrencyHandler handler = getMatchingHandler(currency);
+        if (handler != null) {
+            handler.recentAccountBalance = balance;
+        }
+    }
+
     public interface DoSth {
         void doSomething(CurrencyHandler handler);
     }
@@ -154,11 +161,14 @@ public class WebsocketMachine {
             handler.removeCallbacks(null);
             handler.postDelayed(reconnectToApi, 3_000);
 
-            performForAll(CurrencyHandler::closeConnection);
-
+            closeAll();
         } else {
             Log.e(TAG, "onError: unrecognized error", err);
         }
+    }
+
+    public void closeAll() {
+        performForAll(CurrencyHandler::closeConnection);
     }
 
     private boolean socketClosedError(Throwable err) {

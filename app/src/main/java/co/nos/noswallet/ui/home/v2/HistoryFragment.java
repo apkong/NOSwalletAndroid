@@ -75,8 +75,17 @@ public class HistoryFragment extends BaseFragment {
      *
      * @return HomeFragment
      */
+
+    public boolean isFirstLaunch;
+    public static final String FIRST_LAUNCH = "FIRST_LAUNCH";
+
     public static HistoryFragment newInstance() {
+        return newInstance(false);
+    }
+
+    public static HistoryFragment newInstance(boolean isFirstLaunch) {
         Bundle args = new Bundle();
+        args.putBoolean(FIRST_LAUNCH, isFirstLaunch);
         HistoryFragment fragment = new HistoryFragment();
         fragment.setArguments(args);
         return fragment;
@@ -86,6 +95,10 @@ public class HistoryFragment extends BaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        if (getArguments() != null) {
+            this.isFirstLaunch = getArguments().getBoolean(FIRST_LAUNCH, false);
+        }
         if (getActivity() instanceof ActivityWithComponent) {
             ((ActivityWithComponent) getActivity()).getActivityComponent().inject(this);
         }
@@ -204,11 +217,24 @@ public class HistoryFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-
         if (viewPager != null && getActivity() instanceof MainActivity) {
             MainActivity activity = ((MainActivity) getActivity());
             if (activity != null) {
-                viewPager.setCurrentItem(activity.viewPagerPosition);
+                int currentPosition = activity.viewPagerPosition;
+                viewPager.setCurrentItem(currentPosition);
+                scrollToTopOfTheTransactions(currentPosition);
+            }
+        }
+    }
+
+    private void scrollToTopOfTheTransactions(int currentPosition) {
+        for (Fragment f : getChildFragmentManager().getFragments()) {
+            if (f instanceof CurrencyFragment) {
+                CurrencyFragment currencyFragment = ((CurrencyFragment) f);
+                int position = currencyFragment.getCurrency().getPosition();
+                if (currentPosition == position) {
+                    currencyFragment.home_recyclerview.scrollTo(0, 0);
+                }
             }
         }
     }
@@ -216,7 +242,6 @@ public class HistoryFragment extends BaseFragment {
     @Override
     public void onPause() {
         super.onPause();
-
         if (viewPager != null && getActivity() instanceof MainActivity) {
             MainActivity activity = ((MainActivity) getActivity());
             if (activity != null) {

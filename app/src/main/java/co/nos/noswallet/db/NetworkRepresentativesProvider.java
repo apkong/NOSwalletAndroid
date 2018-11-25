@@ -4,7 +4,7 @@ import javax.inject.Inject;
 
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.util.SharedPreferencesUtil;
-
+@Deprecated
 public class NetworkRepresentativesProvider implements RepresentativesProvider {
     private static final String KEY = "Representative";
 

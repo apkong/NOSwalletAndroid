@@ -113,6 +113,12 @@ public class CurrencyHandler {
                     processPublishBlock(response);
                     break;
                 }
+                default:
+                    if (response.error != null) {
+                        if ("New Account".equalsIgnoreCase(response.error)) {
+                            uiResponses.onNext(SocketResponse.NewAccount);
+                        }
+                    }
             }
         }
         if (websocketExecutor == null) {
@@ -172,10 +178,14 @@ public class CurrencyHandler {
     }
 
     private void processGetAccountHistory(SocketResponse response) {
-        System.out.println();
         if (response.error != null) {
             System.out.println(response.error);
 
+            if (requestInventor.hasMissingAddresses()) {
+                closeConnection();
+                NOSApplication.get().restartMainActivity();
+                return;
+            }
             requestInventor.fillOutTheAccountNumbers();
             requestAccountHistory();
         } else {
@@ -291,15 +301,11 @@ public class CurrencyHandler {
     }
 
     private boolean handleSingleBlockResponse(GetBlocksResponse res) {
-
         Log.e(TAG, "handleSingleBlockResponse: called with " + res);
-
         if (res.hasBlock() && !res.blocksValueInvalid()) {
-
             GetBlocksResponse.BlocksValue value = res.getBlock();
             if (value != null) {
                 String blockHash = value.hash;
-
                 pushBagState(state -> state
                         .balance(res.getBalance())
                         .blockHash(blockHash)
@@ -344,6 +350,10 @@ public class CurrencyHandler {
 
             }
             uiResponses.onNext(response);
+        } else if (response.error != null) {
+            if (response.error.toLowerCase().contains("not found".toLowerCase())) {
+                uiResponses.onNext(SocketResponse.NewAccount);
+            }
         }
 
         final String previousBlock = _previousBlock;

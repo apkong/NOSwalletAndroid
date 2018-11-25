@@ -214,6 +214,9 @@
     <string name="currency_received">%s received</string>
     <string name="you_received_template">You received %1$s %2$s</string>
     <string name="click_to_open_your_wallet">Click to open your wallet</string>
+    <string name="failed_to_receive_history_new_account">This account has no history yet</string>
+    <string name="app_needs_restart">Great! Almost ready. Please restart app to start.</string>
+    <string name="warning">Warning</string>
 
 
 </resources>

@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.R;
 import co.nos.noswallet.base.BasePresenter;
 import co.nos.noswallet.model.Address;
@@ -177,13 +176,13 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         return destination.isValidAddress();
     }
 
-    public String getTotalNeurosAmount() {
-        String balance = null;
+    public String getTotalCoinsAmount() {
+        String balance = "0";
         if (websocketMachineRef != null) {
             balance = websocketMachineRef.getRecentAccountBalanceOf(currencyInUse);
-            NOSApplication.getNosWallet().setNeuros(balance);
         }
-        Log.d(TAG, "getTotalNeurosAmount: " + balance);
+        Log.d(TAG, "getTotalCoinsAmount: " + balance);
+
         return balance;
     }
 

@@ -15,7 +15,7 @@ public enum CryptoCurrency implements Serializable {
 
     BANANO("ban_", "ban", 29, 2),
 
-    NANO("nano_", "nano", 30, 3);
+    NANO("xrb_", "xrb", 30, 3);
 
     private static final String TAG = CryptoCurrency.class.getSimpleName();
 
@@ -80,7 +80,7 @@ public enum CryptoCurrency implements Serializable {
     }
 
     public String rawToUi(final String raw) {
-        String ui = raw;
+        String ui;
         if (this == NOLLAR) ui = rawNollarToUi(raw);
         else ui = rawNosToUi(raw);
         Log.e(TAG, "rawToUi: raw: " + raw + " => ui: " + ui);
@@ -134,7 +134,7 @@ public enum CryptoCurrency implements Serializable {
     }
 
     private boolean dividerTooLarge() {
-        return dividerLength >  NOS.dividerLength;
+        return dividerLength > NOS.dividerLength;
     }
 
     public int getPosition() {

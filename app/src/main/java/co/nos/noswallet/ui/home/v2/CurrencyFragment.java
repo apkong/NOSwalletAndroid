@@ -75,7 +75,6 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
         home_swiperefresh = view.findViewById(R.id.home_swiperefresh);
         history_empty_label = view.findViewById(R.id.history_empty_label);
 
-
         currencyPresenter.attachView(this);
         configureAdapter();
 
@@ -152,14 +151,18 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
         if (transactionsAdapter != null) {
             transactionsAdapter.refresh(history);
         }
-        if (history.isEmpty()) {
-            history_empty_label.setText(getString(R.string.failed_to_receive_history));
-            history_empty_label.setVisibility(View.VISIBLE);
-        }
+        history_empty_label.setVisibility(View.GONE);
     }
 
     @Override
     public void onBalanceFormattedReceived(String formatted) {
         home_cryptocurrency_balance.setText(formatted);
+    }
+
+    @Override
+    public void showNewAccount() {
+        showHistory(new ArrayList<>());
+        history_empty_label.setText(getString(R.string.failed_to_receive_history_new_account));
+        history_empty_label.setVisibility(View.VISIBLE);
     }
 }

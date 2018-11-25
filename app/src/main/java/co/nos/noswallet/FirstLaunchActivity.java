@@ -1,7 +1,9 @@
 package co.nos.noswallet;
 
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,7 +12,6 @@ import android.os.Looper;
 import android.support.annotation.ColorRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,8 +44,6 @@ import co.nos.noswallet.di.activity.DaggerActivityComponent;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
-import co.nos.noswallet.network.interactor.GetBlocksInfoUseCase;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.push.HandlePushMessagesService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
@@ -58,6 +57,7 @@ import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
+import io.reactivex.annotations.Experimental;
 import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -65,9 +65,16 @@ import io.realm.RealmResults;
 import static co.nos.noswallet.network.notifications.NosNotifier.ACTION_GOT_SAUCE;
 import static co.nos.noswallet.network.notifications.NosNotifier.EXTRA_POSITION;
 
-public class MainActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent, HasWebsocketMachine {
+@Experimental
+public class FirstLaunchActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent, HasWebsocketMachine {
 
-    public static final String TAG = MainActivity.class.getSimpleName();
+    public enum Destination {
+        HISTORY,
+        INTRO,
+        LEGAL
+    }
+
+    public static final String TAG = FirstLaunchActivity.class.getSimpleName();
 
     private FragmentUtility mFragmentUtility;
     private Toolbar mToolbar;
@@ -82,9 +89,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     Realm realm;
 
     @Inject
-    GetBlocksInfoUseCase getBlocksInfoUseCase;
-
-    @Inject
     NanoWallet nanoWallet;
 
     @Inject
@@ -93,10 +97,15 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     @Inject
     AnalyticsService analyticsService;
 
-    @Inject
-    ApiResponseMapper apiResponseMapper;
-
     public int viewPagerPosition;
+
+    public static final String DEST = "DEST";
+
+    public static Intent start(Context context, Destination destination) {
+        Intent intent = new Intent(context, FirstLaunchActivity.class);
+        intent.putExtra(DEST, destination);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +139,18 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         setupNewIntentIfAny(getIntent());
 
         setupNotificationsChannel();
+
+        if (getIntent() != null) {
+            Destination destination = (Destination) getIntent().getSerializableExtra(DEST);
+            if (destination == Destination.HISTORY) {
+                getFragmentUtility().replace(
+                        HistoryFragment.newInstance(),
+                        FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
+                        FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
+                        HistoryFragment.TAG
+                );
+            }
+        }
     }
 
     private void setupNotificationsChannel() {
@@ -168,9 +189,6 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        websocketMachine.closeAll();
-
         if (disposable != null) {
             disposable.dispose();
         }
@@ -438,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     }
 
     private <T extends Fragment> void searchDeepForFragmentAndPerform(Class<T> fragmentKlazz, ActionConcreteInstanceOf<T> action) {
-        for (android.support.v4.app.Fragment fragment : getSupportFragmentManager().getFragments()) {
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
             operateOverFragmentChildren(fragment, action, fragmentKlazz);
         }
     }
@@ -449,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
                 action.perform(concreteClazz.cast(fragment));
             }
 
-            List<android.support.v4.app.Fragment> childFrags = fragment.getChildFragmentManager().getFragments();
+            List<Fragment> childFrags = fragment.getChildFragmentManager().getFragments();
             if (childFrags != null && childFrags.size() > 0) {
                 for (Fragment child : childFrags) {
                     operateOverFragmentChildren(child, action, concreteClazz);
@@ -458,22 +476,12 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         }
     }
 
-
-    public void showRestartNeededBecauseOfFirstLaunch() {
-        if (restartDialog != null) {
-            restartDialog.dismiss();
-        }
-        restartDialog = new AlertDialog.Builder(this)
-                //.setTitle(getString(R.string.warning))
-                .setMessage(getString(R.string.app_needs_restart))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> NOSApplication.get().restartApp(null))
-                .create();
-        restartDialog.show();
-
+    public static void restartActivity(Activity act) {
+        Intent intent = new Intent();
+        intent.setClass(act, act.getClass());
+        act.startActivity(intent);
+        act.finish();
     }
-
-    private AlertDialog restartDialog;
 
     interface ActionConcreteInstanceOf<T> {
         void perform(T instance);

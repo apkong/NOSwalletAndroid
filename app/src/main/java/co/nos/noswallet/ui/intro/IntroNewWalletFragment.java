@@ -17,6 +17,7 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.MainActivity;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
@@ -25,25 +26,17 @@ import co.nos.noswallet.bus.CreatePin;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentIntroNewWalletBinding;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
-import co.nos.noswallet.ui.common.FragmentUtility;
-import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.home.HomeFragment;
-import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.util.ExceptionHandler;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
-
-import static co.nos.noswallet.ui.home.v2.CurrencyPresenter.ACCOUNT_HISTORY;
-import static co.nos.noswallet.ui.home.v2.CurrencyPresenter.ACCOUNT_INFO;
 
 /**
  * The Intro Screen to the app
  */
 
-public class IntroNewWalletFragment extends BaseFragment {
+public class IntroNewWalletFragment extends BaseFragment<MainActivity> {
     public static String TAG = IntroNewWalletFragment.class.getSimpleName();
     private String seed;
 
@@ -120,19 +113,22 @@ public class IntroNewWalletFragment extends BaseFragment {
     private void goToHomeScreen() {
         // set confirm flag
         sharedPreferencesUtil.setConfirmedSeedBackedUp(true);
+        if (getParent() != null) {
+            getParent().showRestartNeededBecauseOfFirstLaunch();
+        }
 
         // go to home screen
-        if (getActivity() instanceof WindowControl) {
-            ((WindowControl) getActivity()).getFragmentUtility().replace(
-                    HistoryFragment.newInstance(),
-
-//                    HomeFragment.newInstance(),
-
-                    FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
-                    FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
-                    HomeFragment.TAG
-            );
-        }
+//        if (getActivity() instanceof WindowControl) {
+//            ((WindowControl) getActivity()).getFragmentUtility().replace(
+//                    HistoryFragment.newInstance(),
+//
+////                    HomeFragment.newInstance(),
+//
+//                    FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
+//                    FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
+//                    HomeFragment.TAG
+//            );
+//        }
     }
 
     @Subscribe

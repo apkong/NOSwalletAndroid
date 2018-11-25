@@ -59,7 +59,8 @@ public class CurrencyPresenter {
                     if (response.isHistoryResponse()) {
                         renderHistoryResponse(response, cryptoCurrency);
                     } else if (response.isAccountInformationResponse()) {
-                        renderAccountInfoResponse(response, cryptoCurrency);
+                        String balance = renderAccountInfoResponse(response, cryptoCurrency);
+                        machine.setRecentAccountBalance(balance, cryptoCurrency);
                     } else {
                         Log.w(TAG, "showing socket response: " + response);
                     }
@@ -68,6 +69,13 @@ public class CurrencyPresenter {
                     throwable.printStackTrace();
                 })
         );
+    }
+
+    private void renderNewAccount(String currency) {
+
+        String formattedCurrency = CryptoCurrency.formatWith(currency, "0");
+        view.onBalanceFormattedReceived(formattedCurrency);
+        view.showNewAccount();
     }
 
     private void requestCachedAccountInfoIfAny(CryptoCurrency cryptoCurrency) {
@@ -86,10 +94,14 @@ public class CurrencyPresenter {
         }
     }
 
-    private void renderAccountInfoResponse(SocketResponse response, CryptoCurrency cryptoCurrency) {
+    private String renderAccountInfoResponse(SocketResponse response, CryptoCurrency cryptoCurrency) {
         Log.w(TAG, "got account information response: " + response);
         sharedPreferencesUtil.set(ACCOUNT_INFO + cryptoCurrency.name(), S.GSON.toJson(response));
 
+        if (response.isNewAccount()) {
+            renderNewAccount(cryptoCurrency.getCurrencyCode());
+            return "0";
+        }
         JsonElement element = response.response;
         AccountInfoModel model = safeCast(element, AccountInfoModel.class);
         if (model != null) {
@@ -99,10 +111,10 @@ public class CurrencyPresenter {
                 String uiBalance = currencyFormatter.rawtoUi(balance);
                 String formattedCurrency = CryptoCurrency.formatWith(currency, uiBalance);
                 view.onBalanceFormattedReceived(formattedCurrency);
-                return;
+                return balance;
             }
         }
-        view.onBalanceFormattedReceived("??? " + cryptoCurrency.name());
+        return "0";
     }
 
     private void renderHistoryResponse(SocketResponse response, CryptoCurrency cryptoCurrency) {

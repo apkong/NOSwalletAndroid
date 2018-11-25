@@ -136,13 +136,15 @@ public class RequestInventor {
     private String sumBigValues(@Nullable String balance, @Nullable String accountBalance) {
 
         Log.w(TAG, "sumBigValues: " + balance + " + " + accountBalance);
-        if (accountBalance == null || accountBalance.equals("0")) {
+        if (balance == null) {
+            if (accountBalance == null) {
+                return new BigDecimal("0").toString();
+            } else {
+                return new BigDecimal(accountBalance).toString();
+            }
+        } else if (accountBalance == null || accountBalance.equals("0")) {
             return new BigDecimal(balance).toString();
         } else {
-            if (balance == null) {
-                return sumBigValues(accountBalance, balance);
-            }
-
             Log.d(TAG, "sumBigValues() called with: balance = [" + balance + "], accountBalance = [" + accountBalance + "]");
             return new BigDecimal(balance).add(new BigDecimal(accountBalance)).toString();
         }
@@ -218,5 +220,14 @@ public class RequestInventor {
                 .withRepresentative(representative)
                 .toString();
         return json;
+    }
+
+    public boolean hasMissingAddresses() {
+        for (CryptoCurrency c : accountNumbers.keySet()) {
+            if (accountNumbers.get(c) == null) {
+                return true;
+            }
+        }
+        return false;
     }
 }

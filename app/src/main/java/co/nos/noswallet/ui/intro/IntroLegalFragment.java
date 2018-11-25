@@ -23,7 +23,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.NOSApplication;
+import co.nos.noswallet.MainActivity;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
@@ -36,7 +36,6 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.ui.webview.WebViewAgreementDialogFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
@@ -45,7 +44,7 @@ import io.realm.Realm;
  * The Intro Screen to the app
  */
 
-public class IntroLegalFragment extends BaseFragment {
+public class IntroLegalFragment extends BaseFragment<MainActivity> {
     public static String TAG = IntroLegalFragment.class.getSimpleName();
     private String seed;
     private FragmentIntroLegalBinding binding;
@@ -277,18 +276,21 @@ public class IntroLegalFragment extends BaseFragment {
                         );
                     }
                 } else {
-
-                    if (getActivity() instanceof WindowControl) {
-                        ((WindowControl) getActivity()).getFragmentUtility().replace(
-
-                                HistoryFragment.newInstance(),
-//                                HomeFragment.newInstance(),
-
-                                FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
-                                FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
-                                HistoryFragment.TAG
-                        );
+                    if (getParent() != null) {
+                        getParent().showRestartNeededBecauseOfFirstLaunch();
                     }
+
+//                    if (getActivity() instanceof WindowControl) {
+//                        ((WindowControl) getActivity()).getFragmentUtility().replace(
+//
+//                                HistoryFragment.newInstance(true),
+////                                HomeFragment.newInstance(),
+//
+//                                FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
+//                                FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
+//                                HistoryFragment.TAG
+//                        );
+//                    }
                 }
             }
         }
