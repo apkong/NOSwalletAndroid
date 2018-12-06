@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">NOS</string>
 
-    <string name="version_display">NOS Wallet Company, LLC\nV%1$s (%2$d)</string>
+    <string name="version_display">NOS Wallet\nV%1$s (%2$d)</string>
 
     <!-- Intro Screens -->
     <string name="intro_welcome_title">Welcome to NOS</string>
@@ -13,7 +13,7 @@
     <string name="intro_seed_seed_hint">(Seed Address)</string>
     <string name="intro_seed_confirm_cta">Confirm Seed</string>
     <string name="intro_new_wallet_title">Your NOS Wallet Seed</string>
-    <string name="intro_new_wallet_message"><![CDATA[<font color=\"#000034\">Your NOS Wallet Seed is a unique code that enables you to access your wallet on the NOS network.<br><br>It is the only way for you to recover your wallet and access any NOS currency you may have.</font><br><br><font color=\"#ee4b66\">We do not have access to it and cannot recover your Wallet Seed or any funds in your wallet without your Wallet Seed.</font><br><br><font color=\"#000034\">You are solely responsible for recording your Wallet Seed in a safe and secure place and manner.</font> <font color=\"#ee4b66\">Never share your Wallet Seed with anyone.</font>]]></string>
+    <string name="intro_new_wallet_message"><![CDATA[<font color=\"#000034\">Your NOS Wallet Seed is a unique code that enables you to access your funds.<br><br>It is the only way for you to recover your wallet and access any NOS, BANANO or NANO currency you may have.</font><br><br><font color=\"#ee4b66\">We do not have access to it and cannot recover your Wallet Seed or any funds in your wallet without your Wallet Seed.</font><br><br><font color=\"#000034\">You are solely responsible for recording your Wallet Seed in a safe and secure place and manner.</font> <font color=\"#ee4b66\">Never share your Wallet Seed with anyone.</font>]]></string>
     <string name="intro_new_wallet_confirm">I Understand, Continue</string>
     <string name="intro_new_wallet_seed_copied">Your Wallet Seed is pastable for 2 minutes. After, you can access it in Settings.\n\nPlease backup your Wallet Seed somewhere safe like 1Password, LastPass, or print it out and put it in a safe.</string>
     <string name="intro_new_wallet_seed_done">Okay</string>
@@ -66,7 +66,7 @@
     <string name="settings_seed_alert_confirm_cta">Okay</string>
     <string name="settings_seed_alert_cancel_cta">Cancel</string>
     <string name="settings_logout_alert_title">Are you sure you want to log out?</string>
-    <string name="settings_logout_alert_message">Logging out will remove your seed, keys, and all of your NOS-related data from this device.</string>
+    <string name="settings_logout_alert_message">Logging out will remove your seed, keys, and all of your NOS-related data from this device. Make sure you have a proper backup before doing this!</string>
     <string name="settings_logout_alert_confirm_cta">Okay</string>
     <string name="settings_logout_alert_cancel_cta">Cancel</string>
     <string name="settings_fingerprint_title">Copy Wallet Seed</string>
