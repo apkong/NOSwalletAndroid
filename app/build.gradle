@@ -1,18 +1,18 @@
-repositories {
-//    maven { url 'https://maven.fabric.io/public' }
-}
+//repositories {
+////    maven { url 'https://maven.fabric.io/public' }
+//}
 
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
-//apply plugin: 'io.fabric'
+apply plugin: 'io.fabric'
 
 
-def currentVersionCode = 17
-def currentVersionName = "0.0.17"
+def currentVersionCode = 18
+def currentVersionName = "0.0.18"
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    //buildToolsVersion "27.0.3"
     dataBinding {
         enabled = true
     }
@@ -180,9 +180,12 @@ dependencies {
     // https://mvnrepository.com/artifact/org.msgpack/msgpack
     implementation group: 'org.msgpack', name: 'msgpack', version: '0.6.12'
 
-    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-core:16.0.6'
 
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
+
+    // Add dependency
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.7'
 
 //    implementation('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
 //        transitive = true

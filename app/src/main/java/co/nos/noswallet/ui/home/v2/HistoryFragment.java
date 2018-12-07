@@ -1,5 +1,6 @@
 package co.nos.noswallet.ui.home.v2;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -42,6 +43,7 @@ public class HistoryFragment extends BaseFragment {
 
     private ViewPager viewPager;
     private PagerTabStrip pagerStrip;
+//    TabLayout tabLayout;
 
     private CurrenciesPagerAdapter currenciesPagerAdapter;
 
@@ -149,6 +151,8 @@ public class HistoryFragment extends BaseFragment {
 //        presenter.attachView(this);
         viewPager = view.findViewById(R.id.home_viewpager);
         pagerStrip = view.findViewById(R.id.pager_header);
+        pagerStrip.setTabIndicatorColor(Color.WHITE);
+        pagerStrip.setTextColor(Color.WHITE);
 
         view.findViewById(R.id.home_receive_button).setOnClickListener(v -> {
             if (getActivity() instanceof WindowControl) {
