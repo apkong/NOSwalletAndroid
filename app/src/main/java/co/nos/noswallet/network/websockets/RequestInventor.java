@@ -21,6 +21,7 @@ import co.nos.noswallet.network.websockets.model.PendingBlocksCredentialsBag;
 import co.nos.noswallet.network.websockets.model.PendingSendCoinsCredentialsBag;
 import co.nos.noswallet.network.websockets.model.ProcessBlockRequest;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.util.NosLogger;
 import io.reactivex.annotations.Experimental;
 
 public class RequestInventor {
@@ -44,7 +45,7 @@ public class RequestInventor {
     }
 
     public void fillOutTheAccountNumbers() {
-        Log.w(TAG, "fillOutTheAccountNumbers: called");
+        NosLogger.w(TAG, "fillOutTheAccountNumbers: called");
         for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
             accountNumbers.put(cryptoCurrency, credentialsProvider.provideAccountNumber(cryptoCurrency));
         }
@@ -129,13 +130,13 @@ public class RequestInventor {
                 totalBalance, blockHash, signatureFromData, work, cryptoCurrency)
                 .withRepresentative(representatives.get(cryptoCurrency))
                 .toString();
-        Log.w(TAG, "processing: " + json);
+        NosLogger.w(TAG, "processing: " + json);
         return json;
     }
 
     private String sumBigValues(@Nullable String balance, @Nullable String accountBalance) {
 
-        Log.w(TAG, "sumBigValues: " + balance + " + " + accountBalance);
+        NosLogger.w(TAG, "sumBigValues: " + balance + " + " + accountBalance);
         if (balance == null) {
             if (accountBalance == null) {
                 return new BigDecimal("0").toString();
@@ -145,7 +146,7 @@ public class RequestInventor {
         } else if (accountBalance == null || accountBalance.equals("0")) {
             return new BigDecimal(balance).toString();
         } else {
-            Log.d(TAG, "sumBigValues() called with: balance = [" + balance + "], accountBalance = [" + accountBalance + "]");
+            NosLogger.d(TAG, "sumBigValues() called with: balance = [" + balance + "], accountBalance = [" + accountBalance + "]");
             return new BigDecimal(balance).add(new BigDecimal(accountBalance)).toString();
         }
     }
@@ -193,7 +194,7 @@ public class RequestInventor {
     }
 
     public String processSendCoinsBlock(PendingSendCoinsCredentialsBag bag, CryptoCurrency currency) {
-        Log.d(TAG, "processSendCoinsBlock() called with: bag = [" + bag + "]");
+        NosLogger.d(TAG, "processSendCoinsBlock() called with: bag = [" + bag + "]");
 
         String destinationAccount = bag.destinationAccount;
         String totalBalance = NOSUtil.substractBigIntegers(accountBalanceMap.get(currency), bag.amount);

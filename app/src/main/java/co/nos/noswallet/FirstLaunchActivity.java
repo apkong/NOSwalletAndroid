@@ -56,6 +56,7 @@ import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
+import co.nos.noswallet.util.NosLogger;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.annotations.Experimental;
 import io.reactivex.disposables.Disposable;
@@ -451,7 +452,7 @@ public class FirstLaunchActivity extends AppCompatActivity implements WindowCont
     private void setupNewIntentIfAny(Intent intent) {
         if (intent != null && ACTION_GOT_SAUCE.equalsIgnoreCase(intent.getAction())) {
             viewPagerPosition = intent.getIntExtra(EXTRA_POSITION, 0);
-            Log.e(TAG, "setupNewIntentIfAny: " + viewPagerPosition);
+            NosLogger.e(TAG, "setupNewIntentIfAny: " + viewPagerPosition);
         }
     }
 

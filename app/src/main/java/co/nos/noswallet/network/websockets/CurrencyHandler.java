@@ -24,6 +24,7 @@ import co.nos.noswallet.network.websockets.model.PendingSendCoinsCredentialsBag;
 import co.nos.noswallet.network.websockets.model.WebSocketsState;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.push.FirebasePushMessagingRepository;
+import co.nos.noswallet.util.NosLogger;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.SerialDisposable;
@@ -39,7 +40,6 @@ import static co.nos.noswallet.network.websockets.model.WebSocketsState.TRANSFER
 public class CurrencyHandler {
 
     public static final String TAG = CurrencyHandler.class.getSimpleName();
-    //private final long TIMEOUT = 15_000;
 
     private CryptoCurrency currency;
     private RequestInventor requestInventor;
@@ -129,7 +129,7 @@ public class CurrencyHandler {
             case IDLE:
                 break;
             case GET_ACCOUNT_HISTORY:
-                Log.i(TAG, "got " + currentState.get().name() + ". do nothing");
+                NosLogger.i(TAG, "got " + currentState.get().name() + ". do nothing");
                 websocketExecutor.send(requestInventor.getAccountHistory(currency));
                 pushState(WebSocketsState.IDLE);
                 break;
@@ -174,7 +174,7 @@ public class CurrencyHandler {
         if (response.error == null) {
             setFcmRegistered(true);
         }
-        Log.w(TAG, "processRegisterNotificationsResponse: " + response);
+        NosLogger.w(TAG, "processRegisterNotificationsResponse: " + response);
     }
 
     private void processGetAccountHistory(SocketResponse response) {
@@ -208,13 +208,13 @@ public class CurrencyHandler {
     };
 
     public void registerPushNotificationsWhenAvailable() {
-        Log.w(TAG, "registerPushNotificationsWhenAvailable: ");
+        NosLogger.w(TAG, "registerPushNotificationsWhenAvailable: ");
         if (!alreadyRegisteredFcm())
             fcmDisposable.set(new FirebasePushMessagingRepository().getToken()
                     .subscribe(this::registerFcm, new Consumer<Throwable>() {
                         @Override
                         public void accept(Throwable throwable) throws Exception {
-                            Log.e(TAG, "error fetching token; " + throwable);
+                            NosLogger.e(TAG, "error fetching token; " + throwable);
                         }
                     }));
     }
@@ -230,18 +230,18 @@ public class CurrencyHandler {
     }
 
     private void registerFcm(String token) {
-        Log.w(TAG, "registerFcm with " + token);
+        NosLogger.w(TAG, "registerFcm with " + token);
         if (websocketExecutor != null) {
             String accountNumber = requestInventor.getAccountNumber(currency);
             websocketExecutor.send(new RegisterNotificationsRequest(accountNumber, token, currency).toString());
         } else {
-            Log.e(TAG, "registerFcm: webSocketExecutor couldn't send thus it not yet ready");
+            NosLogger.e(TAG, "registerFcm: webSocketExecutor couldn't send thus it not yet ready");
         }
     }
 
     public void unregisterNotifications() {
         Disposable disposable = new FirebasePushMessagingRepository().getToken().subscribe(this::unregisterNotifications, throwable -> {
-            Log.e(TAG, "failed");
+            NosLogger.e(TAG, "failed");
             setFcmRegistered(false);
         });
     }
@@ -272,7 +272,7 @@ public class CurrencyHandler {
         String json = String.valueOf(socketResponse.response);
         for (String invalidJson : invalidJsons) {
             if (invalidJson.equals(json)) {
-                Log.e(TAG, "get pending blocks response has no blocks to process");
+                NosLogger.e(TAG, "get pending blocks response has no blocks to process");
                 noMoreBlockToProcess();
                 return;
             }
@@ -283,7 +283,7 @@ public class CurrencyHandler {
                 StringBlocksResponse e = safeCast(element, StringBlocksResponse.class);
                 if (e != null) {
                     String blocksAsString = e.blocks;
-                    Log.w(TAG, "xddd: " + blocksAsString);
+                    NosLogger.w(TAG, "xddd: " + blocksAsString);
                     BlocksListCollection array = safeCast(blocksAsString, BlocksListCollection.class);
                     GetBlocksResponse response = new GetBlocksResponse(array);
                     boolean result = handleSingleBlockResponse(response);
@@ -301,7 +301,7 @@ public class CurrencyHandler {
     }
 
     private boolean handleSingleBlockResponse(GetBlocksResponse res) {
-        Log.e(TAG, "handleSingleBlockResponse: called with " + res);
+        NosLogger.e(TAG, "handleSingleBlockResponse: called with " + res);
         if (res.hasBlock() && !res.blocksValueInvalid()) {
             GetBlocksResponse.BlocksValue value = res.getBlock();
             if (value != null) {
@@ -320,7 +320,7 @@ public class CurrencyHandler {
     }
 
     private void processGetAccountInformationResponse(SocketResponse response) {
-        Log.w(TAG, "processGetAccountInformationResponse: " + response.toString());
+        NosLogger.w(TAG, "processGetAccountInformationResponse: " + response.toString());
 
         requestInventor.setRepresentative(representativesProvider.provideRepresentative(currency), currency);
 
@@ -375,7 +375,7 @@ public class CurrencyHandler {
     }
 
     private void processPublishBlock(SocketResponse response) {
-        Log.w(TAG, "processPublishBlock: " + response.toString());
+        NosLogger.w(TAG, "processPublishBlock: " + response.toString());
         //schedulePendingBlocksAfter(TIMEOUT);
         if (response.error == null) {
             //success
@@ -385,7 +385,7 @@ public class CurrencyHandler {
     }
 
     private void processGenerateWorkResponse(SocketResponse response) {
-        Log.e(TAG, "processGenerateWorkResponse: " + response.toString());
+        NosLogger.e(TAG, "processGenerateWorkResponse: " + response.toString());
 
         if (response.error != null) {
             System.err.println(response.error);
@@ -400,7 +400,7 @@ public class CurrencyHandler {
                         PendingSendCoinsCredentialsBag bag = pendingSendCoinsBag.get();
                         pendingSendCoinsBag.set(new PendingSendCoinsCredentialsBag(bag).withProofOfWork(work));
                     } else {
-                        Log.i(TAG, "got proof of work " + work);
+                        NosLogger.i(TAG, "got proof of work " + work);
                         pushBagState(ref -> ref.proofOfWork(work));
                         pushState(WebSocketsState.PROCESS_WORK);
                     }
@@ -416,15 +416,8 @@ public class CurrencyHandler {
     }
 
     private void pushState(WebSocketsState state) {
-        Log.w(TAG, "pushState: " + state.name() + " for " + currency.name());
+        NosLogger.w(TAG, "pushState: " + state.name() + " for " + currency.name());
         currentState.set(state);
-    }
-
-    private void schedulePendingBlocksAfter(long timeout) {
-        if (BuildConfig.DEVICE_POLLING_ENABLED) {
-//            handler.removeCallbacks(triggerGetAccountHistory);
-//            handler.postDelayed(triggerGetAccountHistory, timeout);
-        }
     }
 
     private void pushBagState(WebsocketMachine.Mutator mutator) {
@@ -434,7 +427,7 @@ public class CurrencyHandler {
     }
 
     public void transferCoins(String sendAmount, String destinationAccount, CryptoCurrency cryptoCurrency) {
-        Log.w(TAG, "transferCoins: " + sendAmount + ", " + destinationAccount);
+        NosLogger.w(TAG, "transferCoins: " + sendAmount + ", " + destinationAccount);
         //todo: generate work
 //        websocketExecutor.send();
         String accountNumber = requestInventor.getAccountNumber(cryptoCurrency);
@@ -467,7 +460,7 @@ public class CurrencyHandler {
             websocketExecutor.send(requestInventor.getAccountHistory(currency));
             accountHistoryRequested.set(true);
         } else {
-            Log.e(TAG, "requestAccountInfo: not connected yet!");
+            NosLogger.e(TAG, "requestAccountInfo: not connected yet!");
         }
     }
 
@@ -476,7 +469,7 @@ public class CurrencyHandler {
             websocketExecutor.send(requestInventor.getAccountInformation(currency));
             accountInfoRequested.set(true);
         } else {
-            Log.e(TAG, "requestAccountInfo: not connected yet!");
+            NosLogger.e(TAG, "requestAccountInfo: not connected yet!");
         }
     }
 

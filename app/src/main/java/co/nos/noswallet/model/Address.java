@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 
 import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.util.NosLogger;
 
 /**
  * Address class
@@ -86,26 +87,26 @@ public class Address implements Serializable {
 
     public boolean isValidAddress() {
         if (value == null) {
-            Log.w(TAG, "isValidAddress: value is null");
+            NosLogger.w(TAG, "isValidAddress: value is null");
             return false;
         }
 
         String[] parts = value.split("_");
         if (parts.length != 2) {
-            Log.w(TAG, "isValidAddress: parts are not ok");
+            NosLogger.w(TAG, "isValidAddress: parts are not ok");
 
             return false;
         }
         if (!parts[0].equals(cryptoCurrency.getPrefixWithNoFloor()) &&
                 !parts[0].equals("nano")
                 ) {
-            Log.w(TAG, "isValidAddress: #3");
+            NosLogger.w(TAG, "isValidAddress: #3");
             return false;
         }
         final int addressLength = parts[1].length();
 
         if (addressLength != 60) {
-            Log.w(TAG, "isValidAddress: #4 actual length == " + addressLength);
+            NosLogger.w(TAG, "isValidAddress: #4 actual length == " + addressLength);
             return false;
         }
         checkCharacters:
@@ -116,7 +117,7 @@ public class Address implements Serializable {
                     continue checkCharacters;
                 }
             }
-            Log.w(TAG, "isValidAddress: #5");
+            NosLogger.w(TAG, "isValidAddress: #5");
             return false;
         }
         byte[] shortBytes = NOSUtil.hexToBytes(NOSUtil.decodeAddressCharacters(parts[1]));
@@ -132,7 +133,7 @@ public class Address implements Serializable {
         Sodium.crypto_generichash_blake2b_final(state, checksum, checksum.length);
         for (int i = 0; i < checksum.length; i++) {
             if (checksum[i] != bytes[bytes.length - 1 - i]) {
-                Log.w(TAG, "isValidAddress: bad checksum");
+                NosLogger.w(TAG, "isValidAddress: bad checksum");
                 return false;
             }
         }

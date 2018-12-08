@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.util.NosLogger;
 import io.realm.Realm;
 
 public class RealmCredentialsProvider implements CredentialsProvider {
@@ -41,7 +42,7 @@ public class RealmCredentialsProvider implements CredentialsProvider {
         if (credentials != null) {
             addressString = credentials.getAddressString(cryptoCurrency);
         }
-        Log.i("REALM_XD", "provideAccountNumber: " + cryptoCurrency.name() + " : " + addressString);
+        NosLogger.i("REALM_XD", "provideAccountNumber: " + cryptoCurrency.name() + " : " + addressString);
         return addressString;
     }
 

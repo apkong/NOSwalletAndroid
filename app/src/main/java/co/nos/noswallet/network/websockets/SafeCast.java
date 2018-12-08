@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import co.nos.noswallet.util.NosLogger;
 import co.nos.noswallet.util.S;
 
 public class SafeCast {
@@ -16,7 +17,7 @@ public class SafeCast {
         try {
             return S.GSON.fromJson(json, klazz);
         } catch (JsonSyntaxException x) {
-            Log.e(TAG, "safeCast: ", x);
+            NosLogger.e(TAG, "safeCast: ", x);
             return null;
         }
     }
@@ -25,7 +26,7 @@ public class SafeCast {
         try {
             return S.GSON.fromJson(json, klazz);
         } catch (JsonSyntaxException x) {
-            Log.e(TAG, "safeCast: " + klazz.getSimpleName() + " failed to cast json: " + json);
+            NosLogger.e(TAG, "safeCast: " + klazz.getSimpleName() + " failed to cast json: " + json);
             return null;
         }
     }

@@ -14,6 +14,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.github.ajalt.reprint.core.Reprint;
+import com.scottyab.rootbeer.RootBeer;
 
 import co.nos.noswallet.di.activity.ActivityComponent;
 import co.nos.noswallet.di.activity.ActivityModule;
@@ -77,6 +78,10 @@ public class NOSApplication extends MultiDexApplication implements Application.A
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 
         mApplicationComponent.inject(this);
+
+        if (new RootBeer(this).isRootedWithoutBusyBoxCheck()) {
+            System.exit(0);
+        }
     }
 
     /**

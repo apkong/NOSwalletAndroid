@@ -49,6 +49,7 @@ import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.UIUtil;
 import co.nos.noswallet.ui.scan.ScanActivity;
+import co.nos.noswallet.util.NosLogger;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -231,7 +232,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     }
 
     private void handleQrCodeResult(String qrCodeResult) {
-        Log.w(TAG, "handleQrCodeResult: " + qrCodeResult);
+        NosLogger.w(TAG, "handleQrCodeResult: " + qrCodeResult);
 
         if (qrCodeResult != null && !qrCodeResult.isEmpty()) {
 
@@ -372,7 +373,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
      * @param value String value of character pressed
      */
     private void updateAmount(CharSequence value) {
-        Log.d(TAG, "updateAmount() called with: value = [" + value + "]");
+        NosLogger.d(TAG, "updateAmount() called with: value = [" + value + "]");
 
         presenter.updateAmount(value);
         enableSendIfPossible();
@@ -478,7 +479,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         }
 
         public void onClickChangeCurrency(View view) {
-            Log.e(TAG, "onClickChangeCurrency: " + view);
+            NosLogger.e(TAG, "onClickChangeCurrency: " + view);
             if (view instanceof Button) {
                 String text = ((Button) view).getText().toString();
                 presenter.switchCurrency(text);

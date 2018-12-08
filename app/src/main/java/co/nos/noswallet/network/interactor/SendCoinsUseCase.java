@@ -15,6 +15,7 @@ import co.nos.noswallet.network.nosModel.ProcessBlock;
 import co.nos.noswallet.network.nosModel.ProcessRequest;
 import co.nos.noswallet.network.nosModel.ProcessResponse;
 import co.nos.noswallet.network.nosModel.WorkRequest;
+import co.nos.noswallet.util.NosLogger;
 import io.reactivex.Observable;
 
 import static co.nos.noswallet.network.interactor.GetPendingBlocksUseCase.getRawAsHex;
@@ -65,7 +66,7 @@ public class SendCoinsUseCase {
                                                       String representative,
                                                       String private_key) {
 
-        Log.d(TAG, "transferCoins() called with: " +
+        NosLogger.d(TAG, "transferCoins() called with: " +
                 "sendingAccount = [" + sendingAccount + "], " +
                 "publicKey = [" + publicKey + "], " +
                 "destinationAccount = [" + destinationAccount + "], " +

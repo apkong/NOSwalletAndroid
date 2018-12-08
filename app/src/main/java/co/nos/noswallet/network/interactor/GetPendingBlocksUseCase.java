@@ -21,6 +21,7 @@ import co.nos.noswallet.network.nosModel.ProcessBlock;
 import co.nos.noswallet.network.nosModel.ProcessRequest;
 import co.nos.noswallet.network.nosModel.ProcessResponse;
 import co.nos.noswallet.network.nosModel.WorkRequest;
+import co.nos.noswallet.util.NosLogger;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.disposables.SerialDisposable;
@@ -90,7 +91,7 @@ public class GetPendingBlocksUseCase {
                                 new Consumer<Throwable>() {
                                     @Override
                                     public void accept(Throwable throwable) throws Exception {
-                                        Log.e(TAG, "onError: throwable: " + throwable.getMessage());
+                                        NosLogger.e(TAG, "onError: throwable: " + throwable.getMessage());
                                         throwable.printStackTrace();
                                     }
                                 })

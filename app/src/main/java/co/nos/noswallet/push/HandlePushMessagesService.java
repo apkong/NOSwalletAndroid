@@ -17,6 +17,7 @@ import co.nos.noswallet.R;
 import co.nos.noswallet.network.notifications.NosNotifier;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.util.NosLogger;
 
 public class HandlePushMessagesService extends FirebaseMessagingService {
 
@@ -58,13 +59,13 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
     }
 
     private void processMessage(final RemoteMessage remoteMessage) {
-        Log.w(TAG, "onMessageReceived: " + remoteMessage);
+        NosLogger.w(TAG, "onMessageReceived: " + remoteMessage);
 
         Map<String, String> data = remoteMessage.getData();
 
         StringBuilder stringBuilder = new StringBuilder();
         for (String key : data.keySet()) {
-            Log.w(TAG, "onMessageReceived: " + key + " : " + data.get(key));
+            NosLogger.w(TAG, "onMessageReceived: " + key + " : " + data.get(key));
             stringBuilder.append(key + " : " + data.get(key) + ", ");
         }
 
@@ -99,7 +100,7 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
         String CURRENCY = cryptoCurrency.name();
 
         String currency_received = getString(R.string.currency_received, CURRENCY);
-        Log.w(TAG, "processMessage: " + currency_received);
+        NosLogger.w(TAG, "processMessage: " + currency_received);
 
         String youReceivedText = getString(R.string.you_received_template, X, CURRENCY);
 

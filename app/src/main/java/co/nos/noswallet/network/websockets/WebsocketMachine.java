@@ -23,6 +23,7 @@ import co.nos.noswallet.network.nosModel.SocketResponse;
 import co.nos.noswallet.network.websockets.model.PendingBlocksCredentialsBag;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.home.HasWebsocketMachine;
+import co.nos.noswallet.util.NosLogger;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -127,7 +128,7 @@ public class WebsocketMachine {
     }
 
     private void setupWebSockets() {
-        Log.i(TAG, "setupWebSockets() called");
+        NosLogger.i(TAG, "setupWebSockets() called");
         String url = BuildConfig.WEBSOCKET_URL;
 
         websocketExecutor = new WebsocketExecutor(new OkHttpClient(), url, new NosNodeWebSocketListener());
@@ -152,7 +153,7 @@ public class WebsocketMachine {
     }
 
     private void onError(Throwable err) {
-        Log.e(TAG, "onError: ", err);
+        NosLogger.e(TAG, "onError: ", err);
         err.printStackTrace();
 
         if (isNetworkError(err) || socketClosedError(err)) {
@@ -163,7 +164,7 @@ public class WebsocketMachine {
 
             closeAll();
         } else {
-            Log.e(TAG, "onError: unrecognized error", err);
+            NosLogger.e(TAG, "onError: unrecognized error", err);
         }
     }
 
@@ -183,7 +184,7 @@ public class WebsocketMachine {
 
     @SuppressLint("LogNotTimber")
     private void recognize(String json) {
-        Log.i(TAG, "onNext -> \n" + json);
+        NosLogger.i(TAG, "onNext -> \n" + json);
         SocketResponse response = safeCast(json, SocketResponse.class);
 
         for (CurrencyHandler handler : currencyHandlers) {
@@ -207,7 +208,7 @@ public class WebsocketMachine {
     }
 
     public void requestAccountHistory(CryptoCurrency cryptoCurrency) {
-        Log.w(TAG, "requestAccountHistory: ");
+        NosLogger.w(TAG, "requestAccountHistory: ");
         getMatchingHandlerAndPerform(cryptoCurrency, CurrencyHandler::requestAccountHistory);
     }
 
@@ -240,7 +241,7 @@ public class WebsocketMachine {
     }
 
     public void requestAccountInfo(CryptoCurrency cryptoCurrency) {
-        Log.w(TAG, "requestAccountInfo: ");
+        NosLogger.w(TAG, "requestAccountInfo: ");
         getMatchingHandlerAndPerform(cryptoCurrency, CurrencyHandler::requestAccountInfo);
     }
 

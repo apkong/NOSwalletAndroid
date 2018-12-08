@@ -13,6 +13,7 @@ import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
+import co.nos.noswallet.util.NosLogger;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.SerialDisposable;
@@ -44,10 +45,10 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public void attemptSendCoins(String uiCoinsAmount) {
-        Log.w(TAG, "attemptSendCoins: " + uiCoinsAmount);
+        NosLogger.w(TAG, "attemptSendCoins: " + uiCoinsAmount);
 
         String rawAmount = currencyFormatter.uiToRaw(uiCoinsAmount);
-        Log.w(TAG, "raw amount is : " + rawAmount);
+        NosLogger.w(TAG, "raw amount is : " + rawAmount);
 
         if (!targetAddressValid()) {
             String message = view.getString(R.string.please_specify_destination_address);
@@ -146,7 +147,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
     public boolean canTransferRawAmount(String raw) {
         String rawTypedCoins = raw;
-        Log.w(TAG, "canTransferRawAmount: " + rawTypedCoins);
+        NosLogger.w(TAG, "canTransferRawAmount: " + rawTypedCoins);
         this.recentTypedCoins = rawTypedCoins;
         if (rawTypedCoins == null || rawTypedCoins.isEmpty() || new BigDecimal(rawTypedCoins).equals(BigDecimal.ZERO))
             return false;
@@ -157,7 +158,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public boolean transferPossible(String raw_amount, String currentBalance) {
-        Log.w(TAG, "transferPossible: " + raw_amount + ", " + currentBalance);
+        NosLogger.w(TAG, "transferPossible: " + raw_amount + ", " + currentBalance);
         if (raw_amount == null || raw_amount.isEmpty()) return false;
         if (currentBalance == null) return false;
 
@@ -181,7 +182,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         if (websocketMachineRef != null) {
             balance = websocketMachineRef.getRecentAccountBalanceOf(currencyInUse);
         }
-        Log.d(TAG, "getTotalCoinsAmount: " + balance);
+        NosLogger.d(TAG, "getTotalCoinsAmount: " + balance);
 
         return balance;
     }
@@ -208,7 +209,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     private void onErrorSendCoins(Throwable throwable) {
-        Log.e(TAG, "onErrorSendCoins: ", throwable);
+        NosLogger.e(TAG, "onErrorSendCoins: ", throwable);
         hideLoading();
         throwable.printStackTrace();
         String errorMessage = view.getString(R.string.failed_to_send_coins);

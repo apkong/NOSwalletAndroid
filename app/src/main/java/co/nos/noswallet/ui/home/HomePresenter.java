@@ -20,6 +20,7 @@ import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.network.nosModel.SocketResponse;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
+import co.nos.noswallet.util.NosLogger;
 import co.nos.noswallet.util.S;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -92,7 +93,7 @@ public class HomePresenter extends BasePresenter<HomeView> {
             uiCallbacksDisposable = machine.observeUiTriggers()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(response -> {
-                        Log.w(TAG, "observeUiCallbacks: onNext: " + response);
+                        NosLogger.w(TAG, "observeUiCallbacks: onNext: " + response);
                         if (response.isHistoryResponse()) {
                             renderHistoryResponse(response);
                         } else if (response.isAccountInformationResponse()) {
@@ -103,7 +104,7 @@ public class HomePresenter extends BasePresenter<HomeView> {
     }
 
     private void handleUiErrors(Throwable throwable) {
-        Log.e(TAG, "handleUiErrors: ", throwable);
+        NosLogger.e(TAG, "handleUiErrors: ", throwable);
         throwable.printStackTrace();
     }
 
@@ -117,7 +118,7 @@ public class HomePresenter extends BasePresenter<HomeView> {
         sharedPreferencesUtil.set(ACCOUNT_HISTORY, S.GSON.toJson(response));
         JsonElement element = response.response;
 
-        Log.d(TAG, "renderHistoryResponse() called with: response = [" + response + "]");
+        NosLogger.d(TAG, "renderHistoryResponse() called with: response = [" + response + "]");
 
         if (element != null && element.isJsonObject()) {
             JsonObject o = element.getAsJsonObject();

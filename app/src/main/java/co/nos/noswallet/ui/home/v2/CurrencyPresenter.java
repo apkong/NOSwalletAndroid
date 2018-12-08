@@ -15,6 +15,7 @@ import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.home.AccountInfoModel;
+import co.nos.noswallet.util.NosLogger;
 import co.nos.noswallet.util.S;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -62,10 +63,10 @@ public class CurrencyPresenter {
                         String balance = renderAccountInfoResponse(response, cryptoCurrency);
                         machine.setRecentAccountBalance(balance, cryptoCurrency);
                     } else {
-                        Log.w(TAG, "showing socket response: " + response);
+                        NosLogger.w(TAG, "showing socket response: " + response);
                     }
                 }, throwable -> {
-                    Log.e(TAG, "CurrencyPresenter: ", throwable);
+                    NosLogger.e(TAG, "CurrencyPresenter: ", throwable);
                     throwable.printStackTrace();
                 })
         );
@@ -95,7 +96,7 @@ public class CurrencyPresenter {
     }
 
     private String renderAccountInfoResponse(SocketResponse response, CryptoCurrency cryptoCurrency) {
-        Log.w(TAG, "got account information response: " + response);
+        NosLogger.w(TAG, "got account information response: " + response);
         sharedPreferencesUtil.set(ACCOUNT_INFO + cryptoCurrency.name(), S.GSON.toJson(response));
 
         if (response.isNewAccount()) {
@@ -123,7 +124,7 @@ public class CurrencyPresenter {
         sharedPreferencesUtil.set(ACCOUNT_HISTORY + cryptoCurrency.name(), S.GSON.toJson(response));
         JsonElement element = response.response;
 
-        Log.d(TAG, "renderHistoryResponse() called with: response = [" + response + "]");
+        NosLogger.d(TAG, "renderHistoryResponse() called with: response = [" + response + "]");
 
         if (element != null && element.isJsonObject()) {
             JsonObject o = element.getAsJsonObject();

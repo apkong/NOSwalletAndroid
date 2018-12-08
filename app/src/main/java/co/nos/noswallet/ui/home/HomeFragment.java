@@ -48,6 +48,7 @@ import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
+import co.nos.noswallet.util.NosLogger;
 import io.realm.Realm;
 
 /**
@@ -288,7 +289,7 @@ public class HomeFragment extends BaseFragment implements HomeView {
         }
 
         public void onClickSend(View view) {
-            Log.d(TAG, "onClickSend() called with: view = [" + view + "]");
+            NosLogger.d(TAG, "onClickSend() called with: view = [" + view + "]");
 
             if (getActivity() instanceof WindowControl) {
                 // navigate to send screen

@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import co.nos.noswallet.util.NosLogger;
+
 public enum CryptoCurrency implements Serializable {
 
 
@@ -69,9 +71,9 @@ public enum CryptoCurrency implements Serializable {
 
         try {
             integer = new BigDecimal(uiValue).multiply(divider).toBigIntegerExact();
-            Log.e(TAG, "uiToRaw: ui: " + uiValue + " => raw: ");
+            NosLogger.e(TAG, "uiToRaw: ui: " + uiValue + " => raw: ");
         } catch (ArithmeticException x) {
-            Log.e(TAG, "uiToRaw: ui: " + uiValue + " => raw: " + x);
+            NosLogger.e(TAG, "uiToRaw: ui: " + uiValue + " => raw: " + x);
         }
         if (integer != null) {
             return integer.toString();
@@ -83,7 +85,7 @@ public enum CryptoCurrency implements Serializable {
         String ui;
         if (this == NOLLAR) ui = rawNollarToUi(raw);
         else ui = rawNosToUi(raw);
-        Log.e(TAG, "rawToUi: raw: " + raw + " => ui: " + ui);
+        NosLogger.e(TAG, "rawToUi: raw: " + raw + " => ui: " + ui);
 
         return ui;
     }
@@ -108,7 +110,7 @@ public enum CryptoCurrency implements Serializable {
     }
 
     private String rawNosToUi(String raw) {
-        Log.w(TAG, "rawNosToUi: " + raw);
+        NosLogger.w(TAG, "rawNosToUi: " + raw);
         if (raw == null || raw.equals("0")) {
             return "0.00";
         } else if (raw.contains(".")) {
@@ -164,7 +166,7 @@ public enum CryptoCurrency implements Serializable {
                 }
             }
         }
-        Log.d(TAG, "serveNeighbour() called on " + name() + ", returning " + out.name());
+        NosLogger.d(TAG, "serveNeighbour() called on " + name() + ", returning " + out.name());
 
         return out;
     }

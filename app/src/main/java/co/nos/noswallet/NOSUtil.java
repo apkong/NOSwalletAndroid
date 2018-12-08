@@ -55,7 +55,7 @@ public class NOSUtil {
      */
     public static String seedToPrivate(String seed) {
         if (BuildConfig.DEBUG) {
-            //Log.d(TAG, "seedToPrivate() called with: seed = [" + seed + "]");
+            //NosLogger.d(TAG, "seedToPrivate() called with: seed = [" + seed + "]");
         }
         Sodium sodium = NaCl.sodium();
         byte[] state = new byte[Sodium.crypto_generichash_statebytes()];
@@ -184,7 +184,7 @@ public class NOSUtil {
                                           String representative,
                                           String balance,
                                           String link) {
-//        Log.d(TAG, "computeStateHash() called with:" +
+//        NosLogger.d(TAG, "computeStateHash() called with:" +
 //                " account = [" + account + "], " +
 //                "previous = [" + previous + "], " +
 //                "representative = [" + representative + "]," +
@@ -208,7 +208,7 @@ public class NOSUtil {
         byte[] balance_b = hexToBytes(balance);
 
         if (balance_b == null) {
-            //Log.e(TAG, "computeStateHash: balance_b is null returning gracefully ");
+            //NosLogger.e(TAG, "computeStateHash: balance_b is null returning gracefully ");
             return null;
         }
 
@@ -225,7 +225,7 @@ public class NOSUtil {
         Sodium.crypto_generichash_blake2b_final(state, output, output.length);
 
         String response = bytesToHex(output);
-        //Log.d(TAG, "computeStateHash() returned : " + response);
+        //NosLogger.d(TAG, "computeStateHash() returned : " + response);
         return response;
     }
 
@@ -261,7 +261,7 @@ public class NOSUtil {
      * @return Signed message
      */
     public static String sign(String private_key, String data) {
-        //Log.d(TAG, "sign() called with: private_key = [" + private_key + "], data = [" + data + "]");
+        //NosLogger.d(TAG, "sign() called with: private_key = [" + private_key + "], data = [" + data + "]");
         Sodium sodium = NaCl.sodium();
         byte[] data_b = hexToBytes(data);
         byte[] private_key_b = hexToBytes(private_key);
@@ -271,7 +271,7 @@ public class NOSUtil {
 
         Sodium.crypto_sign_ed25519_detached(signature, signature_len, data_b, data_b.length, private_key_b);
         String ret = bytesToHex(signature);
-        //Log.d(TAG, "sign() returned with: " + ret);
+        //NosLogger.d(TAG, "sign() returned with: " + ret);
         return ret;
     }
 
@@ -334,7 +334,7 @@ public class NOSUtil {
      * @return Public Key
      */
     public static String addressToPublic(String encoded_address) {
-        //Log.w(TAG, "addressToPublic: " + encoded_address);
+        //NosLogger.w(TAG, "addressToPublic: " + encoded_address);
         NaCl.sodium();
         String data = encoded_address.split("_")[1].substring(0, 52);
         byte[] data_b = NOSUtil.hexStringToByteArray(decodeAddressCharacters(data));
@@ -355,7 +355,7 @@ public class NOSUtil {
             pk.insert(0, "0");
         }
         String result = pk.toString();
-        //Log.w(TAG, "addressToPublic: returned " + result);
+        //NosLogger.w(TAG, "addressToPublic: returned " + result);
         return result;
     }
 

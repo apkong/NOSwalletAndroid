@@ -11,6 +11,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
 import co.nos.noswallet.NOSApplication;
+import co.nos.noswallet.util.NosLogger;
 
 public class FCMInstanceIdService extends FirebaseInstanceIdService {
     public static final String TAG = FCMInstanceIdService.class.getSimpleName();
@@ -24,7 +25,7 @@ public class FCMInstanceIdService extends FirebaseInstanceIdService {
 //    @Override
 //    public void onNewToken(String newToken) {
 //        super.onNewToken(newToken);
-//        Log.w(FCM_TOKEN, "onNewToken: " + newToken);
+//        NosLogger.w(FCM_TOKEN, "onNewToken: " + newToken);
 //    }
 //
     private SharedPreferences getSharedPreferences() {
@@ -34,7 +35,7 @@ public class FCMInstanceIdService extends FirebaseInstanceIdService {
     @Override
     public void onTokenRefresh() {
         super.onTokenRefresh();
-        Log.d(TAG, "onTokenRefresh() called");
+        NosLogger.d(TAG, "onTokenRefresh() called");
         String newToken = obtainToken();
         if (newToken != null) {
             NOSApplication.getApplication(this).fcmTokenSubject.onNext(newToken);
@@ -51,7 +52,7 @@ public class FCMInstanceIdService extends FirebaseInstanceIdService {
         } else {
             token = getSharedPreferences().getString(FCM_TOKEN, null);
         }
-        Log.d(TAG, "obtainToken() called, returning " + token);
+        NosLogger.d(TAG, "obtainToken() called, returning " + token);
         return token;
     }
 }

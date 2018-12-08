@@ -57,6 +57,7 @@ import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
+import co.nos.noswallet.util.NosLogger;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
@@ -433,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     private void setupNewIntentIfAny(Intent intent) {
         if (intent != null && ACTION_GOT_SAUCE.equalsIgnoreCase(intent.getAction())) {
             viewPagerPosition = intent.getIntExtra(EXTRA_POSITION, 0);
-            Log.e(TAG, "setupNewIntentIfAny: " + viewPagerPosition);
+            NosLogger.e(TAG, "setupNewIntentIfAny: " + viewPagerPosition);
         }
     }
 

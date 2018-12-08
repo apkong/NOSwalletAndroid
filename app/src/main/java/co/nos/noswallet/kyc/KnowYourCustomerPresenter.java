@@ -13,6 +13,7 @@ import co.nos.noswallet.kyc.identity.IdentityFragment;
 import co.nos.noswallet.kyc.phoneNumber.PhoneNumberFragment;
 import co.nos.noswallet.kyc.pinKeyboard.PinKeyboardFragment;
 import co.nos.noswallet.kyc.smsCode.SmsCodeFragment;
+import co.nos.noswallet.util.NosLogger;
 
 public class KnowYourCustomerPresenter extends BasePresenter<KnowYourCustomerView> {
 
@@ -29,7 +30,7 @@ public class KnowYourCustomerPresenter extends BasePresenter<KnowYourCustomerVie
     }
 
     public void openFragmentWithCurrentPosition(int currentPosition) {
-        Log.d(TAG, "openFragmentWithCurrentPosition() called with: currentPosition = [" + currentPosition + "]");
+        NosLogger.d(TAG, "openFragmentWithCurrentPosition() called with: currentPosition = [" + currentPosition + "]");
         this.currentPosition = currentPosition;
         switch (currentPosition) {
             case 0: {
