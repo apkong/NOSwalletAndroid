@@ -32,15 +32,15 @@ public class LinuxSecureRandom extends SecureRandomSpi {
             int position = Security.insertProviderAt(new LinuxSecureRandomProvider(), 1);
 
             if (position != -1)
-                Log.i("INFO", "Secure randomness will be read from {} only: " + file);
+                NosLogger.i("INFO", "Secure randomness will be read from {} only: " + file);
             else
-                Log.i("INFO", "Randomness is already secure.");
+                NosLogger.i("INFO", "Randomness is already secure.");
         } catch (FileNotFoundException e) {
             // Should never happen.
-            Log.e("ERROR", "/dev/urandom does not appear to exist or is not openable");
+            NosLogger.e("ERROR", "/dev/urandom does not appear to exist or is not openable");
             throw new RuntimeException(e);
         } catch (IOException e) {
-            Log.e("ERROR", "/dev/urandom does not appear to be readable");
+            NosLogger.e("ERROR", "/dev/urandom does not appear to be readable");
             throw new RuntimeException(e);
         }
     }

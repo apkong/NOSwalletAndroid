@@ -1,5 +1,6 @@
 package co.nos.noswallet.ui.common;
 
+import android.support.annotation.ColorRes;
 import android.view.View;
 
 /**
@@ -8,7 +9,7 @@ import android.view.View;
 
 public interface WindowControl {
     FragmentUtility getFragmentUtility();
-    void setStatusBarColor(int color);
+    void setStatusBarColor(@ColorRes int color);
     void setDarkIcons(View view);
     void setToolbarVisible(boolean visible);
     void setTitle(String title);

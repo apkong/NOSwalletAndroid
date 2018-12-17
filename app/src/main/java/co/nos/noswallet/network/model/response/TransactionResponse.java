@@ -6,7 +6,7 @@ import co.nos.noswallet.network.model.BaseResponse;
 import co.nos.noswallet.network.model.BaseResponse;
 
 /**
- * Error response from service
+ * SocketClosed response from service
  */
 
 public class TransactionResponse extends BaseResponse {

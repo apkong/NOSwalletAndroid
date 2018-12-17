@@ -3,7 +3,7 @@ package co.nos.noswallet.network.model.request.block;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.network.model.BlockTypes;
 import co.nos.noswallet.util.NumberUtil;
 
@@ -43,8 +43,8 @@ public class SendBlock extends Block {
         this.previous = previous;
         this.destination = destination;
         this.balance = NumberUtil.getRawAsHex(balance);
-        String hash = NanoUtil.computeSendHash(previous, NanoUtil.addressToPublic(destination), this.balance);
-        this.signature = NanoUtil.sign(private_key, hash);
+        String hash = NOSUtil.computeSendHash(previous, NOSUtil.addressToPublic(destination), this.balance);
+        this.signature = NOSUtil.sign(private_key, hash);
     }
 
     public String getType() {

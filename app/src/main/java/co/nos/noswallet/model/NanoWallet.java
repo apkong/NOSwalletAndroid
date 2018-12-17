@@ -16,7 +16,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.bus.SendInvalidAmount;
 import co.nos.noswallet.bus.WalletClear;
@@ -31,14 +31,13 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.util.ExceptionHandler;
 import co.nos.noswallet.util.NumberUtil;
 import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.network.model.response.CurrentPriceResponse;
-import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
 
 /**
  * Nano wallet that holds transactions and current prices
  */
+@Deprecated
 public class NanoWallet {
     private BigDecimal accountBalance;
     private BigDecimal localCurrencyPrice;
@@ -54,6 +53,7 @@ public class NanoWallet {
     private List<AccountHistoryResponseItem> accountHistory;
 
     // for sending
+    @Deprecated
     private String sendNanoAmount;
     private String sendLocalCurrencyAmount;
     private String publicKey;
@@ -212,7 +212,6 @@ public class NanoWallet {
     public String sanitizeNoCommas(String amount) {
         return amount.replaceAll("[^\\d.]", "");
     }
-
 
     /**
      * Set Nano amount which will also set the local currency amount
@@ -460,7 +459,7 @@ public class NanoWallet {
     }
 
     public String getRepresentative() {
-        return representativeAddress != null ? NanoUtil.publicToAddress(representativeAddress) : PreconfiguredRepresentatives.getRepresentative();
+        return representativeAddress != null ? NOSUtil.publicToAddress(representativeAddress) : PreconfiguredRepresentatives.getRepresentative();
     }
 
 
@@ -493,6 +492,11 @@ public class NanoWallet {
         localCurrencyPrice = new BigDecimal(subscribeResponse.getPrice());
         btcPrice = new BigDecimal(subscribeResponse.getBtc());
         RxBus.get().post(new WalletSubscribeUpdate());
+    }
+
+    @Subscribe
+    public void currentAccountBalance(CurrentAccountBalance currentAccountBalance){
+        accountBalance = currentAccountBalance.value;
     }
 
     /**

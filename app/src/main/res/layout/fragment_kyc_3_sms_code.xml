@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="handlers"
+            type="co.nos.noswallet.kyc.smsCode.SmsCodeFragment.ClickHandlers" />
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:background="@color/white">
+
+        <TextView
+            android:id="@+id/welcome_nos"
+            style="@style/BiggerText"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/activity_default_padding"
+            android:text="@string/enter_6_digit_code"
+            android:textSize="24dp" />
+
+        <TextView
+            android:id="@+id/we_sent_number"
+            style="@style/SecondaryText"
+            android:layout_below="@+id/welcome_nos"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/small_margin"
+            tools:text="We sent number to +49 123456789" />
+
+        <br.com.sapereaude.maskedEditText.MaskedEditText
+            android:id="@+id/kyc_3_sms_code_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/we_sent_number"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/activity_default_padding"
+            android:gravity="center"
+            android:inputType="number"
+            app:mask="###-###" />
+
+        <SeekBar
+            android:id="@+id/kyc_3_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="@dimen/activity_default_padding"
+            android:theme="@style/AppTheme.Orange"
+            android:thumb="@null"
+            tools:progress="66" />
+
+        <TextView
+            android:id="@+id/resend_info_label"
+            style="@style/SecondaryText"
+            android:layout_above="@+id/kyc_3_resend_sms_code"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="@dimen/activity_extra_padding"
+            android:layout_marginRight="@dimen/activity_extra_padding"
+            android:gravity="center"
+            tools:text="You can resend your code, if not received within 0:28 seconds" />
+
+        <TextView
+            android:id="@+id/kyc_3_resend_sms_code"
+            style="@style/CancelButton"
+            android:layout_above="@+id/kyc_3_continue"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:text="@string/resend_code" />
+
+        <TextView
+            android:id="@+id/kyc_3_continue"
+            style="@style/ConfirmButton"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="32dp"
+            android:layout_marginTop="8dp"
+            android:onClick="@{handlers::onClickContinue}"
+            android:text="@string/_continue" />
+
+    </RelativeLayout>
+</layout>

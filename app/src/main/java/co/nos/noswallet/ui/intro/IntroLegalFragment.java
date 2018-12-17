@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.MainActivity;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
@@ -31,21 +32,9 @@ import co.nos.noswallet.bus.Logout;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentIntroLegalBinding;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
-import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.home.HomeFragment;
-import co.nos.noswallet.ui.webview.WebViewAgreementDialogFragment;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.AcceptAgreement;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.webview.WebViewAgreementDialogFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
@@ -55,16 +44,13 @@ import io.realm.Realm;
  * The Intro Screen to the app
  */
 
-public class IntroLegalFragment extends BaseFragment {
+public class IntroLegalFragment extends BaseFragment<MainActivity> {
     public static String TAG = IntroLegalFragment.class.getSimpleName();
     private String seed;
     private FragmentIntroLegalBinding binding;
 
     @Inject
     Realm realm;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     SharedPreferencesUtil sharedPreferencesUtil;
@@ -122,8 +108,6 @@ public class IntroLegalFragment extends BaseFragment {
         binding.introLegalLabelEula.setPaintFlags(binding.introLegalCheckboxEula.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         binding.introLegalCheckboxPp.setOnTouchListener(checkBoxTouchListener);
         binding.introLegalLabelPp.setPaintFlags(binding.introLegalCheckboxPp.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-
-        accountService.open();
 
         return view;
     }
@@ -200,8 +184,7 @@ public class IntroLegalFragment extends BaseFragment {
         if (getActivity() instanceof WindowControl) {
             WebViewAgreementDialogFragment
                     .newInstance(url, title, id)
-                    .show(
-                            ((WindowControl) getActivity()).getFragmentUtility().getFragmentManager(),
+                    .show(((WindowControl) getActivity()).getFragmentUtility().getFragmentManager(),
                             WebViewAgreementDialogFragment.TAG
                     );
         }
@@ -293,14 +276,21 @@ public class IntroLegalFragment extends BaseFragment {
                         );
                     }
                 } else {
-                    if (getActivity() instanceof WindowControl) {
-                        ((WindowControl) getActivity()).getFragmentUtility().replace(
-                                HomeFragment.newInstance(),
-                                FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
-                                FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
-                                HomeFragment.TAG
-                        );
+                    if (getParent() != null) {
+                        getParent().showRestartNeededBecauseOfFirstLaunch();
                     }
+
+//                    if (getActivity() instanceof WindowControl) {
+//                        ((WindowControl) getActivity()).getFragmentUtility().replace(
+//
+//                                HistoryFragment.newInstance(true),
+////                                HomeFragment.newInstance(),
+//
+//                                FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
+//                                FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
+//                                HistoryFragment.TAG
+//                        );
+//                    }
                 }
             }
         }

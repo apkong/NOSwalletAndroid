@@ -10,9 +10,11 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.InputType;
@@ -20,8 +22,11 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import co.nos.noswallet.NanoUtil;
+import java.io.Serializable;
+
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.broadcastreceiver.ClipboardAlarmReceiver;
@@ -34,18 +39,13 @@ import co.nos.noswallet.ui.pin.PinDialogFragment;
 import co.nos.noswallet.ui.scan.ScanActivity;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.util.ExceptionHandler;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SeedCreatedWithAnotherWallet;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.util.ExceptionHandler;
 import io.realm.Realm;
 
 /**
  * Helper methods used by all fragments
  */
 
-public class BaseFragment extends Fragment {
+public class BaseFragment<T extends FragmentActivity> extends Fragment {
     private static final int ZXING_CAMERA_PERMISSION = 1;
     protected static final int SCAN_RESULT = 2;
 
@@ -53,11 +53,18 @@ public class BaseFragment extends Fragment {
     private boolean isSeedScanner;
     protected View view;
 
+    @SuppressWarnings("unchecked")
+    @Nullable
+    protected T getParent() {
+        return (T) getActivity();
+    }
+
     /**
      * Set status bar color to dark blue
      */
+    @Deprecated
     protected void setStatusBarBlue() {
-        setStatusBarColor(R.color.very_dark_blue);
+        setStatusBarColor(R.color.colorAccent);
     }
 
     /**
@@ -220,6 +227,10 @@ public class BaseFragment extends Fragment {
     }
 
     protected void showPinScreen(String subtitle) {
+        showPinScreen(subtitle, null);
+    }
+
+    protected void showPinScreen(String subtitle, Runnable action) {
         if (getActivity() instanceof WindowControl) {
             PinDialogFragment dialog = PinDialogFragment.newInstance(subtitle);
             dialog.show(((WindowControl) getActivity()).getFragmentUtility().getFragmentManager(),
@@ -230,7 +241,12 @@ public class BaseFragment extends Fragment {
 
             // reset status bar to blue when dialog is closed
             if (dialog.getDialog() != null) {
-                dialog.getDialog().setOnDismissListener(dialogInterface -> setStatusBarBlue());
+                dialog.getDialog().setOnDismissListener(dialogInterface -> {
+                    setStatusBarBlue();
+                    if (action != null) {
+                        action.run();
+                    }
+                });
             }
         }
     }
@@ -263,9 +279,9 @@ public class BaseFragment extends Fragment {
                 .setMessage(R.string.seed_update_alert_message)
                 .setPositiveButton(R.string.seed_update_alert_confirm_cta, (dialog, which) -> {
                     dialog.dismiss();
-                    String newSeed = NanoUtil.generateSeed();
+                    String newSeed = NOSUtil.generateSeed();
                     String newSeedDisplay = newSeed.replaceAll("(.{4})", "$1 ");
-                    String address = NanoUtil.publicToAddress(NanoUtil.privateToPublic(NanoUtil.seedToPrivate(newSeed)));
+                    String address = NOSUtil.publicToAddress(NOSUtil.privateToPublic(NOSUtil.seedToPrivate(newSeed)));
                     AlertDialog addressDialog = builder.setTitle(R.string.seed_update_address_alert_title)
                             .setMessage(getString(R.string.seed_update_address_alert_message, newSeedDisplay, address))
                             .setPositiveButton(null, null)
@@ -337,7 +353,7 @@ public class BaseFragment extends Fragment {
         } else {
             builder = new AlertDialog.Builder(getContext());
         }
-        String address = NanoUtil.publicToAddress(NanoUtil.privateToPublic(NanoUtil.seedToPrivate(seed)));
+        String address = NOSUtil.publicToAddress(NOSUtil.privateToPublic(NOSUtil.seedToPrivate(seed)));
         String newSeedDisplay = seed.replaceAll("(.{4})", "$1 ");
         AlertDialog reminderDialog = builder.setTitle(R.string.seed_reminder_alert_title)
                 .setMessage(getString(R.string.seed_reminder_alert_message, newSeedDisplay, address))
@@ -401,4 +417,19 @@ public class BaseFragment extends Fragment {
                 })
                 .show();
     }
+
+    protected <T extends Serializable> T getSerializableArgument(String key) {
+        return getSerializableArgument(key, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends Serializable> T getSerializableArgument(String key, T defaultValue) {
+        if (getArguments() == null) return defaultValue;
+        return (T) getArguments().getSerializable(key);
+    }
+
+    public void showError(String string) {
+        Toast.makeText(getContext(), string, Toast.LENGTH_SHORT).show();
+    }
+
 }

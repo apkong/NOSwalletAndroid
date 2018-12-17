@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.annotation.ColorRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -14,6 +15,8 @@ import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
+
+import java.io.Serializable;
 
 import co.nos.noswallet.R;
 import co.nos.noswallet.broadcastreceiver.ClipboardAlarmReceiver;
@@ -61,23 +64,17 @@ public class BaseDialogFragment extends DialogFragment {
     }
 
     /**
-     * Set status bar color to dark blue
-     */
-    protected void setStatusBarBlue() {
-        setStatusBarColor(R.color.very_dark_blue);
-    }
-
-    /**
      * Set status bar color to white
      *
      * @param view an active view
      */
+    @Deprecated
     protected void setStatusBarWhite(View view) {
         setStatusBarColor(R.color.bright_white);
         setIconsDark(view);
     }
 
-    private void setStatusBarColor(int color) {
+    protected void setStatusBarColor(@ColorRes int color) {
         if (getActivity() instanceof WindowControl) {
             ((WindowControl) getActivity()).setStatusBarColor(color);
         }
@@ -149,4 +146,13 @@ public class BaseDialogFragment extends DialogFragment {
         v.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    protected <T extends Serializable> T getSerializableArgument(String key) {
+        return getSerializableArgument(key, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends Serializable> T getSerializableArgument(String key, T defaultValue) {
+        if (getArguments() == null) return defaultValue;
+        return (T) getArguments().getSerializable(key);
+    }
 }

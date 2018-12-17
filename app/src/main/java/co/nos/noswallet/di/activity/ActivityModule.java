@@ -8,13 +8,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.network.model.Actions;
 import co.nos.noswallet.network.model.BaseResponse;
 import co.nos.noswallet.network.model.BlockTypes;
 import co.nos.noswallet.network.model.response.AccountCheckResponse;
 import co.nos.noswallet.network.model.response.AccountHistoryResponse;
-import co.nos.noswallet.network.model.response.BlockItem;
 import co.nos.noswallet.network.model.response.BlockResponse;
 import co.nos.noswallet.network.model.response.BlocksInfoResponse;
 import co.nos.noswallet.network.model.response.CurrentPriceResponse;
@@ -22,18 +20,6 @@ import co.nos.noswallet.network.model.response.ErrorResponse;
 import co.nos.noswallet.network.model.response.ProcessResponse;
 import co.nos.noswallet.network.model.response.SubscribeResponse;
 import co.nos.noswallet.network.model.response.TransactionResponse;
-import co.nos.noswallet.network.model.response.WarningResponse;
-import co.nos.noswallet.network.model.response.WorkResponse;
-import co.nos.noswallet.util.ExceptionHandler;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.network.model.Actions;
-import co.nos.noswallet.network.model.BaseResponse;
-import co.nos.noswallet.network.model.BlockTypes;
-import co.nos.noswallet.network.model.response.AccountCheckResponse;
-import co.nos.noswallet.network.model.response.BlockResponse;
-import co.nos.noswallet.network.model.response.CurrentPriceResponse;
-import co.nos.noswallet.network.model.response.ErrorResponse;
 import co.nos.noswallet.network.model.response.WarningResponse;
 import co.nos.noswallet.network.model.response.WorkResponse;
 import dagger.Module;
@@ -62,11 +48,6 @@ public class ActivityModule {
         return mNanoWallet;
     }
 
-    @Provides
-    @ActivityScope
-    AccountService providesAccountService(Context context) {
-        return new AccountService(context);
-    }
 
     @Provides
     @ActivityScope

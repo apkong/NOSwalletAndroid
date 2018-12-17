@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.gson.annotations.SerializedName;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.network.model.BlockTypes;
 import co.nos.noswallet.util.NumberUtil;
@@ -59,14 +59,14 @@ public class StateBlock extends Block {
                       String representative,
                       String balance, String link) {
         this.privateKey = private_key;
-        this.publicKey = NanoUtil.privateToPublic(private_key);
+        this.publicKey = NOSUtil.privateToPublic(private_key);
         Address linkAddress = new Address(link);
-        link = linkAddress.isValidAddress() ? NanoUtil.addressToPublic(linkAddress.getAddress()) : link;
+        link = linkAddress.isValidAddress() ? NOSUtil.addressToPublic(linkAddress.getAddress()) : link;
 
         this.setInternal_block_type(blockType);
         this.type = BlockTypes.STATE.toString();
         this.previous = previous;
-        this.account = NanoUtil.publicToAddress(publicKey);
+        this.account = NOSUtil.publicToAddress(publicKey);
         this.representative = representative;
         if (blockType == BlockTypes.SEND || blockType == BlockTypes.RECEIVE) {
             this.sendAmount = balance;
@@ -81,13 +81,13 @@ public class StateBlock extends Block {
     }
 
     private void sign() {
-        String hash = NanoUtil.computeStateHash(
+        String hash = NOSUtil.computeStateHash(
                 publicKey,
                 previous,
-                NanoUtil.addressToPublic(representative),
+                NOSUtil.addressToPublic(representative),
                 NumberUtil.getRawAsHex(this.balance),
                 link);
-        this.signature = NanoUtil.sign(privateKey, hash);
+        this.signature = NOSUtil.sign(privateKey, hash);
     }
 
     public String getType() {

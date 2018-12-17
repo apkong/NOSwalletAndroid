@@ -17,6 +17,7 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
+import co.nos.noswallet.MainActivity;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
@@ -25,21 +26,8 @@ import co.nos.noswallet.bus.CreatePin;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentIntroNewWalletBinding;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
-import co.nos.noswallet.ui.common.FragmentUtility;
-import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.home.HomeFragment;
-import co.nos.noswallet.util.ExceptionHandler;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseFragment;
-import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.util.ExceptionHandler;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
@@ -48,15 +36,12 @@ import io.realm.Realm;
  * The Intro Screen to the app
  */
 
-public class IntroNewWalletFragment extends BaseFragment {
+public class IntroNewWalletFragment extends BaseFragment<MainActivity> {
     public static String TAG = IntroNewWalletFragment.class.getSimpleName();
     private String seed;
 
     @Inject
     Realm realm;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     SharedPreferencesUtil sharedPreferencesUtil;
@@ -110,14 +95,13 @@ public class IntroNewWalletFragment extends BaseFragment {
         binding.setHandlers(new ClickHandlers());
         binding.introNewWalletMessage.setText(Html.fromHtml(getString(R.string.intro_new_wallet_message)));
 
-        accountService.open();
-
 //        if (credentials != null && !credentials.getHasAnsweredAnalyticsQuestion()) {
 //            showAnalyticsOptIn(analyticsService, realm);
 //        }
 
         return view;
     }
+
 
     @Override
     public void onDestroyView() {
@@ -129,16 +113,22 @@ public class IntroNewWalletFragment extends BaseFragment {
     private void goToHomeScreen() {
         // set confirm flag
         sharedPreferencesUtil.setConfirmedSeedBackedUp(true);
+        if (getParent() != null) {
+            getParent().showRestartNeededBecauseOfFirstLaunch();
+        }
 
         // go to home screen
-        if (getActivity() instanceof WindowControl) {
-            ((WindowControl) getActivity()).getFragmentUtility().replace(
-                    HomeFragment.newInstance(),
-                    FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
-                    FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
-                    HomeFragment.TAG
-            );
-        }
+//        if (getActivity() instanceof WindowControl) {
+//            ((WindowControl) getActivity()).getFragmentUtility().replace(
+//                    HistoryFragment.newInstance(),
+//
+////                    HomeFragment.newInstance(),
+//
+//                    FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
+//                    FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
+//                    HomeFragment.TAG
+//            );
+//        }
     }
 
     @Subscribe

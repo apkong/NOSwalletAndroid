@@ -31,16 +31,13 @@ import com.github.ajalt.reprint.core.AuthenticationFailureReason;
 import com.github.ajalt.reprint.core.Reprint;
 import com.hwangjr.rxbus.annotation.Subscribe;
 
-import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.util.HashMap;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.R;
-import co.nos.noswallet.analytics.AnalyticsEvents;
-import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.bus.CreatePin;
 import co.nos.noswallet.bus.HideOverlay;
 import co.nos.noswallet.bus.PinComplete;
@@ -51,8 +48,7 @@ import co.nos.noswallet.databinding.FragmentSendBinding;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
+import co.nos.noswallet.model.NeuroWallet;
 import co.nos.noswallet.network.model.response.ErrorResponse;
 import co.nos.noswallet.network.model.response.ProcessResponse;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
@@ -60,25 +56,6 @@ import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.UIUtil;
 import co.nos.noswallet.ui.scan.ScanActivity;
-import co.nos.noswallet.util.NumberUtil;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.HideOverlay;
-import co.nos.noswallet.bus.PinComplete;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SendInvalidAmount;
-import co.nos.noswallet.bus.ShowOverlay;
-import co.nos.noswallet.model.Address;
-import co.nos.noswallet.model.AvailableCurrency;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.network.model.response.ErrorResponse;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseFragment;
-import co.nos.noswallet.ui.common.KeyboardUtil;
-import co.nos.noswallet.ui.common.UIUtil;
-import co.nos.noswallet.util.NumberUtil;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
@@ -87,6 +64,7 @@ import static android.app.Activity.RESULT_OK;
 /**
  * Send Screen
  */
+@Deprecated
 public class SendFragment extends BaseFragment {
     private FragmentSendBinding binding;
     public static String TAG = SendFragment.class.getSimpleName();
@@ -96,19 +74,13 @@ public class SendFragment extends BaseFragment {
     private String newSeed;
 
     @Inject
-    NanoWallet wallet;
-
-    @Inject
-    AccountService accountService;
+    NeuroWallet nosWallet;
 
     @Inject
     SharedPreferencesUtil sharedPreferencesUtil;
 
     @Inject
     Realm realm;
-
-    @Inject
-    AnalyticsService analyticsService;
 
     @BindingAdapter("layout_constraintGuide_percent")
     public static void setLayoutConstraintGuidePercent(Guideline guideline, float percent) {
@@ -163,7 +135,7 @@ public class SendFragment extends BaseFragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.send_camera:
-                analyticsService.track(AnalyticsEvents.ADDRESS_SCAN_CAMERA_VIEWED);
+                //analyticsService.track(AnalyticsEvents.ADDRESS_SCAN_CAMERA_VIEWED);
                 startScanActivity(getString(R.string.scan_send_instruction_label), false);
                 return true;
         }
@@ -187,7 +159,7 @@ public class SendFragment extends BaseFragment {
             ((ActivityWithComponent) getActivity()).getActivityComponent().inject(this);
         }
 
-        analyticsService.track(AnalyticsEvents.SEND_VIEWED);
+        //analyticsService.track(AnalyticsEvents.SEND_VIEWED);
 
         // subscribe to bus
         RxBus.get().register(this);
@@ -205,7 +177,7 @@ public class SendFragment extends BaseFragment {
         setStatusBarBlue();
         setBackEnabled(true);
         setTitle(getString(R.string.send_title));
-        setTitleDrawable(R.drawable.ic_send);
+        //setTitleDrawable(R.drawable.ic_send);
 
         // hide keyboard for edittext fields
         binding.sendAmountNano.setInputType(InputType.TYPE_NULL);
@@ -225,7 +197,7 @@ public class SendFragment extends BaseFragment {
 
         // updates to handle seed conversion 1.0.2
         if (newSeed != null) {
-            String address = NanoUtil.publicToAddress(NanoUtil.privateToPublic(NanoUtil.seedToPrivate(newSeed)));
+            String address = NOSUtil.publicToAddress(NOSUtil.privateToPublic(NOSUtil.seedToPrivate(newSeed)));
             binding.sendAddress.setText(address);
             setShortAddress();
         }
@@ -256,11 +228,6 @@ public class SendFragment extends BaseFragment {
                         binding.sendAddress.setText(address.getAddress());
                     }
 
-                    if (address.getAmount() != null) {
-                        wallet.setSendNanoAmount(address.getAmount());
-                        binding.setWallet(wallet);
-                    }
-
                     setShortAddress();
                 }
             }
@@ -280,9 +247,6 @@ public class SendFragment extends BaseFragment {
     @Subscribe
     public void receiveInvalidAmount(SendInvalidAmount sendInvalidAmount) {
         // reset amount to max in wallet
-        wallet.setSendNanoAmount(wallet.getLongerAccountBalanceNano());
-        binding.setWallet(wallet);
-
         // show alert with a message to the user letting them know the amount they entered
         showError(R.string.send_amount_too_large_alert_title, R.string.send_amount_too_large_alert_message);
     }
@@ -290,7 +254,7 @@ public class SendFragment extends BaseFragment {
     /**
      * Catch errors from the service
      *
-     * @param errorResponse Error Resposne event
+     * @param errorResponse SocketClosed Resposne event
      */
     @Subscribe
     public void receiveServiceError(ErrorResponse errorResponse) {
@@ -317,8 +281,8 @@ public class SendFragment extends BaseFragment {
     @Subscribe
     public void receiveProcessResponse(ProcessResponse processResponse) {
         RxBus.get().post(new HideOverlay());
-        accountService.requestUpdate();
-        analyticsService.track(AnalyticsEvents.SEND_FINISHED);
+        //accountService.requestUpdate();
+        //analyticsService.track(AnalyticsEvents.SEND_FINISHED);
 
         // updates to handle seed conversion 1.0.2
         if (newSeed != null) {
@@ -347,6 +311,7 @@ public class SendFragment extends BaseFragment {
 
     /**
      * Pin entered correctly
+     *
      * @param pinComplete PinComplete object
      */
     @Subscribe
@@ -365,56 +330,28 @@ public class SendFragment extends BaseFragment {
         executeSend();
     }
 
-    private boolean validateRequest() {
+    private boolean validateAddress() {
         // check for valid address
         Address destination = new Address(binding.sendAddress.getText().toString());
         if (!destination.isValidAddress()) {
             showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
             return false;
         }
-
-        // check that amount being sent is less than or equal to account balance
-        if (wallet.getSendNanoAmount().isEmpty()) {
-            return false;
-        }
-        BigInteger balance = NumberUtil.getAmountAsRawBigInteger(wallet.getSendNanoAmount());
-        if (balance.compareTo(wallet.getAccountBalanceNanoRaw().toBigInteger()) > 0) {
-            showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
-            return false;
-        }
-
-        // check that we have a frontier block
-        if (wallet.getFrontierBlock() == null) {
-            showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
-            return false;
-        }
-
         return true;
     }
 
+    private String getCurrentTypedCoins() {
+        return binding.sendAmountNano.getText().toString().trim();
+    }
+
+    private void setCurrentTypedCoins(String value) {
+        binding.sendAmountNano.setText(value);
+    }
+
     private void enableSendIfPossible() {
-        boolean enableSend = true;
-
-        // check for valid address
         Address destination = new Address(binding.sendAddress.getText().toString());
-        if (!destination.isValidAddress()) {
-            enableSend = false;
-        }
 
-        // check that amount being sent is less than or equal to account balance
-        if (wallet.getSendNanoAmount().isEmpty()) {
-            enableSend = false;
-        }
-        BigInteger balance = NumberUtil.getAmountAsRawBigInteger(wallet.getSendNanoAmount());
-        if (balance.compareTo(new BigInteger("0")) <= 0 || balance.compareTo(wallet.getAccountBalanceNanoRaw().toBigInteger()) > 0) {
-            enableSend = false;
-        }
-
-
-        // check that we have a frontier block
-        if (wallet.getFrontierBlock() == null) {
-            enableSend = false;
-        }
+        boolean enableSend = destination.isValidAddress() && nosWallet.transferPossible(getCurrentTypedCoins());
 
         binding.sendSendButton.setEnabled(enableSend);
     }
@@ -461,11 +398,11 @@ public class SendFragment extends BaseFragment {
         binding.sendAmountNanoSymbol.setAlpha(hasFocus && !isLocalCurrency ? 1.0f : 0.5f);
 
         // clear amounts
-        wallet.clearSendAmounts();
-        binding.setWallet(wallet);
+        setCurrentTypedCoins("");
+
 
         // set local currency decimal separator if local currency is active, otherwise . for nano
-        binding.sendKeyboardDecimal.setText(localCurrencyActive ? wallet.getDecimalSeparator() : ".");
+        //binding.sendKeyboardDecimal.setText(localCurrencyActive ? wallet.getDecimalSeparator() : ".");
     }
 
     /**
@@ -474,37 +411,37 @@ public class SendFragment extends BaseFragment {
      * @param value String value of character pressed
      */
     private void updateAmount(CharSequence value) {
-        if (value.equals(getString(R.string.send_keyboard_delete))) {
-            // delete last character
-            if (localCurrencyActive) {
-                if (wallet.getLocalCurrencyAmount().length() > 0) {
-                    wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount().substring(0, wallet.getLocalCurrencyAmount().length() - 1));
-                }
-            } else {
-                if (wallet.getSendNanoAmount().length() > 0) {
-                    wallet.setSendNanoAmount(wallet.getSendNanoAmount().substring(0, wallet.getSendNanoAmount().length() - 1));
-                }
-            }
-        } else if ((!localCurrencyActive && value.equals(getString(R.string.send_keyboard_decimal))) || (localCurrencyActive && value.equals(wallet.getDecimalSeparator()))) {
-            // decimal point
-            if (localCurrencyActive) {
-                if (!wallet.getLocalCurrencyAmount().contains(value)) {
-                    wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount() + value);
-                }
-            } else {
-                if (!wallet.getSendNanoAmount().contains(value)) {
-                    wallet.setSendNanoAmount(wallet.getSendNanoAmount() + value);
-                }
-            }
-        } else {
-            // digits
-            if (localCurrencyActive) {
-                wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount() + value);
-            } else {
-                wallet.setSendNanoAmount(wallet.getSendNanoAmount() + value);
-            }
-        }
-        binding.setWallet(wallet);
+//        if (value.equals(getString(R.string.send_keyboard_delete))) {
+//            // delete last character
+//            if (localCurrencyActive) {
+//                if (wallet.getLocalCurrencyAmount().length() > 0) {
+//                    wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount().substring(0, wallet.getLocalCurrencyAmount().length() - 1));
+//                }
+//            } else {
+//                if (wallet.getSendNanoAmount().length() > 0) {
+//                    wallet.setSendNanoAmount(wallet.getSendNanoAmount().substring(0, wallet.getSendNanoAmount().length() - 1));
+//                }
+//            }
+//        } else if ((!localCurrencyActive && value.equals(getString(R.string.send_keyboard_decimal))) || (localCurrencyActive && value.equals(wallet.getDecimalSeparator()))) {
+//            // decimal point
+//            if (localCurrencyActive) {
+//                if (!wallet.getLocalCurrencyAmount().contains(value)) {
+//                    wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount() + value);
+//                }
+//            } else {
+//                if (!wallet.getSendNanoAmount().contains(value)) {
+//                    wallet.setSendNanoAmount(wallet.getSendNanoAmount() + value);
+//                }
+//            }
+//        } else {
+//            // digits
+//            if (localCurrencyActive) {
+//                wallet.setLocalCurrencyAmount(wallet.getLocalCurrencyAmount() + value);
+//            } else {
+//                wallet.setSendNanoAmount(wallet.getSendNanoAmount() + value);
+//            }
+//        }
+
         enableSendIfPossible();
     }
 
@@ -522,19 +459,21 @@ public class SendFragment extends BaseFragment {
     }
 
     private void executeSend() {
-        Address destination = new Address(binding.sendAddress.getText().toString());
-        if (destination.isValidAddress()) {
-            RxBus.get().post(new ShowOverlay());
-            BigInteger sendAmount = NumberUtil.getAmountAsRawBigInteger(wallet.getSendNanoAmount());
+        System.out.println("execute send()");
+        String destinationAccount = binding.sendAddress.getText().toString();
+        String coinsAmount = getCurrentTypedCoins();
 
-            accountService.requestSend(wallet.getFrontierBlock(), destination, sendAmount);
-            analyticsService.track(AnalyticsEvents.SEND_BEGAN);
+        Address destination = new Address(destinationAccount);
+
+        if (destination.isValidAddress() && nosWallet.transferPossible(coinsAmount)) {
+            RxBus.get().post(new ShowOverlay());
+            String sendAmount = nosWallet.getRawToTransfer(coinsAmount);
+            //todo:
+            //analyticsService.track(AnalyticsEvents.SEND_BEGAN);
         } else {
             showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
         }
     }
-
-
 
     public class ClickHandlers {
         /**
@@ -571,7 +510,7 @@ public class SendFragment extends BaseFragment {
         }
 
         public void onClickSend(View view) {
-            if (!validateRequest()) {
+            if (!validateAddress()) {
                 return;
             }
 
@@ -580,7 +519,8 @@ public class SendFragment extends BaseFragment {
             if (Reprint.isHardwarePresent() && Reprint.hasFingerprintRegistered()) {
                 // show fingerprint dialog
                 LayoutInflater factory = LayoutInflater.from(getContext());
-                @SuppressLint("InflateParams") final View viewFingerprint = factory.inflate(R.layout.view_fingerprint, null);
+                @SuppressLint("InflateParams")
+                final View viewFingerprint = factory.inflate(R.layout.view_fingerprint, null);
                 showFingerprintDialog(viewFingerprint);
                 com.github.ajalt.reprint.rxjava2.RxReprint.authenticate()
                         .subscribe(result -> {
@@ -597,16 +537,17 @@ public class SendFragment extends BaseFragment {
                             }
                         });
             } else if (credentials != null && credentials.getPin() != null) {
-                showPinScreen(getString(R.string.send_pin_description, wallet.getSendNanoAmount()));
+                showPinScreen(getString(R.string.send_pin_description, getCurrentTypedCoins()));
             } else if (credentials != null && credentials.getPin() == null) {
                 showCreatePinScreen();
             }
         }
 
         public void onClickMax(View view) {
-            analyticsService.track(AnalyticsEvents.SEND_MAX_AMOUNT_USED);
-            wallet.setSendNanoAmount(wallet.getLongerAccountBalanceNano());
-            binding.setWallet(wallet);
+            //analyticsService.track(AnalyticsEvents.SEND_MAX_AMOUNT_USED);
+            String maxNeuros = nosWallet.getTotalNeurosAmount();
+            binding.sendAmountNano.setText(maxNeuros);
+
             enableSendIfPossible();
         }
 
@@ -620,7 +561,7 @@ public class SendFragment extends BaseFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(getString(R.string.send_fingerprint_title));
         builder.setMessage(getString(R.string.send_fingerprint_description,
-                !wallet.getSendNanoAmountFormatted().isEmpty() ? wallet.getSendNanoAmountFormatted() : "0"));
+                !getCurrentTypedCoins().isEmpty() ? getCurrentTypedCoins() : "0"));
         builder.setView(view);
         String negativeText = getString(android.R.string.cancel);
         builder.setNegativeButton(negativeText, (dialog, which) -> Reprint.cancelAuthentication());
@@ -656,7 +597,7 @@ public class SendFragment extends BaseFragment {
         if (isAdded()) {
             final HashMap<String, String> customData = new HashMap<>();
             customData.put("description", reason.name());
-            analyticsService.track(AnalyticsEvents.SEND_AUTH_ERROR, customData);
+            //analyticsService.track(AnalyticsEvents.SEND_AUTH_ERROR, customData);
             TextView textView = view.findViewById(R.id.fingerprint_textview);
             textView.setText(message.toString());
             if (getContext() != null) {

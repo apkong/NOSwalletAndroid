@@ -2,6 +2,7 @@ package co.nos.noswallet.ui.settings;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
@@ -28,33 +29,26 @@ import java.util.List;
 import javax.inject.Inject;
 
 import co.nos.noswallet.BuildConfig;
+import co.nos.noswallet.MainActivity;
+import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.Logout;
 import co.nos.noswallet.bus.PinComplete;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentSettingsBinding;
 import co.nos.noswallet.model.AvailableCurrency;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.StringWithTag;
-import co.nos.noswallet.network.AccountService;
+import co.nos.noswallet.network.websockets.WebsocketMachine;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.PinComplete;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.model.AvailableCurrency;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.StringWithTag;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
+
 
 /**
  * Settings main screen
@@ -71,9 +65,6 @@ public class SettingsDialogFragment extends BaseDialogFragment {
 
     @Inject
     Realm realm;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     AnalyticsService analyticsService;
@@ -122,7 +113,7 @@ public class SettingsDialogFragment extends BaseDialogFragment {
         binding.setShowCurrency(showCurrency);
         binding.setVersion(getString(R.string.version_display, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
 
-        setStatusBarWhite(view);
+        setStatusBarColor(R.color.colorAccent);
 
         // set disclaimer links
         createLink(binding.settingsDisclaimer, R.string.settings_disclaimer);
@@ -151,7 +142,6 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                     customData.put("currency", key.toString());
                     analyticsService.track(AnalyticsEvents.LOCAL_CURRENCY_SELECTED, customData);
                     // update currency amounts
-                    accountService.requestSubscribe();
                 }
             }
 
@@ -244,7 +234,8 @@ public class SettingsDialogFragment extends BaseDialogFragment {
         if (Reprint.isHardwarePresent() && Reprint.hasFingerprintRegistered()) {
             // show fingerprint dialog
             LayoutInflater factory = LayoutInflater.from(getContext());
-            @SuppressLint("InflateParams") final View viewFingerprint = factory.inflate(R.layout.view_fingerprint, null);
+            @SuppressLint("InflateParams")
+            final View viewFingerprint = factory.inflate(R.layout.view_fingerprint, null);
             showFingerprintDialog(viewFingerprint);
             com.github.ajalt.reprint.rxjava2.RxReprint.authenticate()
                     .subscribe(result -> {
@@ -296,7 +287,13 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                 builder.setTitle(R.string.settings_logout_alert_title)
                         .setMessage(R.string.settings_logout_alert_message)
                         .setPositiveButton(R.string.settings_logout_alert_confirm_cta, (dialog, which) -> {
-                            RxBus.get().post(new Logout());
+                            WebsocketMachine websocketMachine = WebsocketMachine.obtain(getActivity());
+                            if (websocketMachine != null) {
+                                websocketMachine.logout();
+                            }
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).logOut(null);
+                            }
                             dismiss();
                         })
                         .setNegativeButton(R.string.settings_logout_alert_cancel_cta, (dialog, which) -> {
@@ -305,6 +302,11 @@ public class SettingsDialogFragment extends BaseDialogFragment {
                         .show();
             }
         }
+    }
+
+    private void clearUserBalanceData() {
+        SharedPreferences.Editor editor = sharedPreferencesUtil.getEditor();
+        editor.clear().commit();
     }
 
     private void showCopySeedAlert() {

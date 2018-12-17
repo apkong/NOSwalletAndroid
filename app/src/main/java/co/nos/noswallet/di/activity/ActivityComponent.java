@@ -3,11 +3,20 @@ package co.nos.noswallet.di.activity;
 import com.google.gson.Gson;
 
 import co.nos.noswallet.MainActivity;
-import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.di.application.ApplicationComponent;
+import co.nos.noswallet.kyc.KnowYourCustomerActivity;
+import co.nos.noswallet.kyc.KycUserDataRepository;
+import co.nos.noswallet.kyc.done.DoneFragment;
+import co.nos.noswallet.kyc.emailAddress.EmailAddressFragment;
+import co.nos.noswallet.kyc.homeAddress.HomeAddressFragment;
+import co.nos.noswallet.kyc.identity.IdentityFragment;
+import co.nos.noswallet.kyc.phoneNumber.PhoneNumberFragment;
+import co.nos.noswallet.kyc.pinKeyboard.PinKeyboardFragment;
+import co.nos.noswallet.kyc.smsCode.SmsCodeFragment;
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
+import co.nos.noswallet.FirstLaunchActivity;
 import co.nos.noswallet.ui.home.HomeFragment;
+import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroSeedFragment;
@@ -15,27 +24,18 @@ import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.pin.CreatePinDialogFragment;
 import co.nos.noswallet.ui.pin.PinDialogFragment;
 import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
-import co.nos.noswallet.ui.send.SendFragment;
-import co.nos.noswallet.ui.settings.SettingsDialogFragment;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.ui.home.HomeFragment;
-import co.nos.noswallet.ui.intro.IntroLegalFragment;
-import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
-import co.nos.noswallet.ui.intro.IntroSeedFragment;
-import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
-import co.nos.noswallet.ui.pin.CreatePinDialogFragment;
-import co.nos.noswallet.ui.pin.PinDialogFragment;
-import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
+import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import dagger.Component;
 
-@Component(modules = {ActivityModule.class}, dependencies = {ApplicationComponent.class})
+@Component(modules = {ActivityModule.class},
+        dependencies = {ApplicationComponent.class})
 @ActivityScope
 public interface ActivityComponent {
+
     @ActivityScope
-    AccountService provideAccountService();
+    KycUserDataRepository provideKycUserDataRepository();
 
     // wallet
     NanoWallet provideNanoWallet();
@@ -43,7 +43,6 @@ public interface ActivityComponent {
     @ActivityScope
     Gson provideGson();
 
-    void inject(AccountService accountService);
 
     void inject(CreatePinDialogFragment createPinDialogFragment);
 
@@ -68,4 +67,26 @@ public interface ActivityComponent {
     void inject(SendFragment sendFragment);
 
     void inject(SettingsDialogFragment settingsDialogFragment);
+
+    void inject(PhoneNumberFragment phoneNumberFragment);
+
+    void inject(PinKeyboardFragment pinKeyboardFragment);
+
+    void inject(SmsCodeFragment smsCodeFragment);
+
+    void inject(IdentityFragment identityFragment);
+
+    void inject(KnowYourCustomerActivity knowYourCustomerActivity);
+
+    void inject(HomeAddressFragment homeAddressFragment);
+
+    void inject(EmailAddressFragment emailAddressFragment);
+
+    void inject(DoneFragment doneFragment);
+
+    void inject(SendCoinsFragment sendCoinsFragment);
+
+    void inject(HistoryFragment historyFragment);
+
+    void inject(FirstLaunchActivity firstLaunchActivity);
 }

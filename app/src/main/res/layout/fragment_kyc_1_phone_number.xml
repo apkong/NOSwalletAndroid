@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="handlers"
+            type="co.nos.noswallet.kyc.phoneNumber.PhoneNumberFragment.ClickHandlers" />
+        <!-- Data -->
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:background="@color/white">
+
+        <ImageView
+            android:id="@+id/nos_account_ready_check"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/activity_small_padding"
+            android:background="#000" />
+
+        <TextView
+            android:id="@+id/welcome_nos"
+            style="@style/BiggerText"
+            android:layout_below="@+id/nos_account_ready_check"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/activity_default_padding"
+            android:text="@string/welcome_to_nos"
+            android:textSize="24dp" />
+
+        <co.nos.noswallet.kyc.phoneNumber.PrefixedPhoneInputLayout
+            android:id="@+id/kyc_1_phone_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/welcome_nos" />
+
+
+        <TextView
+            android:id="@+id/nos_account_ready_label"
+            style="@style/BiggerText"
+            android:onClick="@{handlers::onClickGotNewNumber}"
+            android:layout_above="@+id/kyc_1_continue"
+            android:layout_centerHorizontal="true"
+            android:text="@string/got_a_new_phone_number" />
+
+        <TextView
+            android:id="@+id/kyc_1_continue"
+            style="@style/LargeButton"
+            android:onClick="@{handlers::onClickContinue}"
+            android:layout_above="@+id/kyc_1_skip"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/_continue" />
+
+        <TextView
+            android:onClick="@{handlers::onClickSkip}"
+            android:id="@+id/kyc_1_skip"
+            style="@style/CancelButton"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="32dp"
+            android:text="@string/skip_signup" />
+
+    </RelativeLayout>
+</layout>

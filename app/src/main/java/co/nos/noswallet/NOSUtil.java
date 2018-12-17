@@ -4,16 +4,26 @@ package co.nos.noswallet;
   Utilities for crypto functions
  */
 
-import co.nos.noswallet.util.SecureRandomUtil;
-import co.nos.noswallet.util.SecureRandomUtil;
+import android.util.Log;
 
 import org.libsodium.jni.NaCl;
 import org.libsodium.jni.Sodium;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Collection;
 
-public class NanoUtil {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import co.nos.noswallet.util.SecureRandomUtil;
+
+public class NOSUtil {
+    public static final String TAG = "NOSUtil";
+
+    public static String prefix = "usd";
+
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
     public final static String addressCodeArray = "13456789abcdefghijkmnopqrstuwxyz";
     public final static char[] addressCodeCharArray = addressCodeArray.toCharArray();
@@ -29,9 +39,9 @@ public class NanoUtil {
         SecureRandom random = SecureRandomUtil.secureRandom();
         byte[] randomBytes = new byte[numchars / 2];
         random.nextBytes(randomBytes);
-      
+
         StringBuilder sb = new StringBuilder(numchars);
-        for(byte b: randomBytes){        
+        for (byte b : randomBytes) {
             sb.append(String.format("%02X", b));
         }
         return sb.toString();
@@ -44,11 +54,14 @@ public class NanoUtil {
      * @return private key
      */
     public static String seedToPrivate(String seed) {
+        if (BuildConfig.DEBUG) {
+            //NosLogger.d(TAG, "seedToPrivate() called with: seed = [" + seed + "]");
+        }
         Sodium sodium = NaCl.sodium();
         byte[] state = new byte[Sodium.crypto_generichash_statebytes()];
         byte[] key = new byte[Sodium.crypto_generichash_keybytes()];
 
-        byte[] seed_b = NanoUtil.hexToBytes(seed);
+        byte[] seed_b = NOSUtil.hexToBytes(seed);
         byte[] index_b = {0x00, 0x00, 0x00, 0x00};
         byte[] output = new byte[32];
 
@@ -57,7 +70,9 @@ public class NanoUtil {
         Sodium.crypto_generichash_blake2b_update(state, index_b, index_b.length);
         Sodium.crypto_generichash_blake2b_final(state, output, output.length);
 
-        return bytesToHex(output);
+
+        String privateKey = bytesToHex(output);
+        return privateKey;
     }
 
     /**
@@ -156,18 +171,25 @@ public class NanoUtil {
 
     /**
      * Compute hash for a universal (state) block
-     * @param account This account's xrb_ address.
-     * @param previous Previous head block on account; 0 if open block.
-     * @param representative Representative xrb_ address.
-     * @param balance Resulting balance
-     * @param link Multipurpose Field
+     *
+     * @param account        This account's prefix_ address.
+     * @param previous       Previous head block on account; 0 if open block.
+     * @param representative Representative prefix_ address.
+     * @param balance        Resulting balance
+     * @param link           Multipurpose Field
      * @return String of hash
      */
     public static String computeStateHash(String account,
-                                         String previous,
-                                         String representative,
-                                         String balance,
-                                         String link) {
+                                          String previous,
+                                          String representative,
+                                          String balance,
+                                          String link) {
+//        NosLogger.d(TAG, "computeStateHash() called with:" +
+//                " account = [" + account + "], " +
+//                "previous = [" + previous + "], " +
+//                "representative = [" + representative + "]," +
+//                " balance = [" + balance + "], " +
+//                "link = [" + link + "]");
         Sodium sodium = NaCl.sodium();
 
         byte[] temp = hexToBytes("6");
@@ -184,6 +206,12 @@ public class NanoUtil {
         System.arraycopy(previous_temp, 0, previous_b, 32 - previous_temp.length, previous_temp.length);
         byte[] representative_b = hexToBytes(representative);
         byte[] balance_b = hexToBytes(balance);
+
+        if (balance_b == null) {
+            //NosLogger.e(TAG, "computeStateHash: balance_b is null returning gracefully ");
+            return null;
+        }
+
         byte[] link_b = hexToBytes(link);
         byte[] output = new byte[32];
 
@@ -196,14 +224,16 @@ public class NanoUtil {
         Sodium.crypto_generichash_blake2b_update(state, link_b, link_b.length);
         Sodium.crypto_generichash_blake2b_final(state, output, output.length);
 
-        return bytesToHex(output);
+        String response = bytesToHex(output);
+        //NosLogger.d(TAG, "computeStateHash() returned : " + response);
+        return response;
     }
 
     /**
      * Compute hash to use to generate a change work block
      *
-     * @param previous         Previous transaction
-     * @param representative   Representative address
+     * @param previous       Previous transaction
+     * @param representative Representative address
      * @return String of hash
      */
     public static String computeChangeHash(String previous, String representative) {
@@ -231,6 +261,7 @@ public class NanoUtil {
      * @return Signed message
      */
     public static String sign(String private_key, String data) {
+        //NosLogger.d(TAG, "sign() called with: private_key = [" + private_key + "], data = [" + data + "]");
         Sodium sodium = NaCl.sodium();
         byte[] data_b = hexToBytes(data);
         byte[] private_key_b = hexToBytes(private_key);
@@ -239,18 +270,20 @@ public class NanoUtil {
         int[] signature_len = new int[1];
 
         Sodium.crypto_sign_ed25519_detached(signature, signature_len, data_b, data_b.length, private_key_b);
-        return bytesToHex(signature);
+        String ret = bytesToHex(signature);
+        //NosLogger.d(TAG, "sign() returned with: " + ret);
+        return ret;
     }
 
     /**
      * Convert a Public Key to an Address
      *
      * @param public_key Public Key
-     * @return xrb address
+     * @return prefix_ address
      */
-    public static String publicToAddress(String public_key) {
+    public static String publicToAddress(String public_key, String prefix) {
         Sodium sodium = NaCl.sodium();
-        byte[] bytePublic = NanoUtil.hexStringToByteArray(public_key);
+        byte[] bytePublic = NOSUtil.hexStringToByteArray(public_key);
         String encodedAddress = encode(public_key);
 
         byte[] state = new byte[Sodium.crypto_generichash_statebytes()];
@@ -264,12 +297,34 @@ public class NanoUtil {
         reverse(check_b);
 
         StringBuilder resultAddress = new StringBuilder();
-        resultAddress.insert(0, "xrb_");
+        resultAddress.insert(0, prefix + "_");
         resultAddress.append(encodedAddress);
-        resultAddress.append(encode(NanoUtil.bytesToHex(check_b)));
+        resultAddress.append(encode(NOSUtil.bytesToHex(check_b)));
 
         return resultAddress.toString();
+    }
 
+    public static String publicToAddress(String public_key) {
+        Sodium sodium = NaCl.sodium();
+        byte[] bytePublic = NOSUtil.hexStringToByteArray(public_key);
+        String encodedAddress = encode(public_key);
+
+        byte[] state = new byte[Sodium.crypto_generichash_statebytes()];
+        byte[] key = new byte[Sodium.crypto_generichash_keybytes()];
+        byte[] check_b = new byte[5];
+
+        Sodium.crypto_generichash_blake2b_init(state, key, 0, 5);
+        Sodium.crypto_generichash_blake2b_update(state, bytePublic, bytePublic.length);
+        Sodium.crypto_generichash_blake2b_final(state, check_b, check_b.length);
+
+        reverse(check_b);
+
+        StringBuilder resultAddress = new StringBuilder();
+        resultAddress.insert(0, prefix + "_");
+        resultAddress.append(encodedAddress);
+        resultAddress.append(encode(NOSUtil.bytesToHex(check_b)));
+
+        return resultAddress.toString();
     }
 
     /**
@@ -279,9 +334,10 @@ public class NanoUtil {
      * @return Public Key
      */
     public static String addressToPublic(String encoded_address) {
+        //NosLogger.w(TAG, "addressToPublic: " + encoded_address);
         NaCl.sodium();
         String data = encoded_address.split("_")[1].substring(0, 52);
-        byte[] data_b = NanoUtil.hexStringToByteArray(decodeAddressCharacters(data));
+        byte[] data_b = NOSUtil.hexStringToByteArray(decodeAddressCharacters(data));
 
         byte[] state = new byte[Sodium.crypto_generichash_statebytes()];
         byte[] key = new byte[Sodium.crypto_generichash_keybytes()];
@@ -294,15 +350,18 @@ public class NanoUtil {
         reverse(verify_b);
 
         // left pad byte array with zeros
-        StringBuilder pk = new StringBuilder(NanoUtil.bytesToHex(data_b));
+        StringBuilder pk = new StringBuilder(NOSUtil.bytesToHex(data_b));
         while (pk.length() < 64) {
             pk.insert(0, "0");
         }
-
-        return pk.toString();
+        String result = pk.toString();
+        //NosLogger.w(TAG, "addressToPublic: returned " + result);
+        return result;
     }
 
+    @Nullable
     public static String bytesToHex(byte[] bytes) {
+        if (bytes == null) return null;
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
@@ -312,15 +371,23 @@ public class NanoUtil {
         return new String(hexChars);
     }
 
-    public static byte[] hexToBytes(String hex) {
+    public static byte[] hexToBytes(String hex) throws NumberFormatException {
+        //System.out.println("hexToBytes called : " + hex);
+        if (hex == null) return null;
         hex = hex.length() % 2 != 0 ? "0" + hex : hex;
 
         byte[] b = new byte[hex.length() / 2];
 
         for (int i = 0; i < b.length; i++) {
             int index = i * 2;
-            int v = Integer.parseInt(hex.substring(index, index + 2), 16);
-            b[i] = (byte) v;
+            try {
+                int v = Integer.parseInt(hex.substring(index, index + 2), 16);
+                b[i] = (byte) v;
+            } catch (NumberFormatException exc) {
+                exc.printStackTrace();
+                //System.err.println("trying parse " + hex + " to integer");
+            }
+
         }
         return b;
     }
@@ -386,4 +453,11 @@ public class NanoUtil {
         return new BigInteger(bits.toString(), 2).toString(16);
     }
 
+    public static boolean isEmpty(Collection<?> collection) {
+        return collection == null || collection.isEmpty();
+    }
+
+    public static String substractBigIntegers(@Nonnull String left, @Nonnull String right) {
+        return new BigDecimal(left).subtract(new BigDecimal(right)).toString();
+    }
 }

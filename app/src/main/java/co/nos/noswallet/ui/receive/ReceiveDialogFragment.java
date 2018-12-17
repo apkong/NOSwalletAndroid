@@ -17,6 +17,7 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.github.sumimakito.awesomeqr.AwesomeQRCode;
 
@@ -32,11 +33,10 @@ import co.nos.noswallet.broadcastreceiver.ClipboardAlarmReceiver;
 import co.nos.noswallet.databinding.FragmentReceiveBinding;
 import co.nos.noswallet.model.Address;
 import co.nos.noswallet.model.Credentials;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.UIUtil;
-import co.nos.noswallet.model.Address;
-import co.nos.noswallet.model.Credentials;
 import io.realm.Realm;
 
 /**
@@ -46,6 +46,9 @@ public class ReceiveDialogFragment extends BaseDialogFragment {
     private FragmentReceiveBinding binding;
     public static String TAG = ReceiveDialogFragment.class.getSimpleName();
     private static final int QRCODE_SIZE = 240;
+
+    public static final String CRYPTOCURRENCY = "CRYPTOCURRENCY";
+
     private static final String TEMP_FILE_NAME = "nanoreceive.png";
     private static final String ADDRESS_KEY = "co.nos.noswallet.ui.receive.ReceiveDialogFragment.Address";
     private Address address;
@@ -57,14 +60,26 @@ public class ReceiveDialogFragment extends BaseDialogFragment {
     @Inject
     AnalyticsService analyticsService;
 
+    @Nullable
+    private CryptoCurrency currency;
+
+    private TextView receiveInstructionsTextView;
+    private TextView currencyAddressTextView;
+
     /**
      * Create new instance of the dialog fragment (handy pattern if any data needs to be passed to it)
      *
      * @return ReceiveDialogFragment instance
      */
+    @Deprecated
     public static ReceiveDialogFragment newInstance() {
+        return newInstance(CryptoCurrency.NOLLAR);
+    }
+
+    public static ReceiveDialogFragment newInstance(CryptoCurrency cryptoCurrency) {
         Bundle args = new Bundle();
         ReceiveDialogFragment fragment = new ReceiveDialogFragment();
+        args.putSerializable(CRYPTOCURRENCY, cryptoCurrency);
         fragment.setArguments(args);
         return fragment;
     }
@@ -73,6 +88,7 @@ public class ReceiveDialogFragment extends BaseDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(STYLE_NO_FRAME, R.style.AppTheme_Modal_Window);
+        currency = getSerializableArgument(CRYPTOCURRENCY);
     }
 
     @Nullable
@@ -85,16 +101,24 @@ public class ReceiveDialogFragment extends BaseDialogFragment {
 
         analyticsService.track(AnalyticsEvents.RECEIVE_VIEWED);
 
+        if (currency == null) {
+            currency = CryptoCurrency.NOLLAR;
+        }
         // get data
         Credentials credentials = realm.where(Credentials.class).findFirst();
         if (credentials != null) {
-            address = new Address(credentials.getAddressString());
+            address = new Address(credentials.getAddressString(currency), currency);
         }
 
         // inflate the view
         binding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_receive, container, false);
         view = binding.getRoot();
+
+        receiveInstructionsTextView = view.findViewById(R.id.receive_instructions);
+        currencyAddressTextView = view.findViewById(R.id.receive_address_label);
+        receiveInstructionsTextView.setText(getString(R.string.receive_instructions_placeholder, currency.name()));
+        currencyAddressTextView.setText(getString(R.string.currency_address_placeholder, currency.name()));
         binding.setHandlers(new ClickHandlers());
 
         // colorize address text
@@ -171,7 +195,6 @@ public class ReceiveDialogFragment extends BaseDialogFragment {
         }
     }
 
-
     public class ClickHandlers {
         public void onClickClose(View view) {
             dismiss();
@@ -204,7 +227,7 @@ public class ReceiveDialogFragment extends BaseDialogFragment {
                 clipboard.setPrimaryClip(clip);
             }
 
-            Snackbar snackbar = Snackbar.make(view, Html.fromHtml(getString(R.string.receive_copy_message)), Snackbar.LENGTH_INDEFINITE);
+            Snackbar snackbar = Snackbar.make(view, Html.fromHtml(getString(R.string.receive_copy_message_placeholder, currency.name(), currency.name())), Snackbar.LENGTH_INDEFINITE);
             snackbar.setAction(R.string.receive_copy_done, view1 -> {
             });
             snackbar.show();

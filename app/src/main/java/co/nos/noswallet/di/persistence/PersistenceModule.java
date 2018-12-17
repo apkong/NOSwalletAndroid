@@ -7,12 +7,11 @@ import javax.inject.Named;
 
 import co.nos.noswallet.bus.Logout;
 import co.nos.noswallet.bus.RxBus;
+import co.nos.noswallet.db.CredentialsProvider;
 import co.nos.noswallet.db.Migration;
-import co.nos.noswallet.di.application.ApplicationScope;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.util.Vault;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.RxBus;
+import co.nos.noswallet.db.RandomFetchedRepresentativesProvider;
+import co.nos.noswallet.db.RealmCredentialsProvider;
+import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.di.application.ApplicationScope;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import co.nos.noswallet.util.Vault;
@@ -68,6 +67,23 @@ public class PersistenceModule {
         }
     }
 
+    public static void clearRealm() {
+        Vault.getVault()
+                .edit()
+                .putString(Vault.ENCRYPTION_KEY_NAME,
+                        Base64.encodeToString(Vault.generateKey(), Base64.DEFAULT))
+                .apply();
+
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
+                .name(DB_NAME)
+                .encryptionKey(Base64.decode(Vault.getVault().getString(Vault.ENCRYPTION_KEY_NAME, null), Base64.DEFAULT))
+                .schemaVersion(SCHEMA_VERSION)
+                .migration(new Migration())
+                .build();
+
+        Realm.deleteRealm(realmConfiguration);
+    }
+
     @Provides
     @Named("cachedir")
     @ApplicationScope
@@ -91,4 +107,19 @@ public class PersistenceModule {
             return Vault.generateKey();
         }
     }
+
+    @Provides
+    CredentialsProvider providesCredentialsProvider(Realm realm) {
+        return new RealmCredentialsProvider(realm);
+    }
+
+    @Provides
+    RepresentativesProvider providesRepresentativeProvider() {
+        return new RandomFetchedRepresentativesProvider();
+    }
+//    @Provides
+//    @ApplicationScope
+//    RepresentativesProvider providesRepresentativeProvider(SharedPreferencesUtil util) {
+////        return new NetworkRepresentativesProvider(util);
+//    }
 }

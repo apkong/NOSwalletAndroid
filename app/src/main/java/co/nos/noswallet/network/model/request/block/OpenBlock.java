@@ -3,7 +3,7 @@ package co.nos.noswallet.network.model.request.block;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.gson.annotations.SerializedName;
 
-import co.nos.noswallet.NanoUtil;
+import co.nos.noswallet.NOSUtil;
 import co.nos.noswallet.network.model.BlockTypes;
 
 /**
@@ -42,10 +42,10 @@ public class OpenBlock extends Block {
                      String representative) {
         this.type = BlockTypes.OPEN.toString();
         this.representative = representative;
-        this.account = NanoUtil.publicToAddress(NanoUtil.privateToPublic(private_key));
+        this.account = NOSUtil.publicToAddress(NOSUtil.privateToPublic(private_key));
         this.source = source;
-        String hash = NanoUtil.computeOpenHash(source, NanoUtil.addressToPublic(representative), NanoUtil.privateToPublic(private_key));
-        this.signature = NanoUtil.sign(private_key, hash);
+        String hash = NOSUtil.computeOpenHash(source, NOSUtil.addressToPublic(representative), NOSUtil.privateToPublic(private_key));
+        this.signature = NOSUtil.sign(private_key, hash);
     }
 
     public String getType() {

@@ -2,9 +2,6 @@ package co.nos.noswallet.network.model;
 
 import java.util.Calendar;
 
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.network.AccountService;
-
 /**
  * Request object for queue
  */
@@ -19,7 +16,7 @@ public class RequestItem<T> {
 
         // set expire time to now plus timeout
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MILLISECOND, AccountService.TIMEOUT_MILLISECONDS);
+        calendar.add(Calendar.MILLISECOND, 5000);
         this.expireTime = calendar.getTime().getTime();
     }
 

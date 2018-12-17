@@ -1,11 +1,14 @@
 package co.nano.nanowallet;
 
 import android.support.test.runner.AndroidJUnit4;
-import co.nano.nanowallet.network.model.request.block.OpenBlock;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import co.nos.noswallet.NOSUtil;
+import co.nos.noswallet.network.model.request.block.OpenBlock;
 import timber.log.Timber;
 
 import static org.junit.Assert.assertEquals;
@@ -14,13 +17,13 @@ import static org.junit.Assert.assertEquals;
  * Test the Nano Utility functions
  */
 @RunWith(AndroidJUnit4.class)
-public class NanoUtilTest {
+public class NOSUtilTest {
     private String seed;
     private String privateKey;
     private String publicKey;
     private String address;
 
-    public NanoUtilTest() {
+    public NOSUtilTest() {
     }
 
     @Before
@@ -35,7 +38,7 @@ public class NanoUtilTest {
     public void seedToPrivate() throws Exception {
         long lStartTime = System.nanoTime();
 
-        String privateKey = NanoUtil.seedToPrivate(seed);
+        String privateKey = NOSUtil.seedToPrivate(seed);
 
         long lEndTime = System.nanoTime();
         long output = lEndTime - lStartTime;
@@ -48,7 +51,7 @@ public class NanoUtilTest {
     public void privateToPublic() throws Exception {
         long lStartTime = System.nanoTime();
 
-        String publicKey = NanoUtil.privateToPublic(privateKey);
+        String publicKey = NOSUtil.privateToPublic(privateKey);
 
         long lEndTime = System.nanoTime();
         long output = lEndTime - lStartTime;
@@ -61,7 +64,7 @@ public class NanoUtilTest {
     public void publicToAddress() throws Exception {
         long lStartTime = System.nanoTime();
 
-        String address = NanoUtil.publicToAddress(publicKey);
+        String address = NOSUtil.publicToAddress(publicKey);
 
         long lEndTime = System.nanoTime();
         long output = lEndTime - lStartTime;
@@ -74,7 +77,7 @@ public class NanoUtilTest {
     public void addressToPublic() throws Exception {
         long lStartTime = System.nanoTime();
 
-        String publicKey = NanoUtil.addressToPublic(this.address);
+        String publicKey = NOSUtil.addressToPublic(this.address);
 
         long lEndTime = System.nanoTime();
         long output = lEndTime - lStartTime;
@@ -95,20 +98,20 @@ public class NanoUtilTest {
 
     @Test
     public void hexStringToByteArray() {
-        NanoUtil.hexStringToByteArray("fukSkBVmBBwKMmzgH78wl9h07MTWSvBVORsxFvoLPTBoUHKdRyFnbOVBuztny5yzn40DwIFbdeQyjkAOZu3PTgCU5Ulv9oswJhR4kdDp18axXPT3JeCJxA8NO0Ln7JB");
+        NOSUtil.hexStringToByteArray("fukSkBVmBBwKMmzgH78wl9h07MTWSvBVORsxFvoLPTBoUHKdRyFnbOVBuztny5yzn40DwIFbdeQyjkAOZu3PTgCU5Ulv9oswJhR4kdDp18axXPT3JeCJxA8NO0Ln7JB");
     }
 
     @Test
     public void nanoXrbPrefixSupport() {
         String nanoAddress = "nano_1thingspmippfngcrtk1ofd3uwftffnu4qu9xkauo9zkiuep6iknzci3jxa6";
         String xrbAddress = "xrb_1thingspmippfngcrtk1ofd3uwftffnu4qu9xkauo9zkiuep6iknzci3jxa6";
-        String nanoPublic = NanoUtil.addressToPublic(nanoAddress);
+        String nanoPublic = NOSUtil.addressToPublic(nanoAddress);
         assertEquals(64, nanoPublic.length());
-        byte[] nanoBytes = NanoUtil.hexToBytes(nanoPublic);
+        byte[] nanoBytes = NOSUtil.hexToBytes(nanoPublic);
         assertEquals(32, nanoBytes.length);
-        String xrbPublic = NanoUtil.bytesToHex(nanoBytes);
+        String xrbPublic = NOSUtil.bytesToHex(nanoBytes);
         assertEquals(nanoPublic, xrbPublic);
-        assertEquals(xrbAddress, NanoUtil.publicToAddress(xrbPublic));
+        assertEquals(xrbAddress, NOSUtil.publicToAddress(xrbPublic));
     }
 
     @After

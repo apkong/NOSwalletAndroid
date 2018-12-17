@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "799275337961",
+    "firebase_url": "https://nos-backend.firebaseio.com",
+    "project_id": "nos-backend",
+    "storage_bucket": "nos-backend.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799275337961:android:24ee5b7724710c63",
+        "android_client_info": {
+          "package_name": "co.nos.noswallet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "799275337961-rps67rdpnlruq1e74tapn822milb5ore.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXkKM-YpYJSXKYOM85E5x9x5NFsWbvqVM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

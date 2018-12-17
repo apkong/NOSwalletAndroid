@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public class NumberUtil {
     public static final BigInteger baseOfDivider = new BigInteger("10");
-    public static final BigInteger xrbDivider = baseOfDivider.pow(30);
+    public static final BigInteger prefix_Divider = baseOfDivider.pow(30);
     public static final BigInteger nanoDivider = baseOfDivider.pow(24);
 
     /**
@@ -23,7 +23,7 @@ public class NumberUtil {
      */
     public static BigDecimal getRawAsUsableAmount(String raw) {
         BigDecimal amount = new BigDecimal(raw);
-        return amount.divide(new BigDecimal(xrbDivider), 32, RoundingMode.FLOOR);
+        return amount.divide(new BigDecimal(prefix_Divider), 32, RoundingMode.FLOOR);
     }
 
     /**
@@ -47,7 +47,7 @@ public class NumberUtil {
     public static BigInteger getAmountAsRawBigInteger(String amount) {
         try {
             BigDecimal raw = new BigDecimal(amount);
-            return raw.multiply(new BigDecimal(xrbDivider.toString())).toBigInteger();
+            return raw.multiply(new BigDecimal(prefix_Divider.toString())).toBigInteger();
         } catch(Exception e) {
             ExceptionHandler.handle(e);
         }
@@ -77,7 +77,7 @@ public class NumberUtil {
     }
 
     public static BigInteger getAsRawValue(String value) {
-        return new BigInteger(new BigDecimal(value).multiply(new BigDecimal(xrbDivider)).toString());
+        return new BigInteger(new BigDecimal(value).multiply(new BigDecimal(prefix_Divider)).toString());
     }
 
     public static String getAsRawString(String value) {

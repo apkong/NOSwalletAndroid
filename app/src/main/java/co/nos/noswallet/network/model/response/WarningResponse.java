@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import co.nos.noswallet.network.model.BaseResponse;
 
 /**
- * Error response from service
+ * SocketClosed response from service
  */
 
 public class WarningResponse extends BaseResponse {

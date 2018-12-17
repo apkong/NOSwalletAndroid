@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="handlers"
+            type="co.nos.noswallet.kyc.identity.IdentityFragment.ClickHandlers" />
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:background="@color/white">
+
+        <TextView
+            android:id="@+id/welcome_nos"
+            style="@style/BiggerText"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/activity_default_padding"
+            android:text="@string/personal_data"
+            android:textSize="24dp" />
+
+        <ImageView
+            android:id="@+id/nos_identity_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_below="@+id/welcome_nos"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/activity_small_padding"
+            android:background="#000" />
+
+
+        <co.nos.noswallet.ui.common.InputLayout
+            android:id="@+id/identity_first_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nos_identity_image"
+            android:layout_marginLeft="@dimen/activity_default_padding"
+            android:layout_marginRight="@dimen/activity_default_padding"
+            android:hint="@string/first_name_hint"
+            android:inputType="textPersonName" />
+
+        <co.nos.noswallet.ui.common.InputLayout
+            android:id="@+id/identity_last_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/identity_first_name"
+            android:layout_marginLeft="@dimen/activity_default_padding"
+            android:layout_marginRight="@dimen/activity_default_padding"
+            android:hint="@string/last_name_hint"
+            android:inputType="textPersonName" />
+
+        <co.nos.noswallet.ui.common.InputLayout
+            android:id="@+id/identity_birthdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/identity_last_name"
+            android:layout_marginLeft="@dimen/activity_default_padding"
+            android:layout_marginRight="@dimen/activity_default_padding"
+            android:hint="@string/birthdate_hint"
+            android:inputType="date" />
+
+        <TextView
+            android:onClick="@{handlers::onClickContinue}"
+            android:id="@+id/kyc_1_continue"
+            style="@style/CancelButton"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="32dp"
+            android:text="@string/_continue" />
+
+    </RelativeLayout>
+</layout>

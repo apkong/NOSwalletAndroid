@@ -15,11 +15,13 @@ import java.math.BigDecimal;
 
 import javax.inject.Inject;
 
-import co.nano.nanowallet.NanoApplication;
-import co.nano.nanowallet.di.activity.ActivityModule;
 import co.nano.nanowallet.di.activity.DaggerTestActivityComponent;
 import co.nano.nanowallet.di.activity.TestActivityComponent;
-import co.nano.nanowallet.util.SharedPreferencesUtil;
+import co.nos.noswallet.NOSApplication;
+import co.nos.noswallet.di.activity.ActivityModule;
+import co.nos.noswallet.model.AvailableCurrency;
+import co.nos.noswallet.model.NanoWallet;
+import co.nos.noswallet.util.SharedPreferencesUtil;
 
 /**
  * Test the Nano Utility functions
@@ -46,7 +48,7 @@ public class NanoWalletTest extends InstrumentationTestCase {
         // build the activity component
         testActivityComponent = DaggerTestActivityComponent
                 .builder()
-                .applicationComponent(NanoApplication.getApplication(InstrumentationRegistry.getTargetContext().getApplicationContext()).getApplicationComponent())
+                .applicationComponent(NOSApplication.getApplication(InstrumentationRegistry.getTargetContext().getApplicationContext()).getApplicationComponent())
                 .activityModule(new ActivityModule(InstrumentationRegistry.getTargetContext()))
                 .build();
 

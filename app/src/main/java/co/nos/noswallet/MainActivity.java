@@ -1,10 +1,19 @@
 package co.nos.noswallet;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.ColorRes;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,11 +24,11 @@ import android.widget.TextView;
 
 import com.hwangjr.rxbus.annotation.Subscribe;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
 
-import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
 import co.nos.noswallet.bus.HideOverlay;
@@ -34,41 +43,33 @@ import co.nos.noswallet.di.activity.DaggerActivityComponent;
 import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
+import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
+import co.nos.noswallet.network.interactor.GetBlocksInfoUseCase;
+import co.nos.noswallet.network.websockets.WebsocketMachine;
+import co.nos.noswallet.push.HandlePushMessagesService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.home.HomeFragment;
+import co.nos.noswallet.ui.home.HasWebsocketMachine;
+import co.nos.noswallet.ui.home.v2.CurrencyFragment;
+import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
+import co.nos.noswallet.util.NosLogger;
 import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.HideOverlay;
-import co.nos.noswallet.bus.Logout;
-import co.nos.noswallet.bus.OpenWebView;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.bus.SeedCreatedWithAnotherWallet;
-import co.nos.noswallet.bus.ShowOverlay;
-import co.nos.noswallet.di.activity.ActivityComponent;
-import co.nos.noswallet.di.activity.ActivityModule;
-import co.nos.noswallet.di.application.ApplicationComponent;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.model.NanoWallet;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.FragmentUtility;
-import co.nos.noswallet.ui.common.WindowControl;
-import co.nos.noswallet.ui.home.HomeFragment;
-import co.nos.noswallet.ui.intro.IntroLegalFragment;
-import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
-import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
-import co.nos.noswallet.ui.webview.WebViewDialogFragment;
-import co.nos.noswallet.util.SharedPreferencesUtil;
+import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class MainActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent {
+import static co.nos.noswallet.network.notifications.NosNotifier.ACTION_GOT_SAUCE;
+import static co.nos.noswallet.network.notifications.NosNotifier.EXTRA_POSITION;
+
+public class MainActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent, HasWebsocketMachine {
+
+    public static final String TAG = MainActivity.class.getSimpleName();
+
     private FragmentUtility mFragmentUtility;
     private Toolbar mToolbar;
     private TextView mToolbarTitle;
@@ -76,10 +77,13 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     private FrameLayout mOverlay;
 
     @Inject
+    WebsocketMachine websocketMachine;
+
+    @Inject
     Realm realm;
 
     @Inject
-    AccountService accountService;
+    GetBlocksInfoUseCase getBlocksInfoUseCase;
 
     @Inject
     NanoWallet nanoWallet;
@@ -90,6 +94,11 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     @Inject
     AnalyticsService analyticsService;
 
+    @Inject
+    ApiResponseMapper apiResponseMapper;
+
+    public int viewPagerPosition;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,9 +106,8 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         disableScreenCapture();
 
         // build the activity component
-        mActivityComponent = DaggerActivityComponent
-                .builder()
-                .applicationComponent(NanoApplication.getApplication(this).getApplicationComponent())
+        mActivityComponent = DaggerActivityComponent.builder()
+                .applicationComponent(NOSApplication.getApplication(this).getApplicationComponent())
                 .activityModule(new ActivityModule(this))
                 .build();
 
@@ -115,27 +123,46 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
         }
 
         initUi();
+
+        if (websocketMachine != null) {
+            websocketMachine.handleClickedNotification(getIntent());
+        }
+
+        setupNewIntentIfAny(getIntent());
+
+        setupNotificationsChannel();
     }
 
-    private void disableScreenCapture() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // stop websocket on pause
-        if (accountService != null) {
-            accountService.close();
+    private void setupNotificationsChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            String channelId = getString(R.string.default_notification_channel_id);
+            String channelName = getString(R.string.default_notification_channel_name);
+            NotificationManager notificationManager =
+                    getSystemService(NotificationManager.class);
+            if (notificationManager != null)
+                notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+                        channelName, NotificationManager.IMPORTANCE_LOW));
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // start websocket on resume
-        if (accountService != null && realm != null && !realm.isClosed() && realm.where(Credentials.class).findFirst() != null) {
-            accountService.open();
+        websocketMachine.start();
+        HandlePushMessagesService.start(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    Disposable disposable;
+
+    private void disableScreenCapture() {
+        if (BuildConfig.DISABLE_SCREENSHOTS) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         }
     }
 
@@ -143,6 +170,11 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     protected void onDestroy() {
         super.onDestroy();
 
+        websocketMachine.closeAll();
+
+        if (disposable != null) {
+            disposable.dispose();
+        }
         // unregister from bus
         RxBus.get().unregister(this);
 
@@ -208,7 +240,9 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
             mFragmentUtility.clearStack();
             if (sharedPreferencesUtil.getConfirmedSeedBackedUp()) {
                 // go to home screen
-                mFragmentUtility.replace(HomeFragment.newInstance());
+
+//                mFragmentUtility.replace(HomeFragment.newInstance());
+                mFragmentUtility.replace(HistoryFragment.newInstance());
             } else {
                 // go to intro new wallet
                 mFragmentUtility.replace(IntroNewWalletFragment.newInstance());
@@ -220,15 +254,12 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     }
 
     @Subscribe
-    public void logOut(Logout logout) {
+    public void logOut(Logout unused) {
         analyticsService.track(AnalyticsEvents.LOG_OUT);
 
         // delete user seed data before logging out
         final RealmResults<Credentials> results = realm.where(Credentials.class).findAll();
         realm.executeTransaction(realm1 -> results.deleteAllFromRealm());
-
-        // stop the websocket
-        accountService.close();
 
         // clear wallet
         nanoWallet.clear();
@@ -238,10 +269,18 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
         sharedPreferencesUtil.setConfirmedSeedBackedUp(false);
         sharedPreferencesUtil.setFromNewWallet(false);
+        sharedPreferencesUtil.clearAll();
 
-        // go to the welcome fragment
         getFragmentUtility().clearStack();
         getFragmentUtility().replace(new IntroWelcomeFragment(), FragmentUtility.Animation.CROSSFADE);
+
+        // go to the welcome fragment
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                NOSApplication.get().restartMainActivity();
+            }
+        }, 100);
     }
 
     @Subscribe
@@ -279,14 +318,13 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     }
 
 
-
     /**
      * Set the status bar to a particular color
      *
      * @param color color resource id
      */
     @Override
-    public void setStatusBarColor(int color) {
+    public void setStatusBarColor(@ColorRes int color) {
         // we can only set it 5.x and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -361,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
             // build the activity component
             mActivityComponent = DaggerActivityComponent
                     .builder()
-                    .applicationComponent(NanoApplication.getApplication(this).getApplicationComponent())
+                    .applicationComponent(NOSApplication.getApplication(this).getApplicationComponent())
                     .activityModule(new ActivityModule(this))
                     .build();
         }
@@ -370,6 +408,75 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
     @Override
     public ApplicationComponent getApplicationComponent() {
-        return NanoApplication.getApplication(this).getApplicationComponent();
+        return NOSApplication.getApplication(this).getApplicationComponent();
+    }
+
+    @Override
+    public WebsocketMachine getWebsocketMachine() {
+        return websocketMachine;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (websocketMachine != null) {
+            setupNewIntentIfAny(intent);
+            websocketMachine.handleClickedNotification(intent);
+        }
+        searchDeepForFragmentAndPerform(CurrencyFragment.class, new ActionConcreteInstanceOf<CurrencyFragment>() {
+            @Override
+            public void perform(CurrencyFragment instance) {
+                instance.afterResumeAction = () -> instance.callRefreshFromNotification();
+            }
+        });
+    }
+
+    private void setupNewIntentIfAny(Intent intent) {
+        if (intent != null && ACTION_GOT_SAUCE.equalsIgnoreCase(intent.getAction())) {
+            viewPagerPosition = intent.getIntExtra(EXTRA_POSITION, 0);
+            NosLogger.e(TAG, "setupNewIntentIfAny: " + viewPagerPosition);
+        }
+    }
+
+    private <T extends Fragment> void searchDeepForFragmentAndPerform(Class<T> fragmentKlazz, ActionConcreteInstanceOf<T> action) {
+        for (android.support.v4.app.Fragment fragment : getSupportFragmentManager().getFragments()) {
+            operateOverFragmentChildren(fragment, action, fragmentKlazz);
+        }
+    }
+
+    private <T extends Fragment> void operateOverFragmentChildren(Fragment fragment, ActionConcreteInstanceOf<T> action, Class<T> concreteClazz) {
+        if (fragment != null) {
+            if (fragment.getClass().getSimpleName().equalsIgnoreCase(concreteClazz.getSimpleName())) {
+                action.perform(concreteClazz.cast(fragment));
+            }
+
+            List<android.support.v4.app.Fragment> childFrags = fragment.getChildFragmentManager().getFragments();
+            if (childFrags != null && childFrags.size() > 0) {
+                for (Fragment child : childFrags) {
+                    operateOverFragmentChildren(child, action, concreteClazz);
+                }
+            }
+        }
+    }
+
+
+    public void showRestartNeededBecauseOfFirstLaunch() {
+        if (restartDialog != null) {
+            restartDialog.dismiss();
+        }
+        restartDialog = new AlertDialog.Builder(this)
+                //.setTitle(getString(R.string.warning))
+                .setMessage(getString(R.string.app_needs_restart))
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> NOSApplication.get().restartApp(null))
+                .create();
+        restartDialog.show();
+
+    }
+
+    private AlertDialog restartDialog;
+
+    interface ActionConcreteInstanceOf<T> {
+        void perform(T instance);
     }
 }

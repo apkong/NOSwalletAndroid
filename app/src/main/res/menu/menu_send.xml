@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/send_camera"
-        android:icon="@drawable/ic_camera"
+        android:icon="@drawable/ic_camera_white"
         app:showAsAction="always"
         android:title="@string/send_camera">
     </item>

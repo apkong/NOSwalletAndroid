@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <!-- Click Listeners -->
@@ -14,17 +15,27 @@
         android:layout_height="match_parent"
         android:background="@color/bright_white">
 
-        <FrameLayout
-            android:id="@+id/home_top_background"
-            android:layout_width="match_parent"
-            android:layout_height="74dp"
-            android:background="@color/very_dark_blue" />
+        <!--<FrameLayout-->
+        <!--android:id="@+id/home_top_background"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="74dp"-->
+        <!--android:background="@color/dark_sky_blue">-->
+
+        <!--<TextView-->
+        <!--android:id="@+id/home_top_balance"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:textColor="@color/white"-->
+        <!--tools:text="amount" />-->
+        <!--</FrameLayout>-->
 
         <android.support.v4.view.ViewPager
             android:id="@+id/home_viewpager"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/home_tabs"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -48,35 +59,41 @@
             android:id="@+id/home_swiperefresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="105dp"
-            android:layout_marginTop="74dp">
+            android:layout_marginTop="74dp"
+            android:layout_marginBottom="50dp">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/home_recyclerview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                tools:listitem="@layout/item_history" />
         </android.support.v4.widget.SwipeRefreshLayout>
 
-
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/home_bottom_background"
             android:layout_width="match_parent"
-            android:layout_height="105dp"
-            android:background="@color/very_dark_blue"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
-        <Button
+        <TextView
             android:id="@+id/home_receive_button"
-            style="@style/SmallButton"
-            android:layout_marginBottom="33dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            style="@style/NormalButton"
+            android:layout_width="0dp"
             android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:onClick="@{handlers::onClickReceive}"
             android:text="@string/home_receive_cta"
+            android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/home_send_button"
             app:layout_constraintHorizontal_bias="0.5"
@@ -84,16 +101,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintVertical_chainStyle="spread" />
 
-        <Button
+        <TextView
             android:id="@+id/home_send_button"
-            style="@style/SmallButton"
-            android:layout_marginBottom="33dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            style="@style/LargeButton"
+            android:layout_width="0dp"
             android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:onClick="@{handlers::onClickSend}"
             android:text="@string/home_send_cta"
+            android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"

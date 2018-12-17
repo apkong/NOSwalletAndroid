@@ -20,23 +20,12 @@ import co.nos.noswallet.bus.CreatePin;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentIntroSeedBinding;
 import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.FragmentUtility;
 import co.nos.noswallet.ui.common.UIUtil;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.scan.ScanActivity;
-import co.nos.noswallet.util.SharedPreferencesUtil;
-import co.nos.noswallet.bus.CreatePin;
-import co.nos.noswallet.bus.RxBus;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.network.AccountService;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseFragment;
-import co.nos.noswallet.ui.common.FragmentUtility;
-import co.nos.noswallet.ui.common.UIUtil;
-import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
@@ -54,9 +43,6 @@ public class IntroSeedFragment extends BaseFragment {
 
     @Inject
     Realm realm;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     SharedPreferencesUtil sharedPreferencesUtil;
@@ -167,6 +153,9 @@ public class IntroSeedFragment extends BaseFragment {
          * @param count  Total character count
          */
         public void onSeedTextChanged(CharSequence s, int start, int before, int count) {
+
+            System.out.println("onSeedTextChanged: " + s);
+
             if (!preventTextUpdate) {
                 preventTextUpdate = true;
                 // update background color based on entry length
@@ -211,7 +200,6 @@ public class IntroSeedFragment extends BaseFragment {
          */
         public void onClickConfirm(View view) {
             createAndStoreCredentials(binding.introSeedSeed.getText().toString());
-            accountService.open();
 
             sharedPreferencesUtil.setConfirmedSeedBackedUp(true);
 

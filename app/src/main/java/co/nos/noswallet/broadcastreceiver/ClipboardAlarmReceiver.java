@@ -6,7 +6,7 @@ import android.content.Intent;
 
 public class ClipboardAlarmReceiver extends BroadcastReceiver {
 
-    public static final String CLIPBOARD_NAME = "nano";
+    public static final String CLIPBOARD_NAME = "nos";
 
     @Override
     public void onReceive(Context context, Intent intent) {
