@@ -109,9 +109,11 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
 
     @Override
     public void onDestroy() {
-        home_swiperefresh.removeCallbacks(additionalRunnable);
-        home_swiperefresh.setOnRefreshListener(null);
         super.onDestroy();
+        if (home_swiperefresh != null) {
+            home_swiperefresh.removeCallbacks(additionalRunnable);
+            home_swiperefresh.setOnRefreshListener(null);
+        }
     }
 
     private void configureAdapter() {
@@ -122,7 +124,7 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
     }
 
     public void callRefreshFromNotification() {
-        if (getParent() == null) {
+        if (getParent() == null || home_swiperefresh == null) {
             return;
         }
         home_swiperefresh.setRefreshing(true);

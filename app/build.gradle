@@ -1,7 +1,3 @@
-//repositories {
-////    maven { url 'https://maven.fabric.io/public' }
-//}
-
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 apply plugin: 'io.fabric'
