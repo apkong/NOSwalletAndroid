@@ -11,3 +11,5 @@ we plan to divide the project in several phases:
    4. Optimization
 
    5. Security
+   
+   6. Production Release
