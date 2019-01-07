@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.andrognito.pinlockview.PinLockListener;
+
 import javax.inject.Inject;
 
 import co.nos.noswallet.R;
@@ -18,12 +19,6 @@ import co.nos.noswallet.bus.PinChange;
 import co.nos.noswallet.bus.PinComplete;
 import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.databinding.FragmentPinBinding;
-import co.nos.noswallet.model.Credentials;
-import co.nos.noswallet.ui.common.ActivityWithComponent;
-import co.nos.noswallet.ui.common.BaseDialogFragment;
-import co.nos.noswallet.bus.PinChange;
-import co.nos.noswallet.bus.PinComplete;
-import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
@@ -40,17 +35,24 @@ public class PinDialogFragment extends BaseDialogFragment {
     private static final String SUBTITLE_KEY = "PinDialogSubtitleKey";
 
     private String subtitle;
+    private PinCallbacks pinCallbacks;
 
+    public void setPinCallbacks(PinCallbacks pinCallbacks) {
+        this.pinCallbacks = pinCallbacks;
+    }
 
     private PinLockListener pinLockListener = new PinLockListener() {
         @Override
-            public void onComplete(String pin) {
+        public void onComplete(String pin) {
             Timber.d("Pin complete: %s", pin);
 
             Credentials credentials = realm.where(Credentials.class).findFirst();
 
             if (credentials != null && credentials.getPin() != null && credentials.getPin().equals(pin)) {
                 RxBus.get().post(new PinComplete(pin));
+                if (pinCallbacks != null) {
+                    pinCallbacks.onPinCorrectlyEntered();
+                }
                 dismiss();
             } else {
                 binding.pinTitle.setText(R.string.pin_error);
@@ -127,7 +129,12 @@ public class PinDialogFragment extends BaseDialogFragment {
         Toolbar toolbar = view.findViewById(R.id.dialog_appbar);
         if (toolbar != null) {
             final PinDialogFragment window = this;
-            toolbar.setNavigationOnClickListener(v1 -> window.dismiss());
+            toolbar.setNavigationOnClickListener(v1 -> {
+                if (pinCallbacks != null) {
+                    pinCallbacks.onPinEnterCancel();
+                }
+                window.dismiss();
+            });
         }
 
         return view;
@@ -135,7 +142,12 @@ public class PinDialogFragment extends BaseDialogFragment {
 
     public class ClickHandlers {
         public void onClickClose(View view) {
+            if (pinCallbacks != null) {
+                pinCallbacks.onPinEnterCancel();
+            }
             dismiss();
         }
     }
+
+
 }

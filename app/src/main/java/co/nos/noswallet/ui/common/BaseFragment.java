@@ -35,6 +35,7 @@ import co.nos.noswallet.bus.RxBus;
 import co.nos.noswallet.bus.SeedCreatedWithAnotherWallet;
 import co.nos.noswallet.model.Credentials;
 import co.nos.noswallet.ui.pin.CreatePinDialogFragment;
+import co.nos.noswallet.ui.pin.PinCallbacks;
 import co.nos.noswallet.ui.pin.PinDialogFragment;
 import co.nos.noswallet.ui.scan.ScanActivity;
 import co.nos.noswallet.ui.send.SendFragment;
@@ -227,10 +228,11 @@ public class BaseFragment<T extends FragmentActivity> extends Fragment {
     }
 
     protected void showPinScreen(String subtitle) {
-        showPinScreen(subtitle, null);
+        showPinScreenWith(subtitle, null);
     }
 
-    protected void showPinScreen(String subtitle, Runnable action) {
+    @Deprecated
+    protected void showPinScreen(String subtitle, Runnable dismissAction) {
         if (getActivity() instanceof WindowControl) {
             PinDialogFragment dialog = PinDialogFragment.newInstance(subtitle);
             dialog.show(((WindowControl) getActivity()).getFragmentUtility().getFragmentManager(),
@@ -243,9 +245,29 @@ public class BaseFragment<T extends FragmentActivity> extends Fragment {
             if (dialog.getDialog() != null) {
                 dialog.getDialog().setOnDismissListener(dialogInterface -> {
                     setStatusBarBlue();
-                    if (action != null) {
-                        action.run();
+                    if (dismissAction != null) {
+                        dismissAction.run();
                     }
+                });
+            }
+        }
+    }
+
+
+    protected void showPinScreenWith(String subtitle, PinCallbacks pinCallbacks) {
+        if (getActivity() instanceof WindowControl) {
+            PinDialogFragment dialog = PinDialogFragment.newInstance(subtitle);
+            dialog.show(((WindowControl) getActivity()).getFragmentUtility().getFragmentManager(),
+                    PinDialogFragment.TAG);
+
+            dialog.setPinCallbacks(pinCallbacks);
+            // make sure that dialog is not null
+            ((WindowControl) getActivity()).getFragmentUtility().getFragmentManager().executePendingTransactions();
+
+            // reset status bar to blue when dialog is closed
+            if (dialog.getDialog() != null) {
+                dialog.getDialog().setOnDismissListener(dialogInterface -> {
+                    setStatusBarBlue();
                 });
             }
         }

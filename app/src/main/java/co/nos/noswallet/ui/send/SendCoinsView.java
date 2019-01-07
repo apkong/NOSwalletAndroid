@@ -15,6 +15,8 @@ public interface SendCoinsView extends BaseView {
 
     void showError(int title, int message);
 
+    void showSendAttemptError(int messageRes);
+
     void showAmountSent(String sendAmount, CryptoCurrency cryptoCurrency, String targetAddress);
 
     void onNewCurrencyReceived(CryptoCurrency currencyInUse);

@@ -112,7 +112,6 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
         super.onDestroy();
         if (home_swiperefresh != null) {
             home_swiperefresh.removeCallbacks(additionalRunnable);
-            home_swiperefresh.setOnRefreshListener(null);
         }
     }
 

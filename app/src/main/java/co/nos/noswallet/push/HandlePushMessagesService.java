@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -69,12 +68,15 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
             stringBuilder.append(key + " : " + data.get(key) + ", ");
         }
 
+        if (!dataOk(data)) {
+            NosLogger.d(TAG, "data is not ok!");
+            return;
+        }
+
         String accountNumber = data.get("account");
         String amount = data.get("amount");
         String hash = data.get("hash");
         String block = data.get("hash");
-
-        if (amount == null || amount.isEmpty()) return;
 
         Bundle bundle = new Bundle();
 
@@ -85,7 +87,11 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
 
         String currency = accountNumber.substring(0, 3);
 
-        CryptoCurrency cryptoCurrency = CryptoCurrency.recognize(currency);
+        CryptoCurrency cryptoCurrency = CryptoCurrency.recognizeOrNull(currency);
+        if (cryptoCurrency == null) {
+            NosLogger.d(TAG, "crypto currency could not be recognized!");
+            return;
+        }
         if (accountNumber.charAt(4) == '_') {
             //dealing with nano?
             currency = accountNumber.substring(0, 4);
@@ -95,7 +101,6 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
         String X = formatter.rawtoUi(amount);
 
         X = formatWell(X);
-
 
         String CURRENCY = cryptoCurrency.name();
 
@@ -110,6 +115,27 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
                 cryptoCurrency.getPosition());
     }
 
+    private boolean dataOk(Map<String, String> data) {
+        String accountNumber = data.get("account");
+        String amount = data.get("amount");
+        String hash = data.get("hash");
+        String block = data.get("hash");
+        NosLogger.d(TAG, "data: ");
+
+        return nonNullable(accountNumber, amount, hash, block)
+                && amount.length() > 0
+                && accountNumber.length() > 4;
+    }
+
+    private static boolean nonNullable(Object... args) {
+        for (Object o : args) {
+            if (o == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static String formatWell(String numberWithExtraZeros) {
 
         try {
@@ -121,7 +147,9 @@ public class HandlePushMessagesService extends FirebaseMessagingService {
                 while (true) {
                     if (numberWithExtraZeros.charAt(numberWithExtraZeros.length() - 1) == '0') {
                         numberWithExtraZeros = numberWithExtraZeros.substring(0, numberWithExtraZeros.length() - 1);
-                    } else return numberWithExtraZeros;
+                    } else {
+                        return numberWithExtraZeros;
+                    }
                 }
             }
         } catch (Exception x) {

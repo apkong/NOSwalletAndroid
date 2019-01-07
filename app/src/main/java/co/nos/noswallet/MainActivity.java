@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,6 +55,7 @@ import co.nos.noswallet.ui.home.v2.HistoryFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
+import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
 import co.nos.noswallet.util.NosLogger;
 import co.nos.noswallet.util.SharedPreferencesUtil;
@@ -478,5 +478,11 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
 
     interface ActionConcreteInstanceOf<T> {
         void perform(T instance);
+    }
+
+
+    @Override
+    public void hideLoading() {
+        searchDeepForFragmentAndPerform(SendCoinsFragment.class, SendCoinsFragment::hideLoading);
     }
 }
