@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="@color/bright_white"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/dialog_appbar"
+        layout="@layout/view_appbar_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:textSize="16dp"
+        android:id="@+id/representative_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dialog_appbar"
+        android:textColor="@color/black"
+        tools:text="Representative" />
+
+    <EditText
+        android:layout_margin="16dp"
+        android:id="@+id/representative_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/representative_label" />
+
+    <TextView
+        android:visibility="invisible"
+        android:layout_marginTop="1dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:textSize="16dp"
+        android:id="@+id/representative_label_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/representative_input"
+        android:textColor="@color/red"
+        tools:text="Representative" />
+    <TextView
+        android:id="@+id/representative_save"
+        style="@style/LargeButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/representative_label_error"
+        android:layout_margin="16dp"
+        android:text="@string/save" />
+
+
+</RelativeLayout>

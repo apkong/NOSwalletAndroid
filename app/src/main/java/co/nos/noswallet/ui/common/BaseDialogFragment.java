@@ -29,6 +29,7 @@ import co.nos.noswallet.util.ExceptionHandler;
  */
 
 public class BaseDialogFragment extends DialogFragment {
+
     protected View view;
 
     @Override
