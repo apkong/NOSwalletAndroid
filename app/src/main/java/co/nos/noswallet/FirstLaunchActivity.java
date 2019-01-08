@@ -412,6 +412,11 @@ public class FirstLaunchActivity extends AppCompatActivity implements WindowCont
     }
 
     @Override
+    public void hideLoading() {
+
+    }
+
+    @Override
     public ActivityComponent getActivityComponent() {
         if (mActivityComponent == null) {
             // build the activity component

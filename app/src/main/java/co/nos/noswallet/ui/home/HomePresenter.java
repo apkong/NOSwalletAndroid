@@ -28,7 +28,7 @@ import io.reactivex.disposables.Disposable;
 
 import static co.nos.noswallet.network.websockets.SafeCast.safeCast;
 
-
+@Deprecated
 public class HomePresenter extends BasePresenter<HomeView> {
 
     public static final String TAG = HomePresenter.class.getSimpleName();

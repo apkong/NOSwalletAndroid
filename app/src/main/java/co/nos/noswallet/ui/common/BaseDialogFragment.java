@@ -23,7 +23,6 @@ import co.nos.noswallet.broadcastreceiver.ClipboardAlarmReceiver;
 import co.nos.noswallet.ui.pin.CreatePinDialogFragment;
 import co.nos.noswallet.ui.pin.PinDialogFragment;
 import co.nos.noswallet.util.ExceptionHandler;
-import co.nos.noswallet.util.ExceptionHandler;
 
 /**
  * Base class for dialog fragments

@@ -15,4 +15,6 @@ public interface WindowControl {
     void setTitle(String title);
     void setTitleDrawable(int drawable);
     void setBackEnabled(boolean enabled);
+
+    void hideLoading();
 }

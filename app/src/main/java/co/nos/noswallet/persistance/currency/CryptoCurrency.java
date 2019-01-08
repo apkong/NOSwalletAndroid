@@ -1,6 +1,6 @@
 package co.nos.noswallet.persistance.currency;
 
-import android.util.Log;
+import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -49,6 +49,15 @@ public enum CryptoCurrency implements Serializable {
             if (c.currencyCode.equalsIgnoreCase(text)) return c;
         }
         return NOLLAR;
+    }
+
+    @Nullable
+    public static CryptoCurrency recognizeOrNull(String text) {
+        for (CryptoCurrency c : values()) {
+            if (c.name().equalsIgnoreCase(text)) return c;
+            if (c.currencyCode.equalsIgnoreCase(text)) return c;
+        }
+        return null;
     }
 
     public String getCurrencyCode() {

@@ -1,14 +1,10 @@
-//repositories {
-////    maven { url 'https://maven.fabric.io/public' }
-//}
-
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 apply plugin: 'io.fabric'
 
 
-def currentVersionCode = 18
-def currentVersionName = "0.0.18"
+def currentVersionCode = 19
+def currentVersionName = "0.0.19"
 
 android {
     compileSdkVersion 27

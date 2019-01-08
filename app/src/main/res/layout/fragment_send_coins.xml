@@ -21,21 +21,23 @@
         android:layout_height="match_parent">
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:animateLayoutChanges="true"
-            android:background="@color/bright_white">
+            android:background="@color/bright_white"
+            app:layout_behavior="co.nos.noswallet.ui.send.SendButtonUpBehavior">
 
             <EditText
                 android:id="@+id/send_address"
                 style="@style/SeedInput"
                 android:layout_height="0dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginEnd="37dp"
-                android:layout_marginLeft="37dp"
-                android:layout_marginRight="37dp"
                 android:layout_marginStart="37dp"
+                android:layout_marginLeft="37dp"
                 android:layout_marginTop="16dp"
+                android:layout_marginEnd="37dp"
+                android:layout_marginRight="37dp"
+                android:layout_marginBottom="20dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:hint="@string/send_address_hint"
@@ -50,11 +52,11 @@
                 android:id="@+id/send_button_confirm"
                 style="@style/LargeButton"
                 android:layout_width="match_parent"
-                android:layout_marginBottom="20dp"
-                android:layout_marginEnd="37dp"
-                android:layout_marginLeft="37dp"
-                android:layout_marginRight="37dp"
                 android:layout_marginStart="37dp"
+                android:layout_marginLeft="37dp"
+                android:layout_marginEnd="37dp"
+                android:layout_marginRight="37dp"
+                android:layout_marginBottom="20dp"
                 android:onClick="@{handlers::onClickConfirm}"
                 android:text="@string/send_confirm_address_cta"
                 android:visibility="@{safeUnbox(showAmount) ? View.GONE : View.VISIBLE}"
@@ -66,12 +68,12 @@
                 android:id="@+id/send_address_display"
                 style="@style/SeedInput"
                 android:layout_height="0dp"
-                android:layout_marginBottom="16dp"
-                android:layout_marginEnd="37dp"
-                android:layout_marginLeft="37dp"
-                android:layout_marginRight="37dp"
                 android:layout_marginStart="37dp"
+                android:layout_marginLeft="37dp"
                 android:layout_marginTop="16dp"
+                android:layout_marginEnd="37dp"
+                android:layout_marginRight="37dp"
+                android:layout_marginBottom="16dp"
                 android:hint="@string/send_address_hint"
                 android:inputType="none"
                 android:onClick="@{handlers::onAddressDisplayClicked}"
@@ -109,9 +111,9 @@
                     style="@style/SendAmountInput"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
                     android:layout_marginEnd="3dp"
                     android:layout_marginRight="3dp"
+                    android:layout_marginBottom="10dp"
                     android:visibility="gone"
                     app:srcCompat="@drawable/ic_currency_nano_white" />
 
@@ -138,8 +140,8 @@
                 android:background="@drawable/bg_max"
                 android:fontFamily="@font/notosans_regular"
                 android:letterSpacing=".26"
-                android:minHeight="0dp"
                 android:minWidth="0dp"
+                android:minHeight="0dp"
                 android:onClick="@{handlers::onClickMax}"
                 android:padding="6dp"
                 android:text="@string/send_max_cta"
@@ -219,8 +221,8 @@
             <Button
                 android:id="@+id/send_keyboard_one"
                 style="@style/NumberButton"
-                android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
                 android:onClick="@{handlers::onClickNumKeyboard}"
                 android:text="@string/send_keyboard_one"
@@ -249,9 +251,9 @@
             <Button
                 android:id="@+id/send_keyboard_three"
                 style="@style/NumberButton"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginTop="16dp"
                 android:onClick="@{handlers::onClickNumKeyboard}"
                 android:text="@string/send_keyboard_three"
                 app:layout_constraintBottom_toTopOf="@+id/send_keyboard_six"
@@ -265,8 +267,8 @@
             <Button
                 android:id="@+id/send_keyboard_four"
                 style="@style/NumberButton"
-                android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
                 android:onClick="@{handlers::onClickNumKeyboard}"
                 android:text="@string/send_keyboard_four"
                 app:layout_constraintBottom_toTopOf="@+id/send_keyboard_seven"
@@ -305,8 +307,8 @@
             <Button
                 android:id="@+id/send_keyboard_seven"
                 style="@style/NumberButton"
-                android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
                 android:onClick="@{handlers::onClickNumKeyboard}"
                 android:text="@string/send_keyboard_seven"
                 app:layout_constraintBottom_toTopOf="@+id/send_keyboard_decimal"
@@ -345,12 +347,12 @@
             <Button
                 android:id="@+id/send_keyboard_decimal"
                 style="@style/NumberButton"
-                android:layout_marginBottom="16dp"
-                android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginBottom="16dp"
                 android:onClick="@{handlers::onClickNumKeyboard}"
                 android:text="@string/send_keyboard_decimal"
-                app:layout_constraintBottom_toTopOf="@+id/send_send_button"
+                app:layout_constraintBottom_toTopOf="@+id/send_send_button_viewgroup"
                 app:layout_constraintEnd_toStartOf="@+id/send_keyboard_zero"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -363,7 +365,7 @@
                 android:layout_marginBottom="16dp"
                 android:onClick="@{handlers::onClickNumKeyboard}"
                 android:text="@string/send_keyboard_zero"
-                app:layout_constraintBottom_toTopOf="@+id/send_send_button"
+                app:layout_constraintBottom_toTopOf="@+id/send_send_button_viewgroup"
                 app:layout_constraintEnd_toStartOf="@+id/send_keyboard_delete"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/send_keyboard_decimal"
@@ -373,31 +375,46 @@
             <Button
                 android:id="@+id/send_keyboard_delete"
                 style="@style/NumberButton"
-                android:layout_marginBottom="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
                 android:onClick="@{handlers::onClickNumKeyboard}"
                 android:text="@string/send_keyboard_delete"
-                app:layout_constraintBottom_toTopOf="@+id/send_send_button"
+                app:layout_constraintBottom_toTopOf="@+id/send_send_button_viewgroup"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/send_keyboard_zero"
                 app:layout_constraintTop_toBottomOf="@+id/send_keyboard_nine" />
 
-            <TextView
-                android:id="@+id/send_send_button"
-                style="@style/LargeButton"
+            <android.support.design.widget.CoordinatorLayout
+                android:id="@+id/send_send_button_viewgroup"
                 android:layout_width="match_parent"
-                android:layout_marginBottom="33dp"
-                android:layout_marginEnd="37dp"
-                android:layout_marginLeft="37dp"
-                android:layout_marginRight="37dp"
-                android:layout_marginStart="37dp"
-                android:enabled="false"
-                android:onClick="@{handlers::onClickSend}"
-                android:text="@string/send_send_cta"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="33dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:id="@+id/send_send_button"
+                    style="@style/LargeButton"
+                    android:layout_width="match_parent"
+                    android:layout_marginStart="37dp"
+                    android:layout_marginLeft="37dp"
+                    android:layout_marginEnd="37dp"
+                    android:layout_marginRight="37dp"
+
+                    android:layout_marginBottom="33dp"
+                    android:enabled="false"
+                    android:onClick="@{handlers::onClickSend}"
+                    android:text="@string/send_send_cta"
+                    android:translationY="0dp"
+                    app:layout_behavior="co.nos.noswallet.ui.send.SendButtonUpBehavior"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </android.support.design.widget.CoordinatorLayout>
+
 
             <android.support.constraint.Guideline
                 android:id="@+id/send_guideline_vert"
@@ -455,7 +472,6 @@
                 android:layout_below="@+id/progressBar"
                 android:layout_centerInParent="true"
                 android:layout_gravity="center"
-
                 android:text="@string/processing_transfer"
                 android:textColor="#fff"
                 android:textSize="22dp" />

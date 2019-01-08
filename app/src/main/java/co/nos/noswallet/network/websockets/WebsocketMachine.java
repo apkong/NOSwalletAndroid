@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
 
 import co.nos.noswallet.BuildConfig;
 import co.nos.noswallet.db.RepresentativesProvider;
@@ -127,11 +129,26 @@ public class WebsocketMachine {
         }
     }
 
+
+    private OkHttpClient buildOkHttpClient() {
+
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+//        builder.hostnameVerifier(new HostnameVerifier() {
+//            @Override
+//            public boolean verify(String hostname, SSLSession session) {
+//                Log.d(TAG, "verify() called with: hostname = [" + hostname + "], session = [" + session + "]");
+//                return true;
+//            }
+//        });
+        OkHttpClient client = builder.build();
+        return client;
+    }
+
     private void setupWebSockets() {
         NosLogger.i(TAG, "setupWebSockets() called");
         String url = BuildConfig.WEBSOCKET_URL;
 
-        websocketExecutor = new WebsocketExecutor(new OkHttpClient(), url, new NosNodeWebSocketListener());
+        websocketExecutor = new WebsocketExecutor(buildOkHttpClient(), url, new NosNodeWebSocketListener());
         websocketExecutor.init(webSocket -> {
 
             for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {

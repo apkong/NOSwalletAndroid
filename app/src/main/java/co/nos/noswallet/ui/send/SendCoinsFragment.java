@@ -12,9 +12,10 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Guideline;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
 import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -48,6 +49,7 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.UIUtil;
+import co.nos.noswallet.ui.pin.PinCallbacks;
 import co.nos.noswallet.ui.scan.ScanActivity;
 import co.nos.noswallet.util.NosLogger;
 
@@ -56,7 +58,8 @@ import static android.app.Activity.RESULT_OK;
 /**
  * Send Screen
  */
-public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
+public class SendCoinsFragment extends BaseFragment implements SendCoinsView, PinCallbacks {
+
     private FragmentSendCoinsBinding binding;
     public static String TAG = SendCoinsFragment.class.getSimpleName();
 
@@ -68,6 +71,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     private CryptoCurrency cryptoCurrency = CryptoCurrency.NOLLAR;
 
     private Button chooseCurrencyButton;
+    private Snackbar snackbar;
 
     ClickHandlers ClickHandlers;
 
@@ -101,14 +105,6 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     public static SendCoinsFragment newInstance(CryptoCurrency cryptoCurrency) {
         Bundle args = new Bundle();
         args.putSerializable(CURRENCY, cryptoCurrency);
-        SendCoinsFragment fragment = new SendCoinsFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static SendCoinsFragment newInstance(String newSeed) {
-        Bundle args = new Bundle();
-        args.putString(ARG_NEW_SEED, newSeed);
         SendCoinsFragment fragment = new SendCoinsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -205,7 +201,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
         presenter.attachView(this);
         presenter.changeCurrencyTo(cryptoCurrency);
-
+        enableSendIfPossible();
         return view;
     }
 
@@ -250,6 +246,7 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         if (address.getAddress() != null) {
             presenter.setTargetAddress(address.getAddress());
             binding.sendAddress.setText(address.getAddress());
+            presenter.resetCurrentInput();
         }
         setShortAddress();
     }
@@ -267,14 +264,20 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         // check for valid address
         Address destination = new Address(binding.sendAddress.getText().toString(), presenter.currencyInUse);
         if (!destination.isValidAddress()) {
-            showError(R.string.send_error_alert_title, R.string.send_error_alert_message);
+            showSendAttemptError(R.string.please_specify_destination_address);
             return false;
         }
         return true;
     }
 
     private String getCurrentTypedCoins() {
-        return binding.sendAmountNano.getText().toString().trim();
+        if (binding.sendAmountNano.getText() != null) {
+            Editable editable = binding.sendAmountNano.getText();
+            if (editable != null) {
+                return editable.toString().trim();
+            }
+        }
+        return "";
     }
 
     private void setCurrentTypedCoins(String value) {
@@ -283,8 +286,17 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
 
     private void enableSendIfPossible() {
         boolean enableSend = presenter.canTransferNeuros(getCurrentTypedCoins());
-        binding.sendSendButton.setBackgroundResource(enableSend ? R.drawable.bg_large_button : R.drawable.bg_large_button_gray);
+        binding.sendSendButton.setBackgroundResource(enableSend ?
+                R.drawable.bg_large_button : R.drawable.bg_large_button_gray);
         binding.sendSendButton.setEnabled(enableSend);
+//        if (enableSend) {
+//            if (snackbar != null) {
+//                snackbar.dismiss();
+//                snackbar = null;
+//            }
+//        } else {
+//           showSendAttemptError(R.string.cannot_transfer);
+//        }
     }
 
     public void showError(int title, String message) {
@@ -319,6 +331,27 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
     @Override
     public void showError(int title, int message) {
         showError(title, getString(message));
+    }
+
+    public void showSendAttemptError(String message) {
+        if (snackbar != null) {
+            return;
+        }
+        snackbar = Snackbar.make(binding.sendSendButtonViewgroup, message, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(android.R.string.ok, (view) -> {
+            if (snackbar.isShown()) {
+                snackbar.dismiss();
+                snackbar = null;
+            }
+        });
+        snackbar.show();
+    }
+
+
+
+    @Override
+    public void showSendAttemptError(int messageRes) {
+        showSendAttemptError(getString(messageRes));
     }
 
     @Override
@@ -398,6 +431,16 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
         setCurrentTypedCoins(currentInput);
     }
 
+    @Override
+    public void onPinCorrectlyEntered() {
+        presenter.attemptSendCoins(getCurrentTypedCoins());
+    }
+
+    @Override
+    public void onPinEnterCancel() {
+        hideLoading();
+    }
+
     public class ClickHandlers {
         /**
          * Listener for styling updates when text changes
@@ -463,8 +506,9 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView {
                             }
                         });
             } else if (credentials != null && credentials.getPin() != null) {
-                showPinScreen(getString(R.string.send_pin_description_placeholder, getCurrentTypedCoins(), presenter.currencyInUse.name()),
-                        () -> presenter.attemptSendCoins(getCurrentTypedCoins()));
+                showPinScreenWith(getString(R.string.send_pin_description_placeholder,
+                        getCurrentTypedCoins(),
+                        presenter.currencyInUse.name()), SendCoinsFragment.this);
             } else if (credentials != null && credentials.getPin() == null) {
                 showCreatePinScreen();
             }

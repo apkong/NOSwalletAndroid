@@ -125,7 +125,7 @@
 
     <!-- Scan Screen -->
     <string name="scan_instruction_label">Scan a NOS or RaiBlocks\nwallet seed QR code to\nimport an existing wallet</string>
-    <string name="scan_send_instruction_label">Scan a NOS or RaiBlocks\naddress QR code</string>
+    <string name="scan_send_instruction_label">Scan a Nollar, NOS, Banano or Nano\naddress QR code</string>
     <string name="scan_seed_error">Please scan a valid seed.</string>
 
     <!-- Webview Screen -->

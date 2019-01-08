@@ -1,7 +1,5 @@
 package co.nos.noswallet.ui.send;
 
-import android.util.Log;
-
 import java.math.BigDecimal;
 
 import javax.inject.Inject;
@@ -44,6 +42,24 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         this.realm = realm;
     }
 
+
+    public void resetCurrentInput() {
+        currentInput = "";
+        recentTypedCoins = "";
+    }
+
+    public void reset() {
+        targetAddress = null;
+        loadingIsVisible = false;
+        resetCurrentInput();
+    }
+
+    @Override
+    public void attachView(SendCoinsView view) {
+        super.attachView(view);
+        reset();
+    }
+
     public void attemptSendCoins(String uiCoinsAmount) {
         NosLogger.w(TAG, "attemptSendCoins: " + uiCoinsAmount);
 
@@ -52,7 +68,10 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
 
         if (!targetAddressValid()) {
             String message = view.getString(R.string.please_specify_destination_address);
-            view.showError(message);
+            view.hideLoading();
+            //view.showError(message);
+            view.showSendAttemptError(R.string.please_specify_destination_address);
+
             return;
         }
 
@@ -69,7 +88,8 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
                 showLoading();
             }
         } else {
-            view.showError(R.string.send_error_alert_title, R.string.cannot_transfer);
+            //view.showError(R.string.send_error_alert_title, R.string.cannot_transfer);
+            view.showSendAttemptError(R.string.cannot_transfer);
             hideLoading();
         }
     }
@@ -124,7 +144,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
     }
 
     public void updateAmountFromCode(CharSequence totalValue) {
-        currentInput = currencyFormatter.rawtoUi(totalValue.toString());
+        currentInput = currencyFormatter.rawtoUi(totalValue == null ? "" : totalValue.toString());
         view.onCurrentInputReceived(currentInput);
     }
 
@@ -172,7 +192,7 @@ public class SendCoinsPresenter extends BasePresenter<SendCoinsView> {
         return canTransferRawAmount(raw);
     }
 
-    private boolean targetAddressValid() {
+    public boolean targetAddressValid() {
         Address destination = new Address(targetAddress, currencyInUse);
         return destination.isValidAddress();
     }
