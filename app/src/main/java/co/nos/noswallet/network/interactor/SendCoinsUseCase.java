@@ -1,7 +1,5 @@
 package co.nos.noswallet.network.interactor;
 
-import android.util.Log;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
@@ -30,7 +28,7 @@ public class SendCoinsUseCase {
     private final String privateKey;
     private final String publicKey;
 
-    private final String representative;
+    private final String representative = null;//specify currency!!!
 
     @Inject
     public SendCoinsUseCase(NeuroClient api,
@@ -40,7 +38,6 @@ public class SendCoinsUseCase {
         this.accountNumber = provider.provideAccountNumber();
         this.privateKey = provider.providePrivateKey();
         this.publicKey = provider.providePublicKey();
-        this.representative = representativesProvider.provideRepresentative();
     }
 
     public Observable<ProcessResponse> transferCoins(@Nonnull String amount, String destinationAcount) {

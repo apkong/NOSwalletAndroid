@@ -133,7 +133,8 @@ public class BaseDialogFragment extends DialogFragment {
 
     /**
      * Create a link from the text on the view
-     * @param v TextView
+     *
+     * @param v    TextView
      * @param text id of text to add to the field
      */
     protected void createLink(TextView v, int text) {
@@ -154,5 +155,9 @@ public class BaseDialogFragment extends DialogFragment {
     protected <T extends Serializable> T getSerializableArgument(String key, T defaultValue) {
         if (getArguments() == null) return defaultValue;
         return (T) getArguments().getSerializable(key);
+    }
+
+    protected void hideKeyboard() {
+        KeyboardUtil.hideKeyboard(getActivity());
     }
 }

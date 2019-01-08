@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.io.EOFException;
 import java.net.SocketTimeoutException;
@@ -15,9 +14,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
 
 import co.nos.noswallet.BuildConfig;
 import co.nos.noswallet.db.RepresentativesProvider;
@@ -244,7 +241,7 @@ public class WebsocketMachine {
     }
 
     @Nullable
-    private CurrencyHandler getMatchingHandler(CryptoCurrency cryptoCurrency) {
+    public CurrencyHandler getMatchingHandler(CryptoCurrency cryptoCurrency) {
         for (CurrencyHandler handler : currencyHandlers) {
             if (handler.currencyMatches(cryptoCurrency)) {
                 return handler;

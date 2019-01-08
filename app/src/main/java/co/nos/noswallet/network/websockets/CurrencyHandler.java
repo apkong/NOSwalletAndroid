@@ -1,7 +1,6 @@
 package co.nos.noswallet.network.websockets;
 
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,7 +12,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
 
-import co.nos.noswallet.BuildConfig;
 import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.network.nosModel.GetBlocksResponse;
@@ -475,5 +473,9 @@ public class CurrencyHandler {
 
     public void closeConnection() {
         uiResponses.onNext(SocketResponse.SocketClosed);
+    }
+
+    public String getRepresentative(CryptoCurrency currency) {
+        return requestInventor.getRepresentative(currency);
     }
 }

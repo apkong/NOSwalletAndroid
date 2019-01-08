@@ -114,8 +114,8 @@ public class PersistenceModule {
     }
 
     @Provides
-    RepresentativesProvider providesRepresentativeProvider() {
-        return new RandomFetchedRepresentativesProvider();
+    RepresentativesProvider providesRepresentativeProvider(SharedPreferencesUtil context) {
+        return new RandomFetchedRepresentativesProvider(context);
     }
 //    @Provides
 //    @ApplicationScope

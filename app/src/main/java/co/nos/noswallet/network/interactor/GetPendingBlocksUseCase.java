@@ -57,7 +57,7 @@ public class GetPendingBlocksUseCase {
         this.accountNumber = credentialsProvider.provideAccountNumber();
         this.privateKey = credentialsProvider.providePrivateKey();
         this.publicKey = credentialsProvider.providePublicKey();
-        this.REPRESENTATIVE = representativesProvider.provideRepresentative();
+//        this.REPRESENTATIVE = representativesProvider.provideRepresentative();
     }
 
     @Deprecated

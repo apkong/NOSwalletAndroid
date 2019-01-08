@@ -30,7 +30,6 @@ import javax.inject.Inject;
 
 import co.nos.noswallet.BuildConfig;
 import co.nos.noswallet.MainActivity;
-import co.nos.noswallet.NOSApplication;
 import co.nos.noswallet.R;
 import co.nos.noswallet.analytics.AnalyticsEvents;
 import co.nos.noswallet.analytics.AnalyticsService;
@@ -46,6 +45,7 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.WindowControl;
+import co.nos.noswallet.ui.settings.setRepresentative.SetRepresentativeDialogFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
 
@@ -168,6 +168,7 @@ public class SettingsDialogFragment extends BaseDialogFragment {
             binding.settingsShowNewSeed.setVisibility(credentials.getNewlyGeneratedSeed() != null ? View.VISIBLE : View.GONE);
         }
 
+
         return view;
     }
 
@@ -259,6 +260,11 @@ public class SettingsDialogFragment extends BaseDialogFragment {
     }
 
     public class ClickHandlers {
+
+        public void onClickChangeRepresentative(View view){
+            SetRepresentativeDialogFragment.showFrom(view, getActivity());
+        }
+
         public void onClickLocalCurrency(View view) {
             showCurrency = !showCurrency;
             binding.setShowCurrency(showCurrency);

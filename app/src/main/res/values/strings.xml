@@ -217,8 +217,10 @@
     <string name="failed_to_receive_history_new_account">This account has no history yet</string>
     <string name="app_needs_restart">Great! Almost ready. Please restart app to start.</string>
     <string name="warning">Warning</string>
-    <string name="change_representative">Change representative</string>
     <string name="save">Save</string>
+    <string name="change_representative">Change representative</string>
+    <string name="invalid_representative">Invalid representative address.</string>
+    <string name="representative_saved">Representative saved!</string>
 
 
 </resources>

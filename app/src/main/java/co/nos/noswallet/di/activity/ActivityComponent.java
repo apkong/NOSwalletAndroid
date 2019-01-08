@@ -27,6 +27,7 @@ import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
 import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
+import co.nos.noswallet.ui.settings.setRepresentative.SetRepresentativeDialogFragment;
 import dagger.Component;
 
 @Component(modules = {ActivityModule.class},
@@ -89,4 +90,6 @@ public interface ActivityComponent {
     void inject(HistoryFragment historyFragment);
 
     void inject(FirstLaunchActivity firstLaunchActivity);
+
+    void inject(SetRepresentativeDialogFragment setRepresentativeDialogFragment);
 }
