@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import co.nos.noswallet.R;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
 

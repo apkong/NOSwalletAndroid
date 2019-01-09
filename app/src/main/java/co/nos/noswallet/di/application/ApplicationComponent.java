@@ -12,6 +12,7 @@ import co.nos.noswallet.di.persistence.PersistenceModule;
 import co.nos.noswallet.model.NeuroWallet;
 import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
 import co.nos.noswallet.network.NeuroClient;
+import co.nos.noswallet.ui.settings.addressBook.repository.AddressbookRepository;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import dagger.Component;
 import io.realm.Realm;
@@ -34,6 +35,8 @@ public interface ApplicationComponent {
     CredentialsProvider providesCredentialsProvider();
 
     RepresentativesProvider providesRepresentativesProvider();
+
+    AddressbookRepository providesAddressbookRepository();
 
     ApiResponseMapper providesApiResponseMapper();
 

@@ -13,6 +13,8 @@ import co.nos.noswallet.db.RandomFetchedRepresentativesProvider;
 import co.nos.noswallet.db.RealmCredentialsProvider;
 import co.nos.noswallet.db.RepresentativesProvider;
 import co.nos.noswallet.di.application.ApplicationScope;
+import co.nos.noswallet.ui.settings.addressBook.repository.AddressbookRepository;
+import co.nos.noswallet.ui.settings.addressBook.repository.SharedPreferenceBasedAddressBookRepository;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import co.nos.noswallet.util.Vault;
 import dagger.Module;
@@ -114,8 +116,13 @@ public class PersistenceModule {
     }
 
     @Provides
-    RepresentativesProvider providesRepresentativeProvider(SharedPreferencesUtil context) {
-        return new RandomFetchedRepresentativesProvider(context);
+    RepresentativesProvider providesRepresentativeProvider(SharedPreferencesUtil sp) {
+        return new RandomFetchedRepresentativesProvider(sp);
+    }
+
+    @Provides
+    AddressbookRepository providesAddressbookRepository(SharedPreferencesUtil sp) {
+        return new SharedPreferenceBasedAddressBookRepository(sp);
     }
 //    @Provides
 //    @ApplicationScope

@@ -221,6 +221,14 @@
     <string name="change_representative">Change representative</string>
     <string name="invalid_representative">Invalid representative address.</string>
     <string name="representative_saved">Representative saved!</string>
+    <string name="search">Search…</string>
+    <string name="no_addresses">No addresses.</string>
+    <string name="add_address">Add an address</string>
+    <string name="search_address">Search address</string>
+    <string name="no_matching_entries_found">No matching entries found</string>
+    <string name="addressbook">Addressbook</string>
+    <string name="invalid_account_number_length">Invalid account number length</string>
+    <string name="address_added">Address saved!</string>
 
 
 </resources>

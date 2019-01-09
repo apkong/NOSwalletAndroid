@@ -27,6 +27,8 @@ import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
 import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
+import co.nos.noswallet.ui.settings.addressBook.AddressBookDialogFragment;
+import co.nos.noswallet.ui.settings.addressBook.addAddress.AddAddressDialogFragment;
 import co.nos.noswallet.ui.settings.setRepresentative.SetRepresentativeDialogFragment;
 import dagger.Component;
 
@@ -92,4 +94,8 @@ public interface ActivityComponent {
     void inject(FirstLaunchActivity firstLaunchActivity);
 
     void inject(SetRepresentativeDialogFragment setRepresentativeDialogFragment);
+
+    void inject(AddressBookDialogFragment addressBookDialogFragment);
+
+    void inject(AddAddressDialogFragment addAddressDialogFragment);
 }

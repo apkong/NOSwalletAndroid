@@ -45,6 +45,7 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.WindowControl;
+import co.nos.noswallet.ui.settings.addressBook.AddressBookDialogFragment;
 import co.nos.noswallet.ui.settings.setRepresentative.SetRepresentativeDialogFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 import io.realm.Realm;
@@ -261,7 +262,11 @@ public class SettingsDialogFragment extends BaseDialogFragment {
 
     public class ClickHandlers {
 
-        public void onClickChangeRepresentative(View view){
+        public void onClickAddressbook(View view) {
+            AddressBookDialogFragment.showFrom(getActivity());
+        }
+
+        public void onClickChangeRepresentative(View view) {
             SetRepresentativeDialogFragment.showFrom(view, getActivity());
         }
 

@@ -16,6 +16,9 @@ import android.util.Log;
 import com.github.ajalt.reprint.core.Reprint;
 import com.scottyab.rootbeer.RootBeer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import co.nos.noswallet.di.activity.ActivityComponent;
 import co.nos.noswallet.di.activity.ActivityModule;
 import co.nos.noswallet.di.activity.DaggerActivityComponent;
@@ -23,6 +26,7 @@ import co.nos.noswallet.di.application.ApplicationComponent;
 import co.nos.noswallet.di.application.ApplicationModule;
 import co.nos.noswallet.di.application.DaggerApplicationComponent;
 import co.nos.noswallet.model.NeuroWallet;
+import co.nos.noswallet.ui.settings.addressBook.AddressBookEntry;
 import co.nos.noswallet.util.Vault;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
@@ -36,6 +40,7 @@ import timber.log.Timber;
 public class NOSApplication extends MultiDexApplication implements Application.ActivityLifecycleCallbacks {
 
     public static final String TAG = NOSApplication.class.getSimpleName();
+
 
     static NOSApplication context;
     public PublishSubject<Boolean> restarts = PublishSubject.create();
