@@ -38,7 +38,7 @@ public class SetRepresentativeDialogFragment extends BaseDialogFragment implemen
 
     private EditText representativeInput;
 
-    private TextView saveButton, errorLabel;
+    private TextView errorLabel;
 
     private Handler handler;
 
@@ -107,7 +107,7 @@ public class SetRepresentativeDialogFragment extends BaseDialogFragment implemen
 
         representativeInput = view.findViewById(R.id.representative_input);
         errorLabel = view.findViewById(R.id.representative_label_error);
-        saveButton = view.findViewById(R.id.representative_save);
+        TextView saveButton = view.findViewById(R.id.representative_save);
         saveButton.setOnClickListener(v -> {
             hideKeyboard();
             String text = representativeInput.getText().toString().trim();
