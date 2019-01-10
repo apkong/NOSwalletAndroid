@@ -78,7 +78,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/intro_seed_guideline_vert"
                 app:layout_constraintStart_toStartOf="@+id/intro_seed_guideline_vert" />
 
-            <EditText
+            <co.nos.noswallet.base.NosAddressEditText
                 android:id="@+id/intro_seed_seed"
                 style="@style/SeedInput"
                 android:layout_height="100dp"

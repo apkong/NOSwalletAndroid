@@ -154,6 +154,12 @@ public class IntroSeedFragment extends BaseFragment {
          */
         public void onSeedTextChanged(CharSequence s, int start, int before, int count) {
 
+            if (binding.introSeedSeed.isNanoAddress()) {
+                CharSequence newText = binding.introSeedSeed.handleNanoSeed();
+                onSeedTextChanged(newText, start, before, count);
+                return;
+            }
+
             System.out.println("onSeedTextChanged: " + s);
 
             if (!preventTextUpdate) {

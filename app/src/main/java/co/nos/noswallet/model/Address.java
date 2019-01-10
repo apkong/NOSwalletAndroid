@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 
 import org.libsodium.jni.NaCl;
 import org.libsodium.jni.Sodium;
@@ -97,9 +96,11 @@ public class Address implements Serializable {
 
             return false;
         }
-        if (!parts[0].equals(cryptoCurrency.getPrefixWithNoFloor()) &&
-                !parts[0].equals("nano")
-                ) {
+        if (!parts[0].equals(cryptoCurrency.getPrefixWithNoFloor())) {
+            if ("nano".equals(parts[0])) {
+                value = value.replace("nano_", "xrb_");
+                return isValidAddress();
+            }
             NosLogger.w(TAG, "isValidAddress: #3");
             return false;
         }

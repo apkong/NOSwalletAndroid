@@ -16,6 +16,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -348,7 +350,6 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
     }
 
 
-
     @Override
     public void showSendAttemptError(int messageRes) {
         showSendAttemptError(getString(messageRes));
@@ -414,7 +415,11 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
 
     private void setShortAddress() {
         // set short address if appropriate
-        Address address = new Address(binding.sendAddress.getText().toString(), presenter.currencyInUse);
+
+        String targetAddress = (binding.sendAddress.getText().toString().trim());
+        binding.sendAddress.setText(targetAddress);
+
+        Address address = new Address(targetAddress, presenter.currencyInUse);
         if (address.isValidAddress()) {
             binding.sendAddressDisplay.setText(address.getColorizedShortSpannable());
             binding.sendAddressDisplay.setBackgroundResource(binding.sendAddressDisplay.length() > 0 ? R.drawable.bg_seed_input_active : R.drawable.bg_seed_input);
@@ -442,18 +447,25 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
     }
 
     public class ClickHandlers {
+
+
         /**
          * Listener for styling updates when text changes
          *
-         * @param s      Character sequence
+         * @param text   Character sequence
          * @param start  Starting character
          * @param before Character that came before
          * @param count  Total character count
          */
-        public void onAddressTextChanged(CharSequence s, int start, int before, int count) {
-            // set background to active or not
-            binding.sendAddress.setBackgroundResource(s.length() > 0 ? R.drawable.bg_seed_input_active : R.drawable.bg_seed_input);
+        public void onAddressTextChanged(CharSequence text, int start, int before, int count) {
 
+            if (binding.sendAddress.isNanoAddress()) {
+                CharSequence newText = binding.sendAddress.handleNanoSeed();
+                onAddressTextChanged(newText, start, before, count);
+                return;
+            }
+
+            binding.sendAddress.setBackgroundResource(text.length() > 0 ? R.drawable.bg_seed_input_active : R.drawable.bg_seed_input);
             // colorize input string
             UIUtil.colorizeSpannable(binding.sendAddress.getText(), getContext());
         }
@@ -469,7 +481,10 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
         }
 
         public void onClickConfirm(View view) {
-            presenter.setTargetAddress(binding.sendAddress.getText().toString().trim());
+
+            String targetAddress = (binding.sendAddress.getText().toString().trim());
+
+            presenter.setTargetAddress(targetAddress);
             binding.setShowAmount(true);
             setShortAddress();
             KeyboardUtil.hideKeyboard(getActivity());
@@ -585,6 +600,13 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
             }
             textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_fingerprint_error, 0, 0, 0);
         }
+    }
+
+    private static String fixedNanoAddress(String targetAddress) {
+        if (targetAddress.startsWith("nano_")) {
+            targetAddress = targetAddress.replace("nano_", "xrb_");
+        }
+        return targetAddress;
     }
 
     @Override
