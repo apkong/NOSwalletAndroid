@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -154,6 +155,7 @@ public class AddressBookDialogFragment extends BaseDialogFragment implements Add
     public void showErrorMessage(int resId) {
         emptyLabel.setText(resId);
         emptyLabel.setVisibility(View.VISIBLE);
+        addressesAdapter.refresh(Collections.emptyList());
     }
 
     @Override

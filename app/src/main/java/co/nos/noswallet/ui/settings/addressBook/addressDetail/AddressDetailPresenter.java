@@ -47,19 +47,9 @@ public class AddressDetailPresenter {
             }
         }
 
-        persist(addressBookEntries, () -> {
+        persist(newAddressBook, () -> {
             view.onAddressDeleted();
         });
-    }
-
-    private void persist(AddressBook addressBook, Runnable runnable) {
-
-        Disposable d = addressbookRepository.saveAddressBook(addressBook)
-                .subscribe(runnable::run, throwable -> {
-                    Log.e(getClass().getSimpleName(),
-                            "addAddress() error " + throwable.getMessage());
-
-                });
     }
 
     public void save(AddressBookEntry entry,
@@ -83,7 +73,6 @@ public class AddressDetailPresenter {
             return;
         }
 
-
         AddressBook addressBookEntries = addressbookRepository.getAddressBook().blockingFirst();//for now its not network based...
 
         for (AddressBookEntry address : addressBookEntries) {
@@ -96,11 +85,9 @@ public class AddressDetailPresenter {
         }
 
         persist(addressBookEntries, () -> view.onAddressSaved());
-
-
     }
 
-    public String resolveFrom(Map<CryptoCurrency, String> map, CryptoCurrency currency) {
+    String resolveFrom(Map<CryptoCurrency, String> map, CryptoCurrency currency) {
         for (CryptoCurrency c : map.keySet()) {
             String address = map.get(c);
             if (address != null) {
@@ -108,5 +95,15 @@ public class AddressDetailPresenter {
             }
         }
         return "";
+    }
+
+    private void persist(AddressBook addressBook, Runnable runnable) {
+
+        Disposable d = addressbookRepository.saveAddressBook(addressBook)
+                .subscribe(runnable::run, throwable -> {
+                    Log.e(getClass().getSimpleName(),
+                            "addAddress() error " + throwable.getMessage());
+
+                });
     }
 }

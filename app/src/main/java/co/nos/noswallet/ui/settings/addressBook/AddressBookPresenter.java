@@ -60,7 +60,7 @@ public class AddressBookPresenter {
     }
 
     private boolean matchesFilter(AddressBookEntry addressBookEntry, String query) {
-        if (addressBookEntry.name.startsWith(query)) {
+        if (String.valueOf(addressBookEntry.name).toLowerCase().startsWith(query.toLowerCase())) {
             return true;
         }
         for (String value : addressBookEntry.addressesMap.values()) {
