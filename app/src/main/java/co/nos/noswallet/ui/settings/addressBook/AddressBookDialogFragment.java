@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -24,7 +23,8 @@ import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.BaseDialogFragment;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
-import io.reactivex.disposables.SerialDisposable;
+import co.nos.noswallet.ui.settings.addressBook.addAddress.AddAddressDialogFragment;
+import co.nos.noswallet.ui.settings.addressBook.addressDetail.AddressDetailDialogFragment;
 
 
 /**
@@ -39,8 +39,7 @@ public class AddressBookDialogFragment extends BaseDialogFragment implements Add
     private SearchView searchView;
     private RecyclerView recyclerView;
     private TextView emptyLabel;
-
-    private SerialDisposable serialDisposable = new SerialDisposable();
+    private TextView addNewAddressButton;
 
     private Handler handler;
 
@@ -97,25 +96,21 @@ public class AddressBookDialogFragment extends BaseDialogFragment implements Add
         setupRecyclerView();
         emptyLabel = view.findViewById(R.id.addressbook_empty);
 
-        TextView addNewAddress = view.findViewById(R.id.addressbook_add_new);
-        addNewAddress.setOnClickListener(v -> {
+        addNewAddressButton = view.findViewById(R.id.addressbook_add_new);
+        addNewAddressButton.setOnClickListener(v -> {
             hideKeyboard();
-            Toast.makeText(getActivity(), "Feature in development", Toast.LENGTH_SHORT).show();
+            presenter.requestAddAddressScreen();
         });
+
+        presenter.loadEntries();
 
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        presenter.loadEntries();
-    }
-
-
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(addressesAdapter);
+        addressesAdapter.listener = presenter::onAddressEntryClick;
     }
 
     private void setupSearchview() {
@@ -171,5 +166,19 @@ public class AddressBookDialogFragment extends BaseDialogFragment implements Add
     public void clearSearchAndReceive(List<AddressBookEntry> entries) {
         searchView.setQuery("", false);
         onReceivedAddresses(entries);
+    }
+
+    @Override
+    public void navigateToAddAddressScreen() {
+        AddAddressDialogFragment.showFrom(addNewAddressButton, getActivity(), this::reload);
+    }
+
+    @Override
+    public void navigateToAddressEntryDetail(AddressBookEntry addressBookEntry) {
+        AddressDetailDialogFragment.showFrom(addressBookEntry, getActivity(), this::reload);
+    }
+
+    private void reload() {
+        presenter.loadEntries();
     }
 }

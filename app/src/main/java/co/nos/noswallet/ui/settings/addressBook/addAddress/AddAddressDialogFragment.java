@@ -52,7 +52,7 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
         return fragment;
     }
 
-    public static void showFrom(View view, FragmentActivity activity) {
+    public static void showFrom(View view, FragmentActivity activity, Runnable dismissAction) {
         PopupMenu popup = new PopupMenu(activity, view);
         Menu m = popup.getMenu();
         for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
@@ -62,7 +62,7 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
             String currencyName = String.valueOf(item.getTitle());
             CryptoCurrency cryptoCurrency = CryptoCurrency.recognize(currencyName);
 
-            openRepresentativeFragment(cryptoCurrency, activity);
+            openAddAddressFragment(cryptoCurrency, activity, dismissAction);
 
             return true;
         });
@@ -70,8 +70,9 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
         popup.show();
     }
 
-    private static void openRepresentativeFragment(CryptoCurrency cryptoCurrency,
-                                                   FragmentActivity activity) {
+    private static void openAddAddressFragment(CryptoCurrency cryptoCurrency,
+                                               FragmentActivity activity,
+                                               Runnable runnable) {
         if (activity instanceof WindowControl) {
             AddAddressDialogFragment dialog = AddAddressDialogFragment.newInstance(cryptoCurrency);
             dialog.show(((WindowControl) activity).getFragmentUtility().getFragmentManager(),
@@ -80,7 +81,12 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
             // make sure that dialog is not null
             ((WindowControl) activity).getFragmentUtility().getFragmentManager().executePendingTransactions();
 
-
+            if (dialog.getDialog() != null)
+                dialog.getDialog().setOnDismissListener(dialog1 -> {
+                    if (runnable != null) {
+                        runnable.run();
+                    }
+                });
         }
     }
 
@@ -119,7 +125,7 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
             String name = nameInput.getText().toString().trim();
             String address = accountInput.getText().toString().trim();
 
-            if (!name.isEmpty() && address.isEmpty()) {
+            if (!name.isEmpty() && !address.isEmpty()) {
                 presenter.addAddress(cryptoCurrency, name, address);
             }
         });
@@ -161,8 +167,7 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
         if (getContext() != null) {
             errorLabel.setTextColor(ContextCompat.getColor(getContext(), R.color.green));
         }
-        handler.postDelayed(this::dismiss,400);
-        dismiss();
+        handler.postDelayed(this::dismiss, 400);
     }
 
     @Override

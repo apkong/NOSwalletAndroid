@@ -70,4 +70,12 @@ public class AddressBookPresenter {
         }
         return false;
     }
+
+    public void requestAddAddressScreen() {
+        view.navigateToAddAddressScreen();
+    }
+
+    public void onAddressEntryClick(AddressBookEntry addressBookEntry) {
+        view.navigateToAddressEntryDetail(addressBookEntry);
+    }
 }

@@ -1,8 +1,8 @@
 package co.nos.noswallet.ui.settings.addressBook.addAddress;
 
-import java.util.ArrayList;
+import android.util.Log;
+
 import java.util.HashMap;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -31,6 +31,8 @@ public class AddAddressPresenter {
     public void addAddress(CryptoCurrency cryptoCurrency,
                            String name,
                            String address) {
+        Log.d(getClass().getSimpleName(),
+                "addAddress() called with: cryptoCurrency = [" + cryptoCurrency + "], name = [" + name + "], address = [" + address + "]");
         view.clearErrors();
         if (address.length() != 64) {
             view.showErrorMessage(R.string.invalid_account_number_length);
@@ -49,6 +51,8 @@ public class AddAddressPresenter {
                 .subscribe(() -> {
                     view.onAddressSaved(entry);
                 }, throwable -> {
+                    Log.e(getClass().getSimpleName(),
+                            "addAddress() error " + throwable.getMessage());
 
                 });
 

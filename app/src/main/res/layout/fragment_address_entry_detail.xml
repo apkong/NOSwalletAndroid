@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="@color/bright_white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:background="@color/bright_white"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/dialog_appbar"
+            layout="@layout/view_appbar_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/address_entries"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dialog_appbar"
+            android:orientation="vertical">
+
+
+            <!--<EditText-->
+                <!--android:id="@+id/address_name_input"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginStart="16dp"-->
+                <!--android:layout_marginLeft="16dp"-->
+                <!--android:layout_marginTop="4dp"-->
+                <!--android:layout_marginEnd="16dp"-->
+                <!--android:layout_marginRight="16dp"-->
+                <!--android:layout_marginBottom="4dp" />-->
+
+            <TextView
+                android:id="@+id/address_nollar_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="16dp"
+                android:text="NOLLAR address"
+                android:textColor="@color/dark_sky_blue"
+                android:textSize="16dp" />
+
+            <EditText
+                android:id="@+id/address_nollar_account_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/address_nos_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="16dp"
+                android:text="NOS address"
+                android:textColor="@color/dark_sky_blue"
+                android:textSize="16dp" />
+
+            <EditText
+                android:id="@+id/address_nos_account_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/address_banano_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="16dp"
+                android:text="BANANO address"
+                android:textColor="@color/dark_sky_blue"
+                android:textSize="16dp" />
+
+            <EditText
+                android:id="@+id/address_banano_account_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/address_nano_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="16dp"
+                android:text="NANO address"
+                android:textColor="@color/dark_sky_blue"
+                android:textSize="16dp" />
+
+            <EditText
+                android:id="@+id/address_nano_account_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="4dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/address_label_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/address_entries"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginRight="16dp"
+            android:text=""
+            android:textColor="@color/red"
+            android:textSize="16dp"
+            tools:text="error" />
+
+        <TextView
+            android:id="@+id/address_save"
+            style="@style/LargeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/address_label_error"
+            android:layout_margin="16dp"
+            android:text="@string/save" />
+
+        <TextView
+            android:id="@+id/address_delete"
+            style="@style/DeleteButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/address_save"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:text="@string/delete_entry" />
+
+    </RelativeLayout>
+
+</ScrollView>

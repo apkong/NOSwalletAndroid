@@ -228,7 +228,12 @@
     <string name="no_matching_entries_found">No matching entries found</string>
     <string name="addressbook">Addressbook</string>
     <string name="invalid_account_number_length">Invalid account number length</string>
+    <string name="invalid_account_number_length_placeholder">Invalid %s address length</string>
     <string name="address_added">Address saved!</string>
+    <string name="address_deleted">Address deleted!</string>
+    <string name="name">Name</string>
+    <string name="delete_entry">Delete entry</string>
+    <string name="address_details">Address details</string>
 
 
 </resources>

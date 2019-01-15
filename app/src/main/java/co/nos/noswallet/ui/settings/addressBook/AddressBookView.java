@@ -9,4 +9,8 @@ public interface AddressBookView {
     void onReceivedAddresses(List<AddressBookEntry> entries);
 
     void clearSearchAndReceive(List<AddressBookEntry> entries);
+
+    void navigateToAddAddressScreen();
+
+    void navigateToAddressEntryDetail(AddressBookEntry addressBookEntry);
 }

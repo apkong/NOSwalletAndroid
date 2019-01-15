@@ -89,7 +89,9 @@ public class AddressesAdapter extends RecyclerView.Adapter<AddressesAdapter.View
                          CryptoCurrency currencyApplied) {
             item_name.setText(entry.name);
             String account = entry.addressesMap.get(currencyApplied);
-            item_account.setText(currencyFormatter.createSpannable(account));
+            if (account != null) {
+                item_account.setText(currencyFormatter.createSpannable(account));
+            }
         }
     }
 }
