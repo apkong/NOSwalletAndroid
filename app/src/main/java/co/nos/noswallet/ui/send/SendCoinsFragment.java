@@ -51,6 +51,7 @@ import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.UIUtil;
 import co.nos.noswallet.ui.pin.PinCallbacks;
 import co.nos.noswallet.ui.scan.ScanActivity;
+import co.nos.noswallet.ui.settings.addressBook.AddressBookDialogFragment;
 import co.nos.noswallet.util.NosLogger;
 
 import static android.app.Activity.RESULT_OK;
@@ -133,6 +134,11 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
         switch (id) {
             case R.id.send_camera:
                 startScanActivity(getString(R.string.scan_send_instruction_label), false);
+                return true;
+            case R.id.open_addressbook:
+                AddressBookDialogFragment.showFrom(getActivity(),
+                        AddressBookDialogFragment.State.SELECT_ADDRESS, cryptoCurrency);
+
                 return true;
         }
 
@@ -221,26 +227,27 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
                 if (res != null) {
                     // parse address
                     String qrCodeResult = res.getString(ScanActivity.QR_CODE_RESULT);
-                    handleQrCodeResult(qrCodeResult);
+                    handleDetectedAddressResult(qrCodeResult);
                 }
             }
         }
     }
 
-    private void handleQrCodeResult(String qrCodeResult) {
-        NosLogger.w(TAG, "handleQrCodeResult: " + qrCodeResult);
+    public void handleDetectedAddressResult(String addressResult) {
+        NosLogger.w(TAG, "handleDetectedAddressResult: " + addressResult);
 
-        if (qrCodeResult != null && !qrCodeResult.isEmpty()) {
+        if (addressResult == null || addressResult.isEmpty()) {
+            return;
+        }
 
-            for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
-                if (qrCodeResult.startsWith(cryptoCurrency.getCurrencyCode())) {
-                    presenter.changeCurrencyTo(cryptoCurrency);
-                    break;
-                }
+        for (CryptoCurrency cryptoCurrency : CryptoCurrency.values()) {
+            if (addressResult.startsWith(cryptoCurrency.getCurrencyCode())) {
+                presenter.changeCurrencyTo(cryptoCurrency);
+                break;
             }
         }
 
-        Address address = new Address(qrCodeResult, presenter.currencyInUse);
+        Address address = new Address(addressResult, presenter.currencyInUse);
 
         // set to scanned value
         if (address.getAddress() != null) {
@@ -346,7 +353,6 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
         });
         snackbar.show();
     }
-
 
 
     @Override

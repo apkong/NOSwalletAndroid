@@ -6,6 +6,8 @@ public interface AddAddressView {
 
     void showErrorMessage(int resId);
 
+    void showErrorMessage(int resId, Object... args);
+
     void onAddressSaved(AddressBookEntry entry);
 
     void clearErrors();

@@ -34,15 +34,20 @@ public class AddAddressPresenter {
         Log.d(getClass().getSimpleName(),
                 "addAddress() called with: cryptoCurrency = [" + cryptoCurrency + "], name = [" + name + "], address = [" + address + "]");
         view.clearErrors();
+
         if (address.length() != 64) {
             view.showErrorMessage(R.string.invalid_account_number_length);
+            return;
+        }
+
+        if (!address.toLowerCase().startsWith(cryptoCurrency.getPrefix())) {
+            view.showErrorMessage(R.string.invalid_address_prefix, cryptoCurrency.getPrefix());
             return;
         }
 
         HashMap<CryptoCurrency, String> map = new HashMap<>();
         map.put(cryptoCurrency, address);
         AddressBookEntry entry = new AddressBookEntry(name, map);
-
 
         AddressBook addressBookEntries = addressbookRepository.getAddressBook().blockingFirst();//for now its not network based...
         addressBookEntries.add(entry);

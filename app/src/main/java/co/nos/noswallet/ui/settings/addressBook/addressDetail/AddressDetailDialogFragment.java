@@ -119,20 +119,20 @@ public class AddressDetailDialogFragment extends BaseDialogFragment implements A
             if (nos != null) {
                 nosInput.setText(nos);
             } else {
-                String fixedAddress = presenter.resolveFrom(map, CryptoCurrency.NOS);
-                nosInput.setText(fixedAddress);
+//                String fixedAddress = presenter.resolveFrom(map, CryptoCurrency.NOS);
+//                nosInput.setText(fixedAddress);
             }
             if (banano != null) {
                 bananoInput.setText(banano);
             } else {
-                String fixedAddress = presenter.resolveFrom(map, CryptoCurrency.BANANO);
-                bananoInput.setText(fixedAddress);
+//                String fixedAddress = presenter.resolveFrom(map, CryptoCurrency.BANANO);
+//                bananoInput.setText(fixedAddress);
             }
             if (nano != null) {
                 nanoInput.setText(nano);
             } else {
-                String fixedAddress = presenter.resolveFrom(map, CryptoCurrency.NANO);
-                nanoInput.setText(fixedAddress);
+//                String fixedAddress = presenter.resolveFrom(map, CryptoCurrency.NANO);
+//                nanoInput.setText(fixedAddress);
             }
         }
 

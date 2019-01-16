@@ -32,7 +32,12 @@ public class AddressBookPresenter {
 
     public void loadEntries() {
         this.entries = addressbookRepository.getAddressBook().blockingFirst();
-        view.clearSearchAndReceive(this.entries);
+
+        if (entries.isEmpty()){
+            view.showErrorMessage(R.string.addressbook_empty);
+        }else {
+            view.clearSearchAndReceive(this.entries);
+        }
     }
 
     public void filterAddresses(String query) {
@@ -77,5 +82,9 @@ public class AddressBookPresenter {
 
     public void onAddressEntryClick(AddressBookEntry addressBookEntry) {
         view.navigateToAddressEntryDetail(addressBookEntry);
+    }
+
+    public void onAddressEntryClickWhenSelecting(AddressBookEntry addressBookEntry) {
+        view.navigateBackWithResult(addressBookEntry);
     }
 }

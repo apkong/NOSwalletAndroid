@@ -13,4 +13,6 @@ public interface AddressBookView {
     void navigateToAddAddressScreen();
 
     void navigateToAddressEntryDetail(AddressBookEntry addressBookEntry);
+
+    void navigateBackWithResult(AddressBookEntry addressBookEntry);
 }

@@ -56,11 +56,10 @@ import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroWelcomeFragment;
 import co.nos.noswallet.ui.send.SendCoinsFragment;
-import co.nos.noswallet.ui.settings.addressBook.AddressBookEntry;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
+import co.nos.noswallet.util.CanReceiveAddress;
 import co.nos.noswallet.util.NosLogger;
 import co.nos.noswallet.util.SharedPreferencesUtil;
-import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -68,7 +67,8 @@ import io.realm.RealmResults;
 import static co.nos.noswallet.network.notifications.NosNotifier.ACTION_GOT_SAUCE;
 import static co.nos.noswallet.network.notifications.NosNotifier.EXTRA_POSITION;
 
-public class MainActivity extends AppCompatActivity implements WindowControl, ActivityWithComponent, HasWebsocketMachine {
+public class MainActivity extends AppCompatActivity implements WindowControl,
+        ActivityWithComponent, HasWebsocketMachine, CanReceiveAddress {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -477,6 +477,11 @@ public class MainActivity extends AppCompatActivity implements WindowControl, Ac
     }
 
     private AlertDialog restartDialog;
+
+    @Override
+    public void receiveAddress(String address) {
+        searchDeepForFragmentAndPerform(SendCoinsFragment.class, instance -> instance.handleDetectedAddressResult(address));
+    }
 
     interface ActionConcreteInstanceOf<T> {
         void perform(T instance);

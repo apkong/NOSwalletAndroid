@@ -234,6 +234,8 @@
     <string name="name">Name</string>
     <string name="delete_entry">Delete entry</string>
     <string name="address_details">Address details</string>
-
+    <string name="invalid_address_prefix">Address should start with \"%s\" prefix</string>
+    <string name="addressbook_empty">Addressbook empty</string>
+    <string name="selected_account_not_has_address_placeholder">Selected account does not provide %s address</string>
 
 </resources>

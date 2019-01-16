@@ -25,7 +25,6 @@ import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import co.nos.noswallet.ui.settings.addressBook.AddressBookEntry;
 
-
 public class AddAddressDialogFragment extends BaseDialogFragment implements AddAddressView {
 
     public static final String CURRENCY = "CURRENCY";
@@ -37,7 +36,7 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
 
     private EditText nameInput, accountInput;
 
-    private TextView errorLabel, account_label;
+    private TextView errorLabel;
 
     private Handler handler;
 
@@ -113,8 +112,10 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
 
         presenter.attachView(this);
 
-        account_label = view.findViewById(R.id.address_label);
-        account_label.setText(String.format("%s address", cryptoCurrency.name()));
+        TextView account_label = view.findViewById(R.id.address_label);
+        if (cryptoCurrency != null) {
+            account_label.setText(String.format("%s address", cryptoCurrency.name()));
+        }
         nameInput = view.findViewById(R.id.address_name_input);
         accountInput = view.findViewById(R.id.address_account_input);
         errorLabel = view.findViewById(R.id.address_label_error);
@@ -153,11 +154,12 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
 
     @Override
     public void showErrorMessage(int resId) {
-        errorLabel.setVisibility(View.VISIBLE);
-        if (getContext() != null) {
-            errorLabel.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
-        }
-        errorLabel.setText(resId);
+        showErrorMessage(getString(resId));
+    }
+
+    @Override
+    public void showErrorMessage(int resId, Object... args) {
+        showErrorMessage(getString(resId, args));
     }
 
     @Override
@@ -173,5 +175,13 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
     @Override
     public void clearErrors() {
         errorLabel.setText("");
+    }
+
+    private void showErrorMessage(String message) {
+        errorLabel.setVisibility(View.VISIBLE);
+        if (getContext() != null) {
+            errorLabel.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
+        }
+        errorLabel.setText(message);
     }
 }

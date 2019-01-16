@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -78,7 +79,7 @@ public class AddressesAdapter extends RecyclerView.Adapter<AddressesAdapter.View
 
         TextView item_name, item_account;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             item_name = itemView.findViewById(R.id.item_name);
             item_account = itemView.findViewById(R.id.item_account);
@@ -88,10 +89,26 @@ public class AddressesAdapter extends RecyclerView.Adapter<AddressesAdapter.View
                          CryptoCurrencyFormatter currencyFormatter,
                          CryptoCurrency currencyApplied) {
             item_name.setText(entry.name);
-            String account = entry.addressesMap.get(currencyApplied);
-            if (account != null) {
-                item_account.setText(currencyFormatter.createSpannable(account));
+
+            String preferredAddress = entry.addressesMap.get(currencyApplied);
+            if (preferredAddress == null) {
+                preferredAddress = firstAddress(entry.addressesMap);
             }
+
+            if (preferredAddress != null && preferredAddress.length() == 64) {
+                item_account.setText(currencyFormatter.createSpannable(preferredAddress));
+            }
+        }
+
+        @Nullable
+        private static String firstAddress(Map<CryptoCurrency, String> map) {
+            for (CryptoCurrency cryptoCurrency : map.keySet()) {
+                String value = map.get(cryptoCurrency);
+                if (value != null) {
+                    return value;
+                }
+            }
+            return null;
         }
     }
 }
