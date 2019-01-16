@@ -1,0 +1,38 @@
+apply plugin: "com.vanniktech.android.junit.jacoco"
+
+junitJacoco {
+    jacocoVersion = '0.8.2'
+    ignoreProjects = []
+    excludes = [
+            '**/R.class',
+            '**/R$*.class',
+            '**/BuildConfig.*',
+            '**/Manifest*.*',
+            '**/*$ViewInjector*.*',
+            '**/*$ViewBinder*.*',
+            '**/*_ViewBinding*.*',
+            '**/*_ViewHolder*.*',
+            '**/*Layout*.*',
+            '**/*EditText*.*',
+            '**/*RadioButton*.*',
+            '**/*Spinner*.*',
+            '**/*Tooltip*.*',
+            '**/*Widget*.*',
+            '**/*$Lambda$*.*',
+            '**/*Module.*',
+            '**/*Dagger*.*',
+            '**/*MembersInjector*.*',
+            '**/*_Provide*Factory*.*',
+            '**/*_Factory.*',
+            '**/*$*$*.*',
+            'android/**/*.*',
+            '**/*Activity.*',
+            '**/*Fragment.*',
+            '**/*View.*',
+            '**/*Listener.*',
+            '**/*State.*',
+    ]
+
+    includeNoLocationClasses = true
+    includeInstrumentationCoverageInMergedReport = false
+}

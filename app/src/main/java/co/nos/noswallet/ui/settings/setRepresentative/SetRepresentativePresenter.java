@@ -30,7 +30,6 @@ public class SetRepresentativePresenter {
         previousRepresentative = representativesProvider.provideRepresentative(currency);
 
         view.onRepresentativeReceived(previousRepresentative);
-
     }
 
     public void saveRepresentativeClicked(CryptoCurrency currency, String representative) {

@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 apply plugin: 'io.fabric'
+apply from: file("../jacoco.gradle")
 
-def currentVersionCode = 21
-def currentVersionName = "0.2.1"
+def currentVersionCode = 22
+def currentVersionName = "0.2.2"
 
 android {
     compileSdkVersion 28
@@ -25,7 +26,6 @@ android {
         // Enabling multidex support.
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
-
         def empty = "\"\""
 
         buildConfigField "String", "CONNECTION_URL", (project.findProperty("CONNECTION_URL") ?: empty)
@@ -45,6 +45,7 @@ android {
     }
     buildTypes {
         debug {
+            testCoverageEnabled true
             debuggable true
         }
         release {
@@ -77,7 +78,7 @@ dependencies {
     final RX_ANDROID = '2.0.2'
     final RXBUS_VERSION = '2.0.0'
     final RX_JAVA_2 = '2.1.8'
-    final SUPPORT_LIBRARY_VERSION = '27.1.1'
+    final SUPPORT_LIBRARY_VERSION = '28.0.0'
     final TEST_RUNNER_VERSION = '1.0.1'
     final TIMBER_VERSION = '4.7.0'
     final VAULT_VERSION = '1.4.0'
