@@ -28,7 +28,7 @@
             android:background="@color/bright_white"
             app:layout_behavior="co.nos.noswallet.ui.send.SendButtonUpBehavior">
 
-            <EditText
+            <co.nos.noswallet.base.NosAddressEditText
                 android:id="@+id/send_address"
                 style="@style/SeedInput"
                 android:layout_height="0dp"
