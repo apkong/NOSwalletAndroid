@@ -55,8 +55,10 @@ import io.realm.Realm;
  * Settings main screen
  */
 public class SettingsDialogFragment extends BaseDialogFragment {
-    private FragmentSettingsBinding binding;
+
     public static String TAG = SettingsDialogFragment.class.getSimpleName();
+
+    private FragmentSettingsBinding binding;
     private Boolean showCurrency = false;
     private AlertDialog fingerprintDialog;
     private Boolean clickedNewSeed = false;

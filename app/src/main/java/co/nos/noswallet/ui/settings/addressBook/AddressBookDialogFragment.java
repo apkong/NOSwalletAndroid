@@ -82,7 +82,7 @@ public class AddressBookDialogFragment extends BaseDialogFragment implements Add
         if (activity instanceof WindowControl) {
             AddressBookDialogFragment dialog = AddressBookDialogFragment.newInstance();
             dialog.show(((WindowControl) activity).getFragmentUtility().getFragmentManager(),
-                    SettingsDialogFragment.TAG);
+                    AddressBookDialogFragment.TAG);
 
             // make sure that dialog is not null
             ((WindowControl) activity).getFragmentUtility().getFragmentManager().executePendingTransactions();
@@ -95,7 +95,7 @@ public class AddressBookDialogFragment extends BaseDialogFragment implements Add
         if (activity instanceof WindowControl) {
             AddressBookDialogFragment dialog = AddressBookDialogFragment.newInstance(initialState, cryptoCurrency);
             dialog.show(((WindowControl) activity).getFragmentUtility().getFragmentManager(),
-                    SettingsDialogFragment.TAG);
+                    AddressBookDialogFragment.TAG);
 
             // make sure that dialog is not null
             ((WindowControl) activity).getFragmentUtility().getFragmentManager().executePendingTransactions();

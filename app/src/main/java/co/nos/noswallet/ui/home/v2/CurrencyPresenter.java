@@ -155,4 +155,8 @@ public class CurrencyPresenter {
         }
         view.showHistory(new ArrayList<>());
     }
+
+    public void onTransactionEntryClick(AccountHistory accountHistory) {
+        view.navigateToTransactionEntry(accountHistory);
+    }
 }

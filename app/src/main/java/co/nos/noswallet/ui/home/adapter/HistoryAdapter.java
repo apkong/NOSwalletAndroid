@@ -14,9 +14,14 @@ import javax.inject.Inject;
 import co.nos.noswallet.R;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyFormatter;
-import co.nos.noswallet.persistance.currency.CryptoCurrency;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
+
+    public interface Listener {
+        void onClick(AccountHistory entry);
+    }
+
+    public Listener listener;
 
     public List<AccountHistory> history = new ArrayList<>();
 
@@ -42,7 +47,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
-        holder.bind(history.get(position), currencyFormatter);
+        AccountHistory entry = history.get(position);
+
+        holder.bind(entry, currencyFormatter);
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onClick(entry);
+            }
+        });
     }
 
     @Override

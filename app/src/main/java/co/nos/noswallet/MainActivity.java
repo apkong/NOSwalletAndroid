@@ -45,6 +45,7 @@ import co.nos.noswallet.model.NanoWallet;
 import co.nos.noswallet.network.compression_stuff.ApiResponseMapper;
 import co.nos.noswallet.network.interactor.GetBlocksInfoUseCase;
 import co.nos.noswallet.network.websockets.WebsocketMachine;
+import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.push.HandlePushMessagesService;
 import co.nos.noswallet.ui.common.ActivityWithComponent;
 import co.nos.noswallet.ui.common.FragmentUtility;
@@ -59,7 +60,9 @@ import co.nos.noswallet.ui.send.SendCoinsFragment;
 import co.nos.noswallet.ui.webview.WebViewDialogFragment;
 import co.nos.noswallet.util.CanReceiveAddress;
 import co.nos.noswallet.util.NosLogger;
+import co.nos.noswallet.util.refundable.Refundable;
 import co.nos.noswallet.util.SharedPreferencesUtil;
+import co.nos.noswallet.util.refundable.RefundableBundle;
 import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -68,7 +71,9 @@ import static co.nos.noswallet.network.notifications.NosNotifier.ACTION_GOT_SAUC
 import static co.nos.noswallet.network.notifications.NosNotifier.EXTRA_POSITION;
 
 public class MainActivity extends AppCompatActivity implements WindowControl,
-        ActivityWithComponent, HasWebsocketMachine, CanReceiveAddress {
+        ActivityWithComponent,
+        HasWebsocketMachine,
+        CanReceiveAddress, Refundable {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -481,6 +486,19 @@ public class MainActivity extends AppCompatActivity implements WindowControl,
     @Override
     public void receiveAddress(String address) {
         searchDeepForFragmentAndPerform(SendCoinsFragment.class, instance -> instance.handleDetectedAddressResult(address));
+    }
+
+    @Override
+    public void attemptRefund(RefundableBundle refundable) {
+        // navigate to send screen
+
+        getFragmentUtility().add(
+                SendCoinsFragment.newInstance(refundable),
+                FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
+                FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
+                SendCoinsFragment.TAG
+        );
+
     }
 
     interface ActionConcreteInstanceOf<T> {

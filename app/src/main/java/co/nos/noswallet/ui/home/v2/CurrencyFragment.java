@@ -22,6 +22,7 @@ import co.nos.noswallet.network.websockets.currencyFormatter.CryptoCurrencyForma
 import co.nos.noswallet.persistance.currency.CryptoCurrency;
 import co.nos.noswallet.ui.common.BaseFragment;
 import co.nos.noswallet.ui.home.adapter.HistoryAdapter;
+import co.nos.noswallet.ui.home.v2.transactionDetail.TransactionDetailFragment;
 import co.nos.noswallet.util.SharedPreferencesUtil;
 
 public class CurrencyFragment extends BaseFragment<MainActivity> implements HasCurrency, CurrencyView {
@@ -118,6 +119,7 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
     private void configureAdapter() {
         home_recyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
         home_recyclerview.setAdapter(transactionsAdapter);
+        transactionsAdapter.listener = currencyPresenter::onTransactionEntryClick;
 
         home_swiperefresh.setOnRefreshListener(this::onSwipeToRefreshCalled);
     }
@@ -165,5 +167,10 @@ public class CurrencyFragment extends BaseFragment<MainActivity> implements HasC
         showHistory(new ArrayList<>());
         history_empty_label.setText(getString(R.string.failed_to_receive_history_new_account));
         history_empty_label.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void navigateToTransactionEntry(AccountHistory accountHistory) {
+        TransactionDetailFragment.showFrom(cryptoCurrency,accountHistory,getActivity());
     }
 }

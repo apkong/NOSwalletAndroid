@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import co.nos.noswallet.network.nosModel.AccountHistory;
 
 public interface CurrencyView {
+
     boolean isNotAttached();
 
     void showHistory(ArrayList<AccountHistory> history);
@@ -12,4 +13,6 @@ public interface CurrencyView {
     void onBalanceFormattedReceived(String formatted);
 
     void showNewAccount();
+
+    void navigateToTransactionEntry(AccountHistory accountHistory);
 }

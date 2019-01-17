@@ -237,5 +237,11 @@
     <string name="invalid_address_prefix">Address should start with \"%s\" prefix</string>
     <string name="addressbook_empty">Addressbook empty</string>
     <string name="selected_account_not_has_address_placeholder">Selected account does not provide %s address</string>
+    <string name="refund">Refund</string>
+    <string name="transaction_details">Transaction details</string>
+    <string name="account_address">Account address</string>
+    <string name="address_copied_to_clipboard">Address copied to clipboard!</string>
+    <string name="sent_funds">Sent %s %s</string>
+    <string name="received_funds">Received %s %s</string>
 
 </resources>

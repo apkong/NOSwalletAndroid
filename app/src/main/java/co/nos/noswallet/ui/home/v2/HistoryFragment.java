@@ -33,7 +33,6 @@ import co.nos.noswallet.ui.common.KeyboardUtil;
 import co.nos.noswallet.ui.common.WindowControl;
 import co.nos.noswallet.ui.receive.ReceiveDialogFragment;
 import co.nos.noswallet.ui.send.SendCoinsFragment;
-import co.nos.noswallet.ui.send.SendFragment;
 import co.nos.noswallet.ui.settings.SettingsDialogFragment;
 import io.realm.Realm;
 
@@ -43,7 +42,6 @@ public class HistoryFragment extends BaseFragment {
 
     private ViewPager viewPager;
     private PagerTabStrip pagerStrip;
-//    TabLayout tabLayout;
 
     private CurrenciesPagerAdapter currenciesPagerAdapter;
 
@@ -171,7 +169,7 @@ public class HistoryFragment extends BaseFragment {
                         SendCoinsFragment.newInstance(getMatchingCurrencyViewed()),
                         FragmentUtility.Animation.ENTER_LEFT_EXIT_RIGHT,
                         FragmentUtility.Animation.ENTER_RIGHT_EXIT_LEFT,
-                        SendFragment.TAG
+                        SendCoinsFragment.TAG
                 );
             }
         });

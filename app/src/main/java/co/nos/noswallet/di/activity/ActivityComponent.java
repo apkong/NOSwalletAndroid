@@ -17,6 +17,7 @@ import co.nos.noswallet.model.NanoWallet;
 import co.nos.noswallet.FirstLaunchActivity;
 import co.nos.noswallet.ui.home.HomeFragment;
 import co.nos.noswallet.ui.home.v2.HistoryFragment;
+import co.nos.noswallet.ui.home.v2.transactionDetail.TransactionDetailFragment;
 import co.nos.noswallet.ui.intro.IntroLegalFragment;
 import co.nos.noswallet.ui.intro.IntroNewWalletFragment;
 import co.nos.noswallet.ui.intro.IntroSeedFragment;
@@ -101,4 +102,6 @@ public interface ActivityComponent {
     void inject(AddAddressDialogFragment addAddressDialogFragment);
 
     void inject(AddressDetailDialogFragment addressDetailDialogFragment);
+
+    void inject(TransactionDetailFragment transactionDetailFragment);
 }

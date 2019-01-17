@@ -75,7 +75,7 @@ public class AddAddressDialogFragment extends BaseDialogFragment implements AddA
         if (activity instanceof WindowControl) {
             AddAddressDialogFragment dialog = AddAddressDialogFragment.newInstance(cryptoCurrency);
             dialog.show(((WindowControl) activity).getFragmentUtility().getFragmentManager(),
-                    SettingsDialogFragment.TAG);
+                    AddAddressDialogFragment.TAG);
 
             // make sure that dialog is not null
             ((WindowControl) activity).getFragmentUtility().getFragmentManager().executePendingTransactions();

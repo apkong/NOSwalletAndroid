@@ -75,7 +75,7 @@ public class SetRepresentativeDialogFragment extends BaseDialogFragment implemen
         if (activity instanceof WindowControl) {
             SetRepresentativeDialogFragment dialog = SetRepresentativeDialogFragment.newInstance(cryptoCurrency);
             dialog.show(((WindowControl) activity).getFragmentUtility().getFragmentManager(),
-                    SettingsDialogFragment.TAG);
+                    SetRepresentativeDialogFragment.TAG);
 
             // make sure that dialog is not null
             ((WindowControl) activity).getFragmentUtility().getFragmentManager().executePendingTransactions();

@@ -16,8 +16,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.Spannable;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,6 +53,7 @@ import co.nos.noswallet.ui.pin.PinCallbacks;
 import co.nos.noswallet.ui.scan.ScanActivity;
 import co.nos.noswallet.ui.settings.addressBook.AddressBookDialogFragment;
 import co.nos.noswallet.util.NosLogger;
+import co.nos.noswallet.util.refundable.RefundableBundle;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -69,9 +68,11 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
     private AlertDialog fingerprintDialog;
     private static final String ARG_NEW_SEED = "argNewSeed";
     private static final String CURRENCY = "CURRENCY";
+    private static final String REFUNDABLE = "REFUNDABLE";
     private String newSeed;
 
     private CryptoCurrency cryptoCurrency = CryptoCurrency.NOLLAR;
+    private RefundableBundle refundableBundle;
 
     private Button chooseCurrencyButton;
     private Snackbar snackbar;
@@ -113,6 +114,14 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
         return fragment;
     }
 
+    public static SendCoinsFragment newInstance(RefundableBundle refundable) {
+        Bundle args = new Bundle();
+        args.putSerializable(REFUNDABLE, refundable);
+        SendCoinsFragment fragment = new SendCoinsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +130,10 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
         if (getArguments() != null) {
             newSeed = getArguments().getString(ARG_NEW_SEED);
             cryptoCurrency = (CryptoCurrency) getSerializableArgument(CURRENCY);
+            refundableBundle = (RefundableBundle) getSerializableArgument(REFUNDABLE);
+            if (refundableBundle != null) {
+                cryptoCurrency = refundableBundle.cryptoCurrency;
+            }
         }
     }
 
@@ -210,7 +223,21 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
         presenter.attachView(this);
         presenter.changeCurrencyTo(cryptoCurrency);
         enableSendIfPossible();
+
+        if (refundableBundle != null) {
+            fillRefundableBundle(refundableBundle);
+        }
+
         return view;
+    }
+
+    private void fillRefundableBundle(RefundableBundle refundableBundle) {
+        presenter.changeCurrencyTo(refundableBundle.cryptoCurrency);
+        handleDetectedAddressResult(refundableBundle.targetAddress);
+        String raw = refundableBundle.rawAmount;
+
+        presenter.updateAmountFromCode(raw);
+        binding.sendAddress.post(this::enableSendIfPossible);
     }
 
     @Override
@@ -298,14 +325,6 @@ public class SendCoinsFragment extends BaseFragment implements SendCoinsView, Pi
         binding.sendSendButton.setBackgroundResource(enableSend ?
                 R.drawable.bg_large_button : R.drawable.bg_large_button_gray);
         binding.sendSendButton.setEnabled(enableSend);
-//        if (enableSend) {
-//            if (snackbar != null) {
-//                snackbar.dismiss();
-//                snackbar = null;
-//            }
-//        } else {
-//           showSendAttemptError(R.string.cannot_transfer);
-//        }
     }
 
     public void showError(int title, String message) {

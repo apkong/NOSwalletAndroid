@@ -219,6 +219,32 @@
     <string name="failed_to_receive_history_new_account">This account has no history yet</string>
     <string name="app_needs_restart">Great! Almost ready. Please restart app to start.</string>
     <string name="warning">Warning</string>
+    <string name="save">Save</string>
+    <string name="change_representative">Change representative</string>
+    <string name="invalid_representative">Invalid representative address.</string>
+    <string name="representative_saved">Representative saved!</string>
+    <string name="search">Search…</string>
+    <string name="no_addresses">No addresses.</string>
+    <string name="add_address">Add an address</string>
+    <string name="search_address">Search address</string>
+    <string name="no_matching_entries_found">No matching entries found</string>
+    <string name="addressbook">Addressbook</string>
+    <string name="invalid_account_number_length">Invalid account number length</string>
+    <string name="invalid_account_number_length_placeholder">Invalid %s address length</string>
+    <string name="address_added">Address saved!</string>
+    <string name="address_deleted">Address deleted!</string>
+    <string name="name">Name</string>
+    <string name="delete_entry">Delete entry</string>
+    <string name="address_details">Address details</string>
+    <string name="invalid_address_prefix">Address should start with \"%s\" prefix</string>
+    <string name="addressbook_empty">Addressbook empty</string>
+    <string name="selected_account_not_has_address_placeholder">Selected account does not provide %s address</string>
+    <string name="refund">Refund</string>
+    <string name="transaction_details">Transaction details</string>
+    <string name="account_address">Account address</string>
+    <string name="address_copied_to_clipboard">Address copied to clipboard!</string>
+    <string name="sent_funds">Sent %s %s</string>
+    <string name="received_funds">Received %s %s</string>
 
 
 </resources>
