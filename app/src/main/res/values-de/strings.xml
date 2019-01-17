@@ -1,0 +1,224 @@
+<resources>
+    <string name="app_name">NOS</string>
+
+    <string name="version_display">NOS Wallet\nV%1$s (%2$d)</string>
+
+    <!-- Intro Screens -->
+    <string name="intro_welcome_title">Welcome to NOS</string>
+    <string name="intro_welcome_new_wallet_cta">Create a new wallet</string>
+    <string name="intro_welcome_have_wallet_cta">Enter existing Wallet Seed</string>
+    <string name="intro_seed_steps">%d / 2</string>
+    <string name="intro_seed_title">Paste a seed or scan a\ncode to begin</string>
+    <string name="intro_seed_seed_label">Seed</string>
+    <string name="intro_seed_seed_hint">(Seed Address)</string>
+    <string name="intro_seed_confirm_cta">Confirm Seed</string>
+    <string name="intro_new_wallet_title">Your NOS Wallet Seed</string>
+    <string name="intro_new_wallet_message"><![CDATA[<font color=\"#000034\">Your NOS Wallet Seed is a unique code that enables you to access your funds.<br><br>It is the only way for you to recover your wallet and access any NOS, BANANO or NANO currency you may have.</font><br><br><font color=\"#ee4b66\">We do not have access to it and cannot recover your Wallet Seed or any funds in your wallet without your Wallet Seed.</font><br><br><font color=\"#000034\">You are solely responsible for recording your Wallet Seed in a safe and secure place and manner.</font> <font color=\"#ee4b66\">Never share your Wallet Seed with anyone.</font>]]></string>
+    <string name="intro_new_wallet_confirm">I Understand, Continue</string>
+    <string name="intro_new_wallet_seed_copied">Your Wallet Seed is pastable for 2 minutes. After, you can access it in Settings.\n\nPlease backup your Wallet Seed somewhere safe like 1Password, LastPass, or print it out and put it in a safe.</string>
+    <string name="intro_new_wallet_seed_done">Okay</string>
+    <string name="intro_new_wallet_seed_label">Tap to copy</string>
+    <string name="intro_new_wallet_seed_copied_title">Wallet Seed Copied</string>
+    <string name="intro_new_wallet_continue_title">Welcome to NOS Wallet!</string>
+    <string name="intro_new_wallet_continue_message">Please confirm you have properly stored your Wallet Seed somewhere safe.</string>
+    <string name="intro_new_wallet_continue_positive">I have backed up my Wallet Seed</string>
+    <string name="intro_new_wallet_continue_negative">Back</string>
+    <string name="intro_legal_title">Terms and Conditions</string>
+    <string name="intro_legal_description">Your use of this NOS Wallet mobile application is subject to your agreement to all terms and conditions of the End User License Agreement and Privacy Policy linked below (collectively, the "Terms and Conditions"). Please tap the links below and read all Terms and Conditions carefully. By checking the boxes below and tapping “Agree”, you acknowledge that you have read, understand and agree to all of the Terms and Conditions, which are binding legal agreements. If you do not understand or agree to any of the Terms and Conditions, you are not licensed or authorized to use this application and should delete it from your device.</string>
+    <string name="intro_legal_confirm">Agree</string>
+    <string name="intro_legal_deny">Disagree</string>
+    <string name="intro_legal_checkbox_eula_label">End User License Agreement</string>
+    <string name="intro_legal_checkbox_pp_label">Privacy Policy</string>
+    <string name="intro_legal_checkbox_eula_link">https://nos.cash/android-eula.html</string>
+    <string name="intro_legal_checkbox_pp_link">https://nos.cash/mobile-privacy-policy</string>
+    <string name="intro_legal_alert_title">Log Out Warning</string>
+    <string name="intro_legal_alert_message">Not agreeing will result in logging out of the app.</string>
+    <string name="intro_legal_alert_confirm_cta">Log Me Out</string>
+    <string name="intro_legal_alert_cancel_cta">Cancel</string>
+
+    <!-- Analytics Opt-In -->
+    <string name="analytics_optin_alert_title">Analytics Opt-In</string>
+    <string name="analytics_optin_alert_message">NOS (\'we\' or \'us\') would like to collect your device ID, as well as usage metrics and error and crash reports relating to your use of this NOS Wallet mobile application (the \'Wallet\'), in order to help us understand how users are using the Wallet and where errors might occur in the Wallet, and to use this data to help us maintain, develop and improve the Wallet and our products and services. \n\n No data about your name, contact information, funds, NOS tokens, Wallet Seed or private keys are ever collected through the Wallet. You can see exactly what types of data we collect through the Wallet by viewing our Privacy Policy.\n\nDo you consent to our collection and use of this data for these purposes? (Your consent is not a prerequisite for using the Wallet and, if you consent, you will have the right to withdraw your consent at any time as described in the Privacy Policy.)</string>
+    <string name="analytics_optin_alert_confirm_cta">I Consent</string>
+    <string name="analytics_optin_alert_cancel_cta">I Do Not Consent</string>
+
+    <!-- Pin Screen -->
+    <string name="pin_create_title">Create a 4-digit Android passcode</string>
+    <string name="pin_confirm_title">Confirm your passcode</string>
+    <string name="pin_enter_title">Enter passcode</string>
+    <string name="pin_confirm_error">Passcodes do not match</string>
+    <string name="pin_error">Invalid passcode entered</string>
+
+    <!-- Home Screen -->
+    <string name="home_send_cta">Send</string>
+    <string name="home_receive_cta">Receive</string>
+    <string name="home_explore_url">https://www.nanode.co/block/%s</string>
+    <string name="error_message">There was a problem connecting. Please try again.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_local_currency">Local Currency</string>
+    <string name="settings_show_seed">Show My Wallet Seed</string>
+    <string name="settings_show_new_seed">Show My New Wallet Seed</string>
+    <string name="settings_log_out">Log Out</string>
+    <string name="settings_seed_alert_title">Here is your Wallet Seed, be careful.</string>
+    <string name="settings_seed_alert_message">Tap the button below to copy your Seed to paste later. The Seed is pasteable for 2 minutes and then expires.\n\nWe suggest copying to an app like 1Password, LastPass, or printing the Seed out and hiding it somewhere safe.\n\nNever share your seed with anyone, ever, under any circumstances.</string>
+    <string name="settings_seed_alert_confirm_cta">Okay</string>
+    <string name="settings_seed_alert_cancel_cta">Cancel</string>
+    <string name="settings_logout_alert_title">Are you sure you want to log out?</string>
+    <string name="settings_logout_alert_message">Logging out will remove your seed, keys, and all of your NOS-related data from this device. Make sure you have a proper backup before doing this!</string>
+    <string name="settings_logout_alert_confirm_cta">Okay</string>
+    <string name="settings_logout_alert_cancel_cta">Cancel</string>
+    <string name="settings_fingerprint_title">Copy Wallet Seed</string>
+    <string name="settings_fingerprint_description">Verify your identity to view your wallet seed.</string>
+    <string name="settings_fingerprint_success">Fingerprint recognized</string>
+    <string name="settings_disclaimer"><![CDATA[Read the <a href="https://nos.cash/android-eula.html">EULA</a> and <a href="https://nos.cash/mobile-privacy-policy">Privacy Policy</a>]]></string>
+
+    <!-- Receive Screen -->
+    <string name="receive_title">Receive</string>
+    <string name="receive_instructions">Scan the QR code\nbelow to receive NOS</string>
+    <string name="receive_instructions_placeholder">Scan the QR code\nbelow to receive %s</string>
+    <string name="currency_address_placeholder">%s address</string>
+
+    <string name="receive_copy_cta">Copy Address</string>
+    <string name="receive_address_label">NOS Address</string>
+    <string name="receive_copy_message"><![CDATA[<font color=\"#ffffff\">Your NOS Address has been copied.<br>Share it with a friend to receive NOS!</font>]]></string>
+    <string name="receive_copy_message_placeholder"><![CDATA[<font color=\"#ffffff\">Your %s Address has been copied.<br>Share it with a friend to receive %s!</font>]]></string>
+    <string name="receive_copy_done">Done</string>
+    <string name="receive_share_title">Share via…</string>
+    <string name="receive_card_label">$nano\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020nano.org</string>
+    <string name="receive_card_title">NOS</string>
+    <string name="receive_qrcode_description">QR Code</string>
+
+    <!-- Send Screen -->
+    <string name="send_title">Send To</string>
+    <string name="send_address_hint">(Enter Address)</string>
+    <string name="send_max_cta">Max</string>
+    <string name="send_keyboard_decimal">.</string>
+    <string name="send_keyboard_one">1</string>
+    <string name="send_keyboard_two">2</string>
+    <string name="send_keyboard_three">3</string>
+    <string name="send_keyboard_four">4</string>
+    <string name="send_keyboard_five">5</string>
+    <string name="send_keyboard_six">6</string>
+    <string name="send_keyboard_seven">7</string>
+    <string name="send_keyboard_eight">8</string>
+    <string name="send_keyboard_nine">9</string>
+    <string name="send_keyboard_zero">0</string>
+    <string name="send_keyboard_delete">&lt;</string>
+    <string name="send_send_cta">Send</string>
+    <string name="send_camera">Camera</string>
+    <string name="send_nano_hint">0</string>
+    <string name="send_localcurrency_hint">0.00</string>
+    <string name="send_amount_too_large_alert_title">Amount Too Large</string>
+    <string name="send_amount_too_large_alert_message">The amount you entered was larger than your wallet balance.\n\nWe\'ve filled the form with your full balance for sending.</string>
+    <string name="send_amount_too_large_alert_cta">Okay</string>
+    <string name="send_error_alert_title">Something Went Wrong</string>
+    <string name="send_error_alert_message">We have detected an issue, and are working to resolve it. Please try again in a few minutes.</string>
+    <string name="send_confirm_address_cta">Confirm Address</string>
+    <string name="send_fingerprint_title">Send NOS</string>
+    <string name="send_pin_description">Send %s NOS?</string>
+    <!--Send 2 NOLLAR? -->
+    <string name="send_pin_description_placeholder">Send %s %s?</string>
+    <string name="send_fingerprint_description">Confirm fingerprint to send %s NOS</string>
+    <string name="send_fingerprint_hint">Touch sensor</string>
+    <string name="send_fingerprint_success">Fingerprint recognized</string>
+
+    <!-- Scan Screen -->
+    <string name="scan_instruction_label">Scan a NOS or RaiBlocks\nwallet seed QR code to\nimport an existing wallet</string>
+    <string name="scan_send_instruction_label">Scan a Nollar, NOS, Banano or Nano\naddress QR code</string>
+    <string name="scan_seed_error">Please scan a valid seed.</string>
+
+    <!-- Webview Screen -->
+    <string name="webview_agreement_accept_cta">I Accept</string>
+
+    <!-- Seed Update Alert -->
+    <string name="seed_update_alert_title">Critical: Update Your Wallet Seed</string>
+    <string name="seed_update_alert_message">In version 1.0, we discovered a critical bug in the way Wallet Seeds were generated. This requires you to generate a brand new wallet seed and transfer your NOS to a new wallet if your wallet was created via NOS Wallet for Android.</string>
+    <string name="seed_update_alert_cancel_cta">My seed was created via another wallet</string>
+    <string name="seed_update_alert_confirm_cta">Generate new wallet seed</string>
+
+    <string name="seed_update_address_alert_title">Copy your new Wallet Seed and transfer funds</string>
+    <string name="seed_update_address_alert_message">In the future, you will use this newly generated Wallet Seed to access your NOS. Write it down and save it somewhere secure. Note: screenshots do not work in NOS Wallet\n\nYour new Wallet Seed is\n%1$s\n\nYour new Wallet Address is\n%2$s</string>
+    <string name="seed_update_address_alert_neutral_cta">I have copied my wallet seed</string>
+    <string name="seed_update_address_alert_confirm_cta">Transfer balance to new wallet</string>
+
+    <string name="seed_update_verify_title">Please verify your new Wallet Seed by typing it in below:</string>
+    <string name="seed_update_verify_confirm">Transfer balance to new wallet</string>
+    <string name="seed_update_verify_error">Seed does not match. Please try again.</string>
+    <string name="seed_update_verify_cancel">Cancel</string>
+
+    <string name="seed_update_send_completed_alert_title">Log into your new wallet</string>
+    <string name="seed_update_send_completed_alert_message">Log out of this wallet and log in to NOS Wallet for Android again with your new seed you recently copied.</string>
+    <string name="seed_update_send_completed_alert_confirm">Okay</string>
+
+    <string name="seed_reminder_alert_title">New Wallet Seed Reminder</string>
+    <string name="seed_reminder_alert_message">Due to a security update, you migrated your Wallet Seed.\n\nYour new seed is\n%1$s\n\nYour new address is\n%2$s\n\nLog out and log back in with your new seed</string>
+    <string name="seed_reminder_alert_neutral_cta">Okay</string>
+    <string name="seed_reminder_alert_confirm_cta">Log Out</string>
+
+    <string name="create_new_account">Create new account</string>
+    <string name="create_account">Create account</string>
+    <string name="error_render_qr_code">Failed to render QR code, try again later</string>
+    <string name="select_account">Select account</string>
+    <string name="no_accounts">No accounts</string>
+    <string name="your_account_ready">Your NOS account is ready</string>
+    <string name="done">Done</string>
+    <string name="country_prefix">Country</string>
+    <string name="phone_number_hint">Phone number</string>
+    <string name="welcome_to_nos">Welcome to NOS!</string>
+    <string name="skip_signup">Skip Signup</string>
+    <string name="got_a_new_phone_number">Got a new phone number?</string>
+    <string name="_continue">Continue</string>
+    <string name="personal_data">What\'s your personal data?</string>
+    <string name="first_name_hint">First name</string>
+    <string name="last_name_hint">Last name</string>
+    <string name="birthdate_hint">Birthdate</string>
+    <string name="whats_your_address">What\'s your address?</string>
+    <string name="whats_your_email_address">What\'s your email address?</string>
+    <string name="finish">Finish</string>
+    <string name="email_address_hint">E-Mail</string>
+    <string name="email_invalid">Email invalid</string>
+    <string name="postal_code">Postal code</string>
+    <string name="address_line_1_hint">Address part 1</string>
+    <string name="address_line_2_hint">Address part 2(Optional)</string>
+    <string name="address_street_hint">Street</string>
+    <string name="address_region_hint">Region</string>
+    <string name="enter_6_digit_code">Enter the 6-digit code</string>
+    <string name="resend_code">Resend code</string>
+    <string name="enter_pin">Enter your pin code</string>
+    <string name="enter_valid_phone_number">Please enter valid phone number</string>
+    <string name="you_can_resend_sms_code">You can resend your code, if not received within %d seconds</string>
+    <string name="sms_code_mismatch">Sms code mismatch</string>
+    <string name="field_cannot_be_blank">Field cannot be blank</string>
+    <string name="birthdate_invalid">Birthdate invalid</string>
+    <string name="please_enter_value">Please enter value</string>
+    <string name="choose_other_country">Choose other country</string>
+    <string name="error_history_empty">History empty</string>
+    <string name="main_wallet">Main Wallet</string>
+
+    <string name="please_specify_destination_address">Please specify valid destination address</string>
+    <string name="cannot_transfer">Coins amount invalid, please enter valid value</string>
+    <string name="transfer_succeess">Transfer success</string>
+    <string name="sent_coins_amount_to_address">%s NOS successfully transferred to address %s</string>
+    <!--21.37 NANO  successfully transferred to address xrb_1hza3f7wiiqa7ig3jczyxj5yo86yegcmqk3criaz838j91sxcckpfhbhhra1-->
+    <string name="sent_coins_amount_to_address_currency_placeholder">%s %s successfully transferred to address %s</string>
+    <string name="failed_to_receive_history">Failed to receive history, try again later</string>
+    <string name="processing_transfer">Processing…</string>
+    <string name="incoming_transfer">You got money!</string>
+    <string name="connection_interrupted">Connection interrupted, try again later</string>
+    <string name="failed_to_send_coins">Failed to send funds, try again later</string>
+    <string name="error_qr_recognizing">Please scan valid %s address</string>
+
+    <string name="default_notification_channel_id" translatable="false">NOS.cash</string>
+    <string name="default_notification_channel_name" translatable="false">NOS.cash</string>
+    <string name="currency_received">%s received</string>
+    <!--You received 1 NOS-->
+    <string name="you_received_template">You received %1$s %2$s</string>
+    <string name="click_to_open_your_wallet">Click to open your wallet</string>
+    <string name="failed_to_receive_history_new_account">This account has no history yet</string>
+    <string name="app_needs_restart">Great! Almost ready. Please restart app to start.</string>
+    <string name="warning">Warning</string>
+
+
+</resources>
